@@ -1,0 +1,1367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Charles Luis Gaid — AI Automation Engineer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=IBM+Plex+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════
+   CSS VARIABLES & RESET
+   ═══════════════════════════════════════════════ */
+:root {
+  --bg-deep: #07070c;
+  --bg-base: #0c0c14;
+  --bg-surface: #12121c;
+  --bg-card: #1a1a28;
+  --bg-card-hover: #222234;
+  --accent: #00d4aa;
+  --accent-dim: #00a88a;
+  --accent-glow: rgba(0,212,170,0.15);
+  --gold: #f5a623;
+  --gold-dim: rgba(245,166,35,0.15);
+  --red: #ff4d6a;
+  --blue: #4d9eff;
+  --text-pri: #e8f0f8;
+  --text-sec: #8b95a8;
+  --text-dim: #4a5568;
+  --border: #1e1e2e;
+  --font-display: 'Instrument Serif', Georgia, serif;
+  --font-body: 'IBM Plex Sans', -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Courier New', monospace;
+}
+
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+html {
+  scroll-behavior: smooth;
+  scrollbar-width: thin;
+  scrollbar-color: var(--accent-dim) var(--bg-deep);
+}
+
+body {
+  font-family: var(--font-body);
+  background: var(--bg-deep);
+  color: var(--text-pri);
+  line-height: 1.65;
+  overflow-x: hidden;
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--bg-deep);
+}
+
+a { color: var(--accent); text-decoration: none; transition: color 0.2s; }
+a:hover { color: var(--gold); }
+
+/* ═══════════════════════════════════════════════
+   BACKGROUND GRID PATTERN
+   ═══════════════════════════════════════════════ */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(0,212,170,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,212,170,0.03) 1px, transparent 1px);
+  background-size: 60px 60px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ═══════════════════════════════════════════════
+   NAVIGATION
+   ═══════════════════════════════════════════════ */
+.nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(7,7,12,0.85);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  transition: all 0.3s;
+}
+
+.nav-logo {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--accent);
+  letter-spacing: 0.05em;
+}
+
+.nav-logo span { color: var(--text-dim); }
+
+.nav-links {
+  display: flex;
+  gap: 2rem;
+  list-style: none;
+}
+
+.nav-links a {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--text-sec);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  transition: color 0.2s;
+  position: relative;
+}
+
+.nav-links a::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  width: 0;
+  height: 1px;
+  background: var(--accent);
+  transition: width 0.3s;
+}
+
+.nav-links a:hover { color: var(--accent); }
+.nav-links a:hover::after { width: 100%; }
+
+.nav-burger {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 4px;
+}
+
+.nav-burger span {
+  width: 22px;
+  height: 2px;
+  background: var(--text-sec);
+  transition: all 0.3s;
+}
+
+/* ═══════════════════════════════════════════════
+   HERO SECTION
+   ═══════════════════════════════════════════════ */
+.hero {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 6rem 2rem 4rem;
+  max-width: 1100px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+}
+
+.hero-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--accent);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin-bottom: 1.5rem;
+  opacity: 0;
+  animation: fadeUp 0.6s 0.2s forwards;
+}
+
+.hero-name {
+  font-family: var(--font-display);
+  font-size: clamp(3rem, 8vw, 6rem);
+  line-height: 1.05;
+  color: var(--text-pri);
+  margin-bottom: 1rem;
+  opacity: 0;
+  animation: fadeUp 0.6s 0.4s forwards;
+}
+
+.hero-name em {
+  font-style: italic;
+  color: var(--accent);
+}
+
+.hero-subtitle {
+  font-family: var(--font-mono);
+  font-size: 1rem;
+  color: var(--text-sec);
+  margin-bottom: 2rem;
+  opacity: 0;
+  animation: fadeUp 0.6s 0.6s forwards;
+}
+
+.hero-subtitle .typing-cursor {
+  display: inline-block;
+  width: 2px;
+  height: 1.1em;
+  background: var(--accent);
+  margin-left: 2px;
+  animation: blink 0.8s infinite;
+  vertical-align: text-bottom;
+}
+
+.hero-bio {
+  font-size: 1.1rem;
+  color: var(--text-sec);
+  max-width: 600px;
+  line-height: 1.75;
+  margin-bottom: 2.5rem;
+  opacity: 0;
+  animation: fadeUp 0.6s 0.8s forwards;
+}
+
+.hero-ctas {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  opacity: 0;
+  animation: fadeUp 0.6s 1s forwards;
+}
+
+.btn {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
+  padding: 0.85rem 1.8rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.25s;
+  text-transform: uppercase;
+  border: 1px solid transparent;
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: var(--bg-deep);
+  font-weight: 600;
+}
+
+.btn-primary:hover {
+  background: transparent;
+  color: var(--accent);
+  border-color: var(--accent);
+  box-shadow: 0 0 20px var(--accent-glow);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--text-sec);
+  border-color: var(--border);
+}
+
+.btn-ghost:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* Decorative orb */
+.hero-orb {
+  position: absolute;
+  right: -5%;
+  top: 20%;
+  width: 400px;
+  height: 400px;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
+  filter: blur(80px);
+  pointer-events: none;
+  animation: orbFloat 8s ease-in-out infinite;
+}
+
+/* ═══════════════════════════════════════════════
+   SECTION COMMONS
+   ═══════════════════════════════════════════════ */
+section {
+  padding: 6rem 2rem;
+  max-width: 1100px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+}
+
+.section-label {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--accent);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+}
+
+.section-title {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 5vw, 3.2rem);
+  margin-bottom: 1rem;
+}
+
+.section-desc {
+  color: var(--text-sec);
+  max-width: 600px;
+  margin-bottom: 3rem;
+}
+
+/* ═══════════════════════════════════════════════
+   EXPERIENCE TIMELINE
+   ═══════════════════════════════════════════════ */
+.timeline {
+  position: relative;
+  padding-left: 2.5rem;
+}
+
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: linear-gradient(to bottom, var(--accent), var(--border));
+}
+
+.timeline-item {
+  position: relative;
+  margin-bottom: 3rem;
+  padding-bottom: 3rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.timeline-item:last-child { border-bottom: none; margin-bottom: 0; }
+
+.timeline-item::before {
+  content: '';
+  position: absolute;
+  left: -2.5rem;
+  top: 0.4rem;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 2px solid var(--bg-deep);
+  box-shadow: 0 0 8px var(--accent-glow);
+  transform: translateX(-50%);
+  margin-left: 0.5px;
+}
+
+.timeline-date {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--accent);
+  letter-spacing: 0.1em;
+  margin-bottom: 0.4rem;
+}
+
+.timeline-role {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  margin-bottom: 0.15rem;
+}
+
+.timeline-company {
+  font-size: 0.95rem;
+  color: var(--text-sec);
+  margin-bottom: 0.75rem;
+}
+
+.timeline-desc {
+  color: var(--text-dim);
+  font-size: 0.9rem;
+  line-height: 1.7;
+}
+
+/* ═══════════════════════════════════════════════
+   PROJECT TABS & CARDS
+   ═══════════════════════════════════════════════ */
+.project-tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 2.5rem;
+  flex-wrap: wrap;
+}
+
+.tab-btn {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.6rem 1.2rem;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  background: transparent;
+  color: var(--text-sec);
+  cursor: pointer;
+  transition: all 0.25s;
+}
+
+.tab-btn:hover { border-color: var(--accent); color: var(--accent); }
+.tab-btn.active {
+  background: var(--accent);
+  color: var(--bg-deep);
+  border-color: var(--accent);
+  font-weight: 600;
+}
+
+.projects-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.5rem;
+}
+
+.project-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 1.8rem;
+  transition: all 0.35s cubic-bezier(0.25,0.46,0.45,0.94);
+  cursor: default;
+  position: relative;
+  overflow: hidden;
+}
+
+.project-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--accent);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.4s;
+}
+
+.project-card:hover {
+  border-color: var(--accent-dim);
+  transform: translateY(-4px);
+  box-shadow: 0 8px 30px rgba(0,0,0,0.3), 0 0 20px var(--accent-glow);
+}
+
+.project-card:hover::before { transform: scaleX(1); }
+
+.card-category {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--accent);
+  margin-bottom: 0.75rem;
+}
+
+.card-title {
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  margin-bottom: 0.25rem;
+}
+
+.card-subtitle {
+  font-size: 0.85rem;
+  color: var(--gold);
+  margin-bottom: 0.75rem;
+}
+
+.card-desc {
+  font-size: 0.88rem;
+  color: var(--text-sec);
+  line-height: 1.65;
+  margin-bottom: 1rem;
+}
+
+.card-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.tag {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  padding: 0.25rem 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  color: var(--text-dim);
+  letter-spacing: 0.04em;
+}
+
+.card-badge {
+  position: absolute;
+  top: 1.2rem;
+  right: 1.2rem;
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  padding: 0.2rem 0.5rem;
+  border-radius: 2px;
+  font-weight: 600;
+}
+
+.badge-production { background: rgba(0,212,170,0.15); color: var(--accent); }
+.badge-award { background: var(--gold-dim); color: var(--gold); }
+.badge-academic { background: rgba(77,158,255,0.15); color: var(--blue); }
+.badge-competition { background: rgba(255,77,106,0.15); color: var(--red); }
+
+/* ═══════════════════════════════════════════════
+   SKILLS / STACK
+   ═══════════════════════════════════════════════ */
+.stack-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+.stack-group {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 1.5rem;
+}
+
+.stack-group-title {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--accent);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.stack-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.stack-item {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  padding: 0.35rem 0.7rem;
+  background: var(--bg-card);
+  border-radius: 3px;
+  color: var(--text-sec);
+  transition: all 0.2s;
+}
+
+.stack-item:hover {
+  background: var(--accent-glow);
+  color: var(--accent);
+}
+
+/* ═══════════════════════════════════════════════
+   AWARDS
+   ═══════════════════════════════════════════════ */
+.awards-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.award-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 1.5rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.award-card::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--gold);
+}
+
+.award-icon {
+  font-size: 2rem;
+  margin-bottom: 0.75rem;
+}
+
+.award-title {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  margin-bottom: 0.25rem;
+}
+
+.award-meta {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--gold);
+  letter-spacing: 0.08em;
+  margin-bottom: 0.5rem;
+}
+
+.award-desc {
+  font-size: 0.85rem;
+  color: var(--text-sec);
+  line-height: 1.6;
+}
+
+/* ═══════════════════════════════════════════════
+   CONTACT / FOOTER
+   ═══════════════════════════════════════════════ */
+.contact-section {
+  text-align: center;
+  padding: 8rem 2rem;
+}
+
+.contact-section .section-title {
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  margin-bottom: 1.5rem;
+}
+
+.contact-links {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  flex-wrap: wrap;
+  margin-top: 2rem;
+}
+
+.contact-link {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--text-sec);
+  letter-spacing: 0.06em;
+  padding: 0.75rem 1.5rem;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  transition: all 0.25s;
+}
+
+.contact-link:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  box-shadow: 0 0 15px var(--accent-glow);
+}
+
+footer {
+  text-align: center;
+  padding: 2rem;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--text-dim);
+  border-top: 1px solid var(--border);
+}
+
+/* ═══════════════════════════════════════════════
+   ANIMATIONS
+   ═══════════════════════════════════════════════ */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+@keyframes orbFloat {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-30px) scale(1.05); }
+}
+
+.reveal {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.7s cubic-bezier(0.25,0.46,0.45,0.94), transform 0.7s cubic-bezier(0.25,0.46,0.45,0.94);
+}
+
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ═══════════════════════════════════════════════
+   RESPONSIVE
+   ═══════════════════════════════════════════════ */
+@media (max-width: 768px) {
+  .nav-links { display: none; }
+  .nav-burger { display: flex; }
+
+  .nav-links.open {
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: rgba(7,7,12,0.95);
+    padding: 1.5rem 2rem;
+    border-bottom: 1px solid var(--border);
+    gap: 1rem;
+  }
+
+  .hero { padding: 5rem 1.5rem 3rem; }
+  .projects-grid { grid-template-columns: 1fr; }
+  .stack-grid { grid-template-columns: 1fr; }
+  .awards-row { grid-template-columns: 1fr; }
+  section { padding: 4rem 1.5rem; }
+  .hero-orb { display: none; }
+}
+
+@media (max-width: 480px) {
+  .hero-ctas { flex-direction: column; }
+  .btn { text-align: center; }
+  .contact-links { flex-direction: column; align-items: center; }
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════ NAVIGATION ═══════════════════ -->
+<nav class="nav">
+  <div class="nav-logo">charles<span>.gaid</span></div>
+  <ul class="nav-links" id="navLinks">
+    <li><a href="#experience">Experience</a></li>
+    <li><a href="#projects">Projects</a></li>
+    <li><a href="#stack">Stack</a></li>
+    <li><a href="#awards">Awards</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+  <button class="nav-burger" id="navBurger" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- ═══════════════════ HERO ═══════════════════ -->
+<header class="hero">
+  <div class="hero-orb"></div>
+  <p class="hero-eyebrow">// available for work</p>
+  <h1 class="hero-name">Charles Luis <em>Gaid</em></h1>
+  <p class="hero-subtitle">
+    <span id="typingText"></span><span class="typing-cursor"></span>
+  </p>
+  <p class="hero-bio">
+    AI Automation Engineer shipping production systems for US and Australian clients.
+    Computer Engineering student at CIT-U. I build things that replace manual work
+    and actually get used.
+  </p>
+  <div class="hero-ctas">
+    <a href="#projects" class="btn btn-primary">View Projects</a>
+    <a href="#contact" class="btn btn-ghost">Get In Touch</a>
+  </div>
+</header>
+
+<!-- ═══════════════════ EXPERIENCE ═══════════════════ -->
+<section id="experience">
+  <div class="reveal">
+    <p class="section-label">// 01 &mdash; Experience</p>
+    <h2 class="section-title">Where I've Built</h2>
+    <p class="section-desc">Production automation systems for medical platforms, real estate agencies, e-commerce businesses, and content creators.</p>
+  </div>
+
+  <div class="timeline reveal">
+    <div class="timeline-item">
+      <p class="timeline-date">Dec 2025 &mdash; Feb 2026</p>
+      <h3 class="timeline-role">N8n/AI Automation Developer</h3>
+      <p class="timeline-company">Iridel, Inc.</p>
+      <p class="timeline-desc">Built and delivered custom n8n-based automation workflows and AI frameworks for the agency's Philippine client roster. Handled full-cycle delivery: scoping, architecture, implementation, QA, and post-launch support. Collaborated with the software development team to integrate automations into client-facing applications.</p>
+    </div>
+    <div class="timeline-item">
+      <p class="timeline-date">Oct 2025 &mdash; Feb 2026</p>
+      <h3 class="timeline-role">AI Automation Expert</h3>
+      <p class="timeline-company">UroDoc, LLC</p>
+      <p class="timeline-desc">Embedded within the company as sole automation engineer. Identified operational bottlenecks and built AI-driven systems eliminating manual overhead across data handling, document workflows, social media, ad pipelines, and internal communications. Built custom web apps and dashboards for non-technical staff.</p>
+    </div>
+    <div class="timeline-item">
+      <p class="timeline-date">Dec 2024 &mdash; Oct 2025</p>
+      <h3 class="timeline-role">AI/Software Developer</h3>
+      <p class="timeline-company">ACE-1 IT Solutions, Inc.</p>
+      <p class="timeline-desc">Designed and delivered end-to-end AI agent and automation solutions for Australian clients across real estate and e-commerce industries. Owned full project lifecycle: client discovery, scoping, architecture, implementation, testing, and deployment.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ PROJECTS ═══════════════════ -->
+<section id="projects">
+  <div class="reveal">
+    <p class="section-label">// 02 &mdash; Projects</p>
+    <h2 class="section-title">What I've Shipped</h2>
+    <p class="section-desc">Production automations, web apps, embedded systems, and research projects. Everything here was built to solve a real problem.</p>
+  </div>
+
+  <div class="project-tabs reveal">
+    <button class="tab-btn active" data-filter="all">All (21)</button>
+    <button class="tab-btn" data-filter="automation">AI Automation</button>
+    <button class="tab-btn" data-filter="web">Web / Apps</button>
+    <button class="tab-btn" data-filter="engineering">Engineering</button>
+  </div>
+
+  <div class="projects-grid reveal" id="projectsGrid">
+
+    <!-- ──── AI AUTOMATION ──── -->
+    <div class="project-card" data-cat="automation">
+      <span class="card-badge badge-production">Production</span>
+      <p class="card-category">AI Automation</p>
+      <h3 class="card-title">Book Launch PR Dashboard</h3>
+      <p class="card-subtitle">Dr. Rena Malik MD</p>
+      <p class="card-desc">Multi-track PR outreach system managing 80+ contacts across podcasts, influencers, and media. 7 Make.com webhook endpoints with Gmail reply detection, Sendr video triggers, automated follow-up scheduling, and per-contact automation toggles.</p>
+      <div class="card-tags">
+        <span class="tag">Make.com</span>
+        <span class="tag">Supabase</span>
+        <span class="tag">Lovable</span>
+        <span class="tag">Gmail API</span>
+        <span class="tag">Sendr</span>
+        <span class="tag">Bit.ly</span>
+      </div>
+    </div>
+
+    <div class="project-card" data-cat="automation">
+      <span class="card-badge badge-production">Production</span>
+      <p class="card-category">AI Automation</p>
+      <h3 class="card-title">SpeakRadar</h3>
+      <p class="card-subtitle">Keynote Speaking Opportunity Finder</p>
+      <p class="card-desc">Automated pipeline that scrapes speaking events via Apify, scores relevance, and generates personalized AI pitch decks. Surfaces opportunities in a Lovable dashboard with filtering, application tracking, and "Opens for Application" date handling.</p>
+      <div class="card-tags">
+        <span class="tag">Apify</span>
+        <span class="tag">OpenAI</span>
+        <span class="tag">Make.com</span>
+        <span class="tag">Lovable</span>
+        <span class="tag">Supabase</span>
+      </div>
+    </div>
+
+    <div class="project-card" data-cat="automation">
+      <span class="card-badge badge-production">Production</span>
+      <p class="card-category">AI Automation</p>
+      <h3 class="card-title">Guest Radar</h3>
+      <p class="card-subtitle">Podcast Guest Credibility Scorer</p>
+      <p class="card-desc">Research pipeline that scores podcast guest credibility by aggregating social proof, media mentions, and audience fit. Built with Supabase edge functions and Make.com for real-time scoring and prioritization.</p>
+      <div class="card-tags">
+        <span class="tag">Supabase</span>
+        <span class="tag">Make.com</span>
+        <span class="tag">OpenAI</span>
+        <span class="tag">SerpAPI</span>
+      </div>
+    </div>
+
+    <div class="project-card" data-cat="automation">
+      <span class="card-badge badge-production">Production</span>
+      <p class="card-category">AI Automation</p>
+      <h3 class="card-title">AIVA</h3>
+      <p class="card-subtitle">Personal AI Assistant</p>
+      <p class="card-desc">Dual-interface AI assistant with voice via Vapi and text via Telegram. Handles email management, calendar scheduling, and task automation. Designed for hands-free operation across devices.</p>
+      <div class="card-tags">
+        <span class="tag">Vapi</span>
+        <span class="tag">Telegram API</span>
+        <span class="tag">OpenAI</span>
+        <span class="tag">n8n</span>
+      </div>
+    </div>
+
+    <div class="project-card" data-cat="automation">
+      <span class="card-badge badge-production">Production</span>
+      <p class="card-category">AI Automation</p>
+      <h3 class="card-title">Sponsorship Lead Gen System</h3>
+      <p class="card-subtitle">Automated Cold Outreach Pipeline</p>
+      <p class="card-desc">End-to-end pipeline that pulls active software advertisers from Meta Ad Library, filters by web traffic, finds contact emails via Hunter.io, generates personalized pitches with OpenAI, and sends via Resend. Fully automated on a configurable schedule.</p>
+      <div class="card-tags">
+        <span class="tag">Meta Ad Library</span>
+        <span class="tag">Hunter.io</span>
+        <span class="tag">OpenAI</span>
+        <span class="tag">Resend</span>
+      </div>
+    </div>
+
+    <div class="project-card" data-cat="automation">
+      <span class="card-badge badge-production">Production</span>
+      <p class="card-category">AI Automation</p>
+      <h3 class="card-title">Meta Lead Ads to Beehiiv</h3>
+      <p class="card-subtitle">Newsletter Subscriber Pipeline &mdash; FemHealth</p>
+      <p class="card-desc">Automated pipeline connecting Meta Lead Ads to Beehiiv newsletter platform. New lead form submissions are instantly synced as subscribers with proper tagging for segmentation.</p>
+      <div class="card-tags">
+        <span class="tag">Meta Ads</span>
+        <span class="tag">Make.com</span>
+        <span class="tag">Beehiiv API</span>
+      </div>
+    </div>
+
+    <div class="project-card" data-cat="automation">
+      <span class="card-badge badge-production">Production</span>
+      <p class="card-category">AI Automation</p>
+      <h3 class="card-title">Content Review Automation</h3>
+      <p class="card-subtitle">YouTube & Instagram Pipeline</p>
+      <p class="card-desc">Automated content review workflow for a medical content creator. Pulls new uploads, runs AI analysis via Perplexity and Gemini, and generates review summaries with platform-specific optimization suggestions.</p>
+      <div class="card-tags">
+        <span class="tag">Make.com</span>
+        <span class="tag">Perplexity</span>
+        <span class="tag">Gemini</span>
+        <span class="tag">YouTube API</span>
+      </div>
+    </div>
+
+    <div class="project-card" data-cat="automation">
+      <span class="card-badge badge-production">Production</span>
+      <p class="card-category">AI Automation</p>
+      <h3 class="card-title">Multi-Platform Posting App</h3>
+      <p class="card-subtitle">Social Media Distribution System</p>
+      <p class="card-desc">Streamlit application for multi-platform social media posting across Instagram, LinkedIn, Facebook, and Twitter. Platform-specific formatting, scheduling, and API integrations with GetLate and Substack.</p>
+      <div class="card-tags">
+        <span class="tag">Streamlit</span>
+        <span class="tag">Python</span>
+        <span class="tag">GetLate</span>
+        <span class="tag">Substack API</span>
+      </div>
+    </div>
+
+    <div class="project-card" data-cat="automation">
+      <span class="card-badge badge-production">Production</span>
+      <p class="card-category">AI Automation</p>
+      <h3 class="card-title">Supercast Subscriber System</h3>
+      <p class="card-subtitle">Webhook-Triggered Content Delivery</p>
+      <p class="card-desc">Subscription management automation handling subscriber events with tier-based logic, automated content delivery, and welcome sequences triggered by webhook events.</p>
+      <div class="card-tags">
+        <span class="tag">Make.com</span>
+        <span class="tag">Supercast</span>
+        <span class="tag">Webhooks</span>
+      </div>
+    </div>
+
+    <div class="project-card" data-cat="automation">
+      <span class="card-badge badge-production">Production</span>
+      <p class="card-category">AI Automation</p>
+      <h3 class="card-title">AI Cold SMS Agent</h3>
+      <p class="card-subtitle">CRM-Triggered Outreach</p>
+      <p class="card-desc">Personalized SMS outreach system triggered by CRM events. Enriches contact data, generates context-aware messages via AI, and tracks response rates for optimization.</p>
+      <div class="card-tags">
+        <span class="tag">n8n</span>
+        <span class="tag">OpenAI</span>
+        <span class="tag">CRM</span>
+        <span class="tag">SMS API</span>
+      </div>
+    </div>
+
+    <div class="project-card" data-cat="automation">
+      <span class="card-badge badge-production">Production</span>
+      <p class="card-category">AI Automation</p>
+      <h3 class="card-title">Meta Ads LAL Sync</h3>
+      <p class="card-subtitle">Lookalike Audience Automation</p>
+      <p class="card-desc">Automated Custom Audience sync between CRM customer lists and Meta Business Platform. Eliminates manual CSV uploads by auto-updating source audiences, enabling Lookalike Audiences to refresh continuously.</p>
+      <div class="card-tags">
+        <span class="tag">Meta Marketing API</span>
+        <span class="tag">n8n</span>
+        <span class="tag">CRM</span>
+      </div>
+    </div>
+
+    <!-- ──── WEB / APPS ──── -->
+    <div class="project-card" data-cat="web">
+      <p class="card-category">Web / Apps</p>
+      <h3 class="card-title">Opticare</h3>
+      <p class="card-subtitle">Centralized Optometry Clinic Database</p>
+      <p class="card-desc">Nationwide web platform for optometry clinics. Built with Next.js, React, and TailwindCSS. Handled the user settings module and cross-team coordination across the development team.</p>
+      <div class="card-tags">
+        <span class="tag">Next.js</span>
+        <span class="tag">React</span>
+        <span class="tag">TailwindCSS</span>
+      </div>
+    </div>
+
+    <div class="project-card" data-cat="web">
+      <p class="card-category">Web / Apps</p>
+      <h3 class="card-title">Mentor Match</h3>
+      <p class="card-subtitle">Real-Time Mentorship Chat App</p>
+      <p class="card-desc">Full-stack mobile app pairing mentors and mentees with real-time messaging. Led chat architecture, backend APIs, and UI page development.</p>
+      <div class="card-tags">
+        <span class="tag">React Native</span>
+        <span class="tag">Node.js</span>
+        <span class="tag">WebSockets</span>
+      </div>
+    </div>
+
+    <div class="project-card" data-cat="web">
+      <span class="card-badge badge-academic">Academic</span>
+      <p class="card-category">Web / Apps</p>
+      <h3 class="card-title">Jose Rizal in London</h3>
+      <p class="card-subtitle">Interactive Historical Website</p>
+      <p class="card-desc">Next.js microsite with a sepia/vintage aesthetic documenting Jose Rizal's time in London. Built for a Philippine History course with scroll-triggered animations and archival photography.</p>
+      <div class="card-tags">
+        <span class="tag">Next.js</span>
+        <span class="tag">CSS Animations</span>
+      </div>
+    </div>
+
+    <div class="project-card" data-cat="web">
+      <span class="card-badge badge-academic">Academic</span>
+      <p class="card-category">Web / Apps</p>
+      <h3 class="card-title">Middleton Apartelle Pickleball Club</h3>
+      <p class="card-subtitle">Java Swing Desktop Application</p>
+      <p class="card-desc">Multi-screen desktop app with sign-in/sign-up, court booking with PDF receipt generation, player stats, chat messaging, and match history. Custom dark UI with gradient backgrounds and animated transitions.</p>
+      <div class="card-tags">
+        <span class="tag">Java Swing</span>
+        <span class="tag">PDF Generation</span>
+      </div>
+    </div>
+
+    <!-- ──── ENGINEERING / RESEARCH ──── -->
+    <div class="project-card" data-cat="engineering">
+      <span class="card-badge badge-award">DOST Grand Prize</span>
+      <p class="card-category">Engineering / Research</p>
+      <h3 class="card-title">Thermal Imaging DPN Screener</h3>
+      <p class="card-subtitle">AI-Powered Medical Screening Tool</p>
+      <p class="card-desc">Early screening system for Diabetic Peripheral Neuropathy using AI analysis of thermographic scans of the plantar surface. CNN classification model running on ESP32-S3 with AWS IoT Core integration and a PyQt5 desktop interface.</p>
+      <div class="card-tags">
+        <span class="tag">ESP32-S3</span>
+        <span class="tag">TensorFlow/CNN</span>
+        <span class="tag">AWS IoT</span>
+        <span class="tag">PyQt5</span>
+        <span class="tag">OpenCV</span>
+      </div>
+    </div>
+
+    <div class="project-card" data-cat="engineering">
+      <span class="card-badge badge-award">STTP Champion</span>
+      <p class="card-category">Engineering / Research</p>
+      <h3 class="card-title">AI Breast Cancer Screening</h3>
+      <p class="card-subtitle">Thermography + Computer Vision</p>
+      <p class="card-desc">AI-powered early screening method for breast cancer using thermographic imaging and computer vision. Won the DOST Scholar's Technopreneurship Training Program competition.</p>
+      <div class="card-tags">
+        <span class="tag">Thermography</span>
+        <span class="tag">Computer Vision</span>
+        <span class="tag">CNN</span>
+      </div>
+    </div>
+
+    <div class="project-card" data-cat="engineering">
+      <span class="card-badge badge-competition">Competition</span>
+      <p class="card-category">Engineering / Research</p>
+      <h3 class="card-title">Posidonia AI</h3>
+      <p class="card-subtitle">Satellite Seagrass Carbon Estimator</p>
+      <p class="card-desc">AI-powered platform using Sentinel-2 satellite imagery to map, measure, and monetize seagrass carbon stocks across Southeast Asia. Built for the AI ASEAN READY Youth Challenge 2026. Later reframed as a fisher-first community empowerment tool.</p>
+      <div class="card-tags">
+        <span class="tag">Sentinel-2</span>
+        <span class="tag">Google Earth Engine</span>
+        <span class="tag">Deep Learning</span>
+        <span class="tag">Blue Carbon</span>
+      </div>
+    </div>
+
+    <div class="project-card" data-cat="engineering">
+      <span class="card-badge badge-academic">Academic</span>
+      <p class="card-category">Engineering / Research</p>
+      <h3 class="card-title">WildCATrack</h3>
+      <p class="card-subtitle">ESP32 + AWS IoT Attendance System</p>
+      <p class="card-desc">RFID-based attendance tracking system built on ESP32 microcontroller with cloud connectivity via AWS IoT Core. Real-time data sync and web dashboard for monitoring.</p>
+      <div class="card-tags">
+        <span class="tag">ESP32</span>
+        <span class="tag">AWS IoT Core</span>
+        <span class="tag">RFID</span>
+      </div>
+    </div>
+
+    <div class="project-card" data-cat="engineering">
+      <span class="card-badge badge-academic">Academic</span>
+      <p class="card-category">Engineering / Research</p>
+      <h3 class="card-title">Fire Suppression System</h3>
+      <p class="card-subtitle">IoT Smart Detection & Response</p>
+      <p class="card-desc">Autonomous fire detection and suppression system using ESP32, servo-controlled mechanisms, and AWS IoT integration with web-based monitoring interface.</p>
+      <div class="card-tags">
+        <span class="tag">ESP32</span>
+        <span class="tag">AWS IoT</span>
+        <span class="tag">Servo Control</span>
+      </div>
+    </div>
+
+    <div class="project-card" data-cat="engineering">
+      <span class="card-badge badge-competition">Competition</span>
+      <p class="card-category">Engineering / Research</p>
+      <h3 class="card-title">Akkadian Cuneiform ML</h3>
+      <p class="card-subtitle">Ancient Script Translation</p>
+      <p class="card-desc">Machine learning pipeline for translating Akkadian cuneiform script using ByT5 transformer models. Built for the Deep Past Challenge on Kaggle as part of CPE432 coursework.</p>
+      <div class="card-tags">
+        <span class="tag">ByT5</span>
+        <span class="tag">Hugging Face</span>
+        <span class="tag">Kaggle</span>
+        <span class="tag">NLP</span>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════════════ STACK ═══════════════════ -->
+<section id="stack">
+  <div class="reveal">
+    <p class="section-label">// 03 &mdash; Technical Stack</p>
+    <h2 class="section-title">Tools I Ship With</h2>
+  </div>
+
+  <div class="stack-grid reveal">
+    <div class="stack-group">
+      <h4 class="stack-group-title">AI & Automation</h4>
+      <div class="stack-items">
+        <span class="stack-item">Make.com</span>
+        <span class="stack-item">n8n</span>
+        <span class="stack-item">GoHighLevel</span>
+        <span class="stack-item">Zapier</span>
+        <span class="stack-item">LangChain</span>
+        <span class="stack-item">OpenAI API</span>
+        <span class="stack-item">Claude API</span>
+        <span class="stack-item">Vapi</span>
+        <span class="stack-item">OpenRouter</span>
+      </div>
+    </div>
+    <div class="stack-group">
+      <h4 class="stack-group-title">Languages</h4>
+      <div class="stack-items">
+        <span class="stack-item">Python</span>
+        <span class="stack-item">JavaScript</span>
+        <span class="stack-item">TypeScript</span>
+        <span class="stack-item">Java</span>
+        <span class="stack-item">C++</span>
+        <span class="stack-item">C</span>
+        <span class="stack-item">C#</span>
+        <span class="stack-item">SQL</span>
+        <span class="stack-item">VHDL</span>
+      </div>
+    </div>
+    <div class="stack-group">
+      <h4 class="stack-group-title">Frontend</h4>
+      <div class="stack-items">
+        <span class="stack-item">React.js</span>
+        <span class="stack-item">Next.js</span>
+        <span class="stack-item">Vue.js</span>
+        <span class="stack-item">Tailwind CSS</span>
+        <span class="stack-item">HTML5/CSS3</span>
+      </div>
+    </div>
+    <div class="stack-group">
+      <h4 class="stack-group-title">Backend & Databases</h4>
+      <div class="stack-items">
+        <span class="stack-item">Node.js</span>
+        <span class="stack-item">Express.js</span>
+        <span class="stack-item">.NET / ASP.NET</span>
+        <span class="stack-item">PostgreSQL</span>
+        <span class="stack-item">Supabase</span>
+        <span class="stack-item">MongoDB</span>
+        <span class="stack-item">Firebase</span>
+        <span class="stack-item">Pinecone</span>
+        <span class="stack-item">MySQL</span>
+      </div>
+    </div>
+    <div class="stack-group">
+      <h4 class="stack-group-title">Machine Learning</h4>
+      <div class="stack-items">
+        <span class="stack-item">TensorFlow</span>
+        <span class="stack-item">Keras</span>
+        <span class="stack-item">PyTorch</span>
+        <span class="stack-item">OpenCV</span>
+        <span class="stack-item">Hugging Face</span>
+        <span class="stack-item">scikit-learn</span>
+        <span class="stack-item">CNNs</span>
+      </div>
+    </div>
+    <div class="stack-group">
+      <h4 class="stack-group-title">Cloud & DevOps</h4>
+      <div class="stack-items">
+        <span class="stack-item">AWS</span>
+        <span class="stack-item">Google Cloud</span>
+        <span class="stack-item">Azure</span>
+        <span class="stack-item">Vercel</span>
+        <span class="stack-item">Docker</span>
+        <span class="stack-item">Git/GitHub</span>
+      </div>
+    </div>
+    <div class="stack-group">
+      <h4 class="stack-group-title">Embedded Systems</h4>
+      <div class="stack-items">
+        <span class="stack-item">ESP32</span>
+        <span class="stack-item">Arduino</span>
+        <span class="stack-item">Raspberry Pi</span>
+        <span class="stack-item">SolidWorks</span>
+        <span class="stack-item">CadQuery</span>
+      </div>
+    </div>
+    <div class="stack-group">
+      <h4 class="stack-group-title">Design & Collaboration</h4>
+      <div class="stack-items">
+        <span class="stack-item">Figma</span>
+        <span class="stack-item">Canva</span>
+        <span class="stack-item">Notion</span>
+        <span class="stack-item">Google Workspace</span>
+        <span class="stack-item">Microsoft 365</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ AWARDS ═══════════════════ -->
+<section id="awards">
+  <div class="reveal">
+    <p class="section-label">// 04 &mdash; Recognition</p>
+    <h2 class="section-title">Awards & Leadership</h2>
+  </div>
+
+  <div class="awards-row reveal">
+    <div class="award-card">
+      <div class="award-icon">&#127942;</div>
+      <h3 class="award-title">DOST Grand Prize Winner</h3>
+      <p class="award-meta">2025 &mdash; National Innovation Competition</p>
+      <p class="award-desc">AI-powered medical screening tool for early detection of Diabetic Peripheral Neuropathy using thermal imaging and CNN classification.</p>
+    </div>
+    <div class="award-card">
+      <div class="award-icon">&#127941;</div>
+      <h3 class="award-title">STTP Champion</h3>
+      <p class="award-meta">2025 &mdash; Scholar's Technopreneurship Training Program</p>
+      <p class="award-desc">AI-powered early screening method for breast cancer using thermographic imaging and computer vision.</p>
+    </div>
+    <div class="award-card">
+      <div class="award-icon">&#127758;</div>
+      <h3 class="award-title">AI ASEAN READY Youth Challenge</h3>
+      <p class="award-meta">2026 &mdash; International Competition</p>
+      <p class="award-desc">Developed Posidonia AI, a satellite-based seagrass carbon stock estimator for blue carbon credits across Southeast Asia.</p>
+    </div>
+    <div class="award-card">
+      <div class="award-icon">&#128188;</div>
+      <h3 class="award-title">VP Internal, ICPEP</h3>
+      <p class="award-meta">2024&ndash;2025 &mdash; CIT-U Chapter</p>
+      <p class="award-desc">Vice-President Internal of the CIT-U Chapter of the Institute of Computer Engineers of the Philippines.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ EDUCATION ═══════════════════ -->
+<section>
+  <div class="reveal">
+    <p class="section-label">// 05 &mdash; Education</p>
+    <h2 class="section-title">Background</h2>
+  </div>
+  <div class="timeline reveal">
+    <div class="timeline-item">
+      <p class="timeline-date">2022 &mdash; 2026</p>
+      <h3 class="timeline-role">BS Computer Engineering</h3>
+      <p class="timeline-company">Cebu Institute of Technology &mdash; University (CIT-U)</p>
+      <p class="timeline-desc">Thesis: Early Screening for Diabetic Peripheral Neuropathy Using AI Analysis of Thermographic Scans of the Plantar Surface. Core coursework in embedded systems, machine learning, computer architecture, and software engineering.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ CONTACT ═══════════════════ -->
+<section class="contact-section" id="contact">
+  <div class="reveal">
+    <p class="section-label">// 06 &mdash; Contact</p>
+    <h2 class="section-title">Let's Build Something</h2>
+    <p class="section-desc" style="margin:0 auto 2rem;">Available across US, AU, and APAC time zones. Currently open to freelance and full-time AI automation roles.</p>
+    <div class="contact-links">
+      <a href="mailto:charlesluisgaid@gmail.com" class="contact-link">charlesluisgaid@gmail.com</a>
+      <a href="tel:+639082215034" class="contact-link">+63 908 221 5034</a>
+      <a href="https://github.com/SibuyasGaid" target="_blank" class="contact-link">GitHub</a>
+      <a href="https://linkedin.com/in/charlesluis-gaid-28739634a" target="_blank" class="contact-link">LinkedIn</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p>&copy; 2026 Charles Luis Gaid. Built with intention.</p>
+</footer>
+
+<!-- ═══════════════════ SCRIPTS ═══════════════════ -->
+<script>
+// ── Typing animation ──
+const roles = [
+  'AI Automation Engineer',
+  'n8n & Make.com Developer',
+  'Computer Engineering Student',
+  'Full-Stack Builder',
+  'Voice AI Developer'
+];
+let roleIdx = 0, charIdx = 0, deleting = false;
+const typingEl = document.getElementById('typingText');
+
+function typeLoop() {
+  const current = roles[roleIdx];
+  if (!deleting) {
+    typingEl.textContent = current.slice(0, charIdx + 1);
+    charIdx++;
+    if (charIdx === current.length) {
+      setTimeout(() => { deleting = true; typeLoop(); }, 2000);
+      return;
+    }
+    setTimeout(typeLoop, 60);
+  } else {
+    typingEl.textContent = current.slice(0, charIdx - 1);
+    charIdx--;
+    if (charIdx === 0) {
+      deleting = false;
+      roleIdx = (roleIdx + 1) % roles.length;
+      setTimeout(typeLoop, 400);
+      return;
+    }
+    setTimeout(typeLoop, 35);
+  }
+}
+typeLoop();
+
+// ── Scroll reveal ──
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+    }
+  });
+}, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+// ── Project tabs ──
+const tabBtns = document.querySelectorAll('.tab-btn');
+const cards = document.querySelectorAll('.project-card');
+
+tabBtns.forEach(btn => {
+  btn.addEventListener('click', () => {
+    tabBtns.forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const filter = btn.dataset.filter;
+
+    cards.forEach(card => {
+      if (filter === 'all' || card.dataset.cat === filter) {
+        card.style.display = '';
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(16px)';
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            card.style.transition = 'opacity 0.4s, transform 0.4s';
+            card.style.opacity = '1';
+            card.style.transform = 'translateY(0)';
+          });
+        });
+      } else {
+        card.style.display = 'none';
+      }
+    });
+
+    // Update count
+    const count = filter === 'all'
+      ? cards.length
+      : document.querySelectorAll(`.project-card[data-cat="${filter}"]`).length;
+    btn.textContent = btn.textContent.replace(/\(\d+\)/, `(${count})`);
+  });
+});
+
+// ── Mobile nav ──
+document.getElementById('navBurger').addEventListener('click', () => {
+  document.getElementById('navLinks').classList.toggle('open');
+});
+
+// Close mobile nav on link click
+document.querySelectorAll('.nav-links a').forEach(link => {
+  link.addEventListener('click', () => {
+    document.getElementById('navLinks').classList.remove('open');
+  });
+});
+</script>
+</body>
+</html>
