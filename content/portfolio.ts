@@ -41,9 +41,14 @@ export interface Profile {
   readonly headline: string;
   readonly summary: string;
   readonly roles: readonly string[];
-  readonly clientRegions: readonly string[];
+  readonly clientRegions: string;
   /** The old site only implied location through a +63 phone number. */
   readonly basedIn: string | null;
+}
+
+export interface Fact {
+  readonly label: string;
+  readonly value: string;
 }
 
 export interface BookCover {
@@ -55,7 +60,7 @@ export interface BookCover {
 
 export type ProjectCategory = "automation" | "web" | "engineering";
 
-export type ProjectBadgeKind = "production" | "academic" | "competition" | "award";
+export type ProjectBadgeKind = "production" | "competition" | "award";
 
 export interface ProjectBadge {
   readonly kind: ProjectBadgeKind;
@@ -156,6 +161,7 @@ export interface ContactDetails {
   /** Cal.com or Calendly link behind the primary "Book a call" button. */
   readonly bookingUrl: string | null;
   readonly email: string;
+  readonly letterOpening: string;
   readonly formIntroduction: string;
   readonly channels: readonly ContactChannel[];
 }
@@ -183,7 +189,7 @@ export const PROFILE: Profile = {
     "Full-Stack Builder",
     "Voice AI Developer",
   ],
-  clientRegions: ["Australia", "United States"],
+  clientRegions: "Australia and the United States",
   basedIn: null,
 };
 
@@ -252,6 +258,13 @@ export const ABOUT_PARAGRAPHS: readonly string[] = [
   "My background is Computer Engineering. My thesis, an AI screening tool that spots early signs of diabetic nerve damage from thermal scans of the feet, won the DOST Grand Prize in 2025. I bring the same rigor to a client's lead pipeline that I brought to a medical screening tool.",
 ];
 
+export const ABOUT_FACTS: readonly Fact[] = [
+  { label: "Clients", value: PROFILE.clientRegions },
+  { label: "Time zones", value: "US, AU, and APAC" },
+  { label: "Focus", value: "Automation, voice agents, CRM systems, web apps" },
+  { label: "Education", value: "BS Computer Engineering, CIT-U, 2026" },
+];
+
 // ─── Projects ────────────────────────────────────────────────────────────────
 
 export const PROJECT_CATEGORY_LABELS: Record<ProjectCategory, string> = {
@@ -261,7 +274,6 @@ export const PROJECT_CATEGORY_LABELS: Record<ProjectCategory, string> = {
 };
 
 const PRODUCTION_BADGE: ProjectBadge = { kind: "production", label: "Production" };
-const ACADEMIC_BADGE: ProjectBadge = { kind: "academic", label: "Academic" };
 const COMPETITION_BADGE: ProjectBadge = { kind: "competition", label: "Competition" };
 
 export const PROJECTS = [
@@ -479,38 +491,6 @@ export const PROJECTS = [
     isFeatured: false,
   },
   {
-    id: "rizal-in-london",
-    title: "Jose Rizal in London",
-    subtitle: "Interactive Historical Website",
-    client: null,
-    category: "web",
-    badge: ACADEMIC_BADGE,
-    outcome: null,
-    problem: null,
-    solution:
-      "Next.js microsite with a sepia, vintage aesthetic documenting Jose Rizal's time in London. Built for a Philippine History course with scroll-triggered animations and archival photography.",
-    stack: ["Next.js", "CSS Animations"],
-    links: [],
-    image: null,
-    isFeatured: false,
-  },
-  {
-    id: "middleton-pickleball-club",
-    title: "Middleton Apartelle Pickleball Club",
-    subtitle: "Java Swing Desktop Application",
-    client: null,
-    category: "web",
-    badge: ACADEMIC_BADGE,
-    outcome: null,
-    problem: null,
-    solution:
-      "Multi-screen desktop app with sign-in and sign-up, court booking with PDF receipt generation, player stats, chat messaging, and match history. Custom dark UI with gradient backgrounds and animated transitions.",
-    stack: ["Java Swing", "PDF Generation"],
-    links: [],
-    image: null,
-    isFeatured: false,
-  },
-  {
     id: "dpn-thermal-screener",
     title: "Thermal Imaging DPN Screener",
     subtitle: "AI-Powered Medical Screening Tool",
@@ -555,38 +535,6 @@ export const PROJECTS = [
     solution:
       "AI-powered platform using Sentinel-2 satellite imagery to map, measure, and monetize seagrass carbon stocks across Southeast Asia. Built for the AI ASEAN READY Youth Challenge 2026. Later reframed as a fisher-first community empowerment tool.",
     stack: ["Sentinel-2", "Google Earth Engine", "Deep Learning", "Blue Carbon"],
-    links: [],
-    image: null,
-    isFeatured: false,
-  },
-  {
-    id: "wildcatrack",
-    title: "WildCATrack",
-    subtitle: "ESP32 + AWS IoT Attendance System",
-    client: null,
-    category: "engineering",
-    badge: ACADEMIC_BADGE,
-    outcome: null,
-    problem: null,
-    solution:
-      "RFID-based attendance tracking system built on an ESP32 microcontroller with cloud connectivity via AWS IoT Core. Real-time data sync and web dashboard for monitoring.",
-    stack: ["ESP32", "AWS IoT Core", "RFID"],
-    links: [],
-    image: null,
-    isFeatured: false,
-  },
-  {
-    id: "fire-suppression-system",
-    title: "Fire Suppression System",
-    subtitle: "IoT Smart Detection & Response",
-    client: null,
-    category: "engineering",
-    badge: ACADEMIC_BADGE,
-    outcome: null,
-    problem: null,
-    solution:
-      "Autonomous fire detection and suppression system using ESP32, servo-controlled mechanisms, and AWS IoT integration with a web-based monitoring interface.",
-    stack: ["ESP32", "AWS IoT", "Servo Control"],
     links: [],
     image: null,
     isFeatured: false,
@@ -724,12 +672,12 @@ export const STACK_GROUPS: readonly StackGroup[] = [
   {
     id: "languages",
     title: "Languages",
-    items: ["Python", "JavaScript", "TypeScript", "Java", "C++", "C", "C#", "SQL", "VHDL"],
+    items: ["Python", "JavaScript", "TypeScript", "Java", "C++", "C", "C#", "SQL"],
   },
   {
     id: "frontend",
     title: "Frontend",
-    items: ["React", "Next.js", "Vue.js", "Tailwind CSS", "HTML5/CSS3"],
+    items: ["React", "Next.js", "Tailwind CSS", "HTML5/CSS3"],
   },
   {
     id: "backend",
@@ -760,11 +708,6 @@ export const STACK_GROUPS: readonly StackGroup[] = [
     id: "embedded",
     title: "Embedded Systems",
     items: ["ESP32", "Arduino", "Raspberry Pi", "SolidWorks", "CadQuery"],
-  },
-  {
-    id: "design-collaboration",
-    title: "Design & Collaboration",
-    items: ["Figma", "Canva", "Notion", "Google Workspace", "Microsoft 365"],
   },
 ];
 
@@ -861,6 +804,8 @@ export const CONTACT: ContactDetails = {
     "Available across US, AU, and APAC time zones. Currently open to freelance and full-time AI automation roles.",
   bookingUrl: null,
   email: "charlesluisgaid@gmail.com",
+  letterOpening:
+    "Tell me about the process that's eating your team's time. I'll tell you straight whether I can fix it.",
   formIntroduction:
     "Prefer writing? Leave a note here and it lands straight in my inbox.",
   channels: [

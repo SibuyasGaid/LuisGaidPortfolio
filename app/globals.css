@@ -1,0 +1,439 @@
+@import "tailwindcss";
+
+/* ─── Design tokens ─────────────────────────────────────────────────────────
+   Every colour, font and easing used by the site. Tailwind turns each token
+   into utilities (bg-burgundy, text-brass-ink, font-display, ease-settle) and
+   exposes it as a CSS custom property for hand-written rules below. */
+
+@theme {
+  --color-burgundy: #6b1e2e;
+  --color-burgundy-deep: #4a0e1b;
+  --color-burgundy-highlight: #8c2a3c;
+
+  --color-wood-950: #1e130c;
+  --color-wood-900: #2b1a12;
+  --color-wood-800: #3d2817;
+
+  --color-brass: #b8913a;
+  --color-brass-light: #d4b26a;
+  /* Raw brass is only 2.4:1 on parchment, so text and focus rings on pages use this darker shade (5.1:1). */
+  --color-brass-ink: #7a5a1c;
+
+  --color-parchment: #efe6d2;
+  --color-parchment-light: #f6f0e2;
+  --color-parchment-edge: #d9cdb2;
+  --color-ink: #2a1f1a;
+  --color-ink-soft: #5b4a3e;
+  /* Muted text on dark wood, 6.6:1. */
+  --color-smoke: #a89a86;
+
+  --ease-settle: cubic-bezier(0.215, 0.61, 0.355, 1);
+  --ease-turn: cubic-bezier(0.87, 0, 0.13, 1);
+
+  --spacing-masthead: 4rem;
+}
+
+@theme inline {
+  --font-display: var(--font-cormorant), "Cormorant Garamond", Georgia, serif;
+  --font-caps: var(--font-cormorant-sc), "Cormorant SC", Georgia, serif;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+}
+
+/* ─── Base ─────────────────────────────────────────────────────────────────── */
+
+@layer base {
+  html {
+    color-scheme: dark;
+    background-color: var(--color-wood-950);
+    scroll-padding-top: calc(var(--spacing-masthead) + 1.5rem);
+    -webkit-text-size-adjust: 100%;
+  }
+
+  /* Lenis drives scrolling when it runs; native smooth scroll would fight it. */
+  html:not(.lenis) {
+    scroll-behavior: smooth;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html:not(.lenis) {
+      scroll-behavior: auto;
+    }
+  }
+
+  body {
+    min-height: 100dvh;
+    font-family: var(--font-sans);
+    color: var(--color-parchment);
+    background-color: var(--color-wood-950);
+    background-image: url("/textures/wood.webp");
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Lamp glow and vignette live on a fixed layer so they are painted once and
+     composited, instead of repainting a full-screen gradient on every scroll. */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background:
+      radial-gradient(ellipse 60% 45% at 50% -8%, rgb(212 178 106 / 0.2), transparent 70%),
+      radial-gradient(ellipse 130% 95% at 50% 45%, transparent 50%, rgb(10 5 2 / 0.8) 100%);
+  }
+
+  ::selection {
+    background-color: var(--color-burgundy);
+    color: var(--color-parchment);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--focus-ring, var(--color-brass-light));
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+
+  a {
+    text-underline-offset: 0.2em;
+    text-decoration-thickness: 1px;
+  }
+}
+
+/* ─── Surfaces ─────────────────────────────────────────────────────────────── */
+
+@layer components {
+  .surface-parchment {
+    --focus-ring: var(--color-brass-ink);
+    color: var(--color-ink);
+    background-color: var(--color-parchment);
+    background-image: url("/textures/paper.webp");
+  }
+
+  .surface-leather {
+    background-color: var(--color-burgundy-deep);
+    background-image:
+      radial-gradient(ellipse 80% 60% at 50% 0%, rgb(140 42 60 / 0.35), transparent 70%),
+      url("/textures/leather.webp");
+  }
+
+  /* ─── The open book ─────────────────────────────────────────────────────── */
+
+  .book {
+    position: relative;
+    z-index: 1;
+    margin-inline: auto;
+    width: min(100% - 1.5rem, 86rem);
+    padding: 0.5rem;
+    border-radius: 0.6rem;
+    box-shadow:
+      0 2px 0 rgb(255 255 255 / 0.04) inset,
+      0 40px 80px -30px rgb(0 0 0 / 0.85),
+      0 18px 30px -18px rgb(0 0 0 / 0.7);
+  }
+
+  @media (min-width: 64rem) {
+    .book {
+      width: min(100% - 4rem, 86rem);
+      padding: 0.85rem;
+    }
+  }
+
+  /* The paper texture sits on the shared container so it tiles continuously;
+     each page only adds lighting. The stacked shadows draw the page edges. */
+  .book-pages {
+    display: grid;
+    border-radius: 0.2rem;
+    box-shadow:
+      1px 1px 0 var(--color-parchment-edge),
+      2px 3px 0 #cbbd9e,
+      4px 5px 0 #bdae8d;
+  }
+
+  @media (min-width: 64rem) {
+    .book-pages {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  .page {
+    position: relative;
+    min-width: 0;
+    padding: 2.5rem 1.25rem;
+  }
+
+  @media (min-width: 40rem) {
+    .page {
+      padding: 3.5rem 2.75rem;
+    }
+  }
+
+  @media (min-width: 64rem) {
+    .page {
+      padding: 4.5rem clamp(2.5rem, 4vw, 4.5rem) 4rem;
+    }
+  }
+
+  /* On small screens the two pages read as one continuous page. */
+  .page-left {
+    padding-bottom: 0;
+    background-image: radial-gradient(ellipse 90% 60% at 20% 0%, rgb(255 250 235 / 0.45), transparent 70%);
+  }
+
+  .page-right {
+    padding-top: 2.5rem;
+  }
+
+  @media (min-width: 64rem) {
+    .book-pages {
+      box-shadow:
+        -1px 1px 0 var(--color-parchment-edge),
+        1px 1px 0 var(--color-parchment-edge),
+        -2px 3px 0 #cbbd9e,
+        2px 3px 0 #cbbd9e,
+        -4px 5px 0 #bdae8d,
+        4px 5px 0 #bdae8d;
+    }
+
+    .page-left {
+      padding-bottom: 4rem;
+      background-image:
+        linear-gradient(to left, rgb(42 31 26 / 0.22), rgb(42 31 26 / 0.07) 1.75rem, transparent 5rem),
+        radial-gradient(ellipse 90% 50% at 25% 10%, rgb(255 250 235 / 0.45), transparent 70%);
+    }
+
+    .page-right {
+      padding-top: 4.5rem;
+      background-image:
+        linear-gradient(to right, rgb(42 31 26 / 0.26), rgb(42 31 26 / 0.08) 1.75rem, transparent 5rem),
+        radial-gradient(ellipse 90% 50% at 75% 5%, rgb(255 250 235 / 0.4), transparent 70%);
+    }
+  }
+
+  /* ─── Typography primitives ─────────────────────────────────────────────── */
+
+  .small-caps-label {
+    font-family: var(--font-caps);
+    font-size: 0.95rem;
+    letter-spacing: 0.16em;
+    text-transform: lowercase;
+    color: var(--color-burgundy);
+  }
+
+  .lede {
+    font-family: var(--font-display);
+    font-size: clamp(1.3rem, 1.15rem + 0.5vw, 1.55rem);
+    line-height: 1.55;
+    color: var(--color-ink);
+  }
+
+  .drop-cap::first-letter {
+    initial-letter: 3;
+    -webkit-initial-letter: 3;
+    margin-inline-end: 0.55rem;
+    font-family: var(--font-display);
+    font-weight: 600;
+    color: var(--color-burgundy);
+  }
+
+  @supports not ((initial-letter: 3) or (-webkit-initial-letter: 3)) {
+    .drop-cap::first-letter {
+      float: left;
+      margin-top: 0.1em;
+      font-size: 4.2em;
+      line-height: 0.78;
+    }
+  }
+
+  .drop-cap::first-line {
+    font-family: var(--font-caps);
+    letter-spacing: 0.02em;
+  }
+
+  .body-copy {
+    font-size: 1.0625rem;
+    line-height: 1.75;
+    color: var(--color-ink);
+  }
+
+  .body-copy > * + * {
+    margin-top: 1.1em;
+  }
+
+  .ink-link {
+    color: var(--color-burgundy);
+    text-decoration-line: underline;
+    text-decoration-color: rgb(107 30 46 / 0.35);
+    transition: color 200ms var(--ease-settle), text-decoration-color 200ms var(--ease-settle);
+  }
+
+  .ink-link:hover {
+    color: var(--color-burgundy-highlight);
+    text-decoration-color: currentColor;
+  }
+
+  .diamond-list > li {
+    position: relative;
+    padding-left: 1.4rem;
+  }
+
+  .diamond-list > li::before {
+    content: "";
+    position: absolute;
+    left: 0.15rem;
+    top: 0.72em;
+    width: 0.4rem;
+    height: 0.4rem;
+    background-color: var(--color-brass);
+    transform: rotate(45deg);
+  }
+
+  .stack-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.2rem 0.6rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    color: var(--color-ink-soft);
+    background-color: rgb(255 252 242 / 0.6);
+    border: 1px solid #cfc2a4;
+    border-radius: 2px;
+  }
+
+  /* ─── Paper objects ─────────────────────────────────────────────────────── */
+
+  .manuscript {
+    position: relative;
+    padding: 1.75rem 1.4rem 1.6rem;
+    background-color: var(--color-parchment-light);
+    background-image:
+      linear-gradient(to bottom, rgb(255 255 255 / 0.4), transparent 30%),
+      url("/textures/paper.webp");
+    border: 1px solid #d6c9ab;
+    box-shadow:
+      0 1px 0 rgb(42 31 26 / 0.06),
+      0 18px 28px -22px rgb(42 31 26 / 0.55);
+  }
+
+  @media (min-width: 40rem) {
+    .manuscript {
+      padding: 2.25rem 2.25rem 2rem;
+    }
+  }
+
+  /* A brass double rule along the top edge, like a bookplate border. */
+  .manuscript::before {
+    content: "";
+    position: absolute;
+    inset: 0.5rem 0.5rem auto;
+    height: 3px;
+    border-block: 1px solid rgb(184 145 58 / 0.7);
+  }
+
+  /* Two faint fold creases make the contact card read as a letter. */
+  .letter {
+    position: relative;
+    padding: 2.5rem 1.4rem 2rem;
+    background-color: var(--color-parchment-light);
+    background-image:
+      linear-gradient(
+        to bottom,
+        transparent calc(33.33% - 1px),
+        rgb(42 31 26 / 0.09) calc(33.33% - 1px) 33.33%,
+        rgb(255 255 255 / 0.28) 33.33%,
+        transparent calc(33.33% + 5px)
+      ),
+      linear-gradient(
+        to bottom,
+        transparent calc(66.66% - 1px),
+        rgb(42 31 26 / 0.09) calc(66.66% - 1px) 66.66%,
+        rgb(255 255 255 / 0.28) 66.66%,
+        transparent calc(66.66% + 5px)
+      ),
+      linear-gradient(to bottom, rgb(42 31 26 / 0.025), transparent 33.33%, rgb(42 31 26 / 0.025) 66.66%, transparent),
+      url("/textures/paper.webp");
+    border: 1px solid #d6c9ab;
+    box-shadow:
+      0 1px 0 rgb(42 31 26 / 0.06),
+      0 24px 36px -26px rgb(42 31 26 / 0.6);
+  }
+
+  @media (min-width: 40rem) {
+    .letter {
+      padding: 3.25rem 3rem 2.75rem;
+    }
+  }
+
+  /* ─── Buttons ───────────────────────────────────────────────────────────── */
+
+  .button-primary {
+    --focus-ring: var(--color-brass-ink);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    min-height: 2.875rem;
+    padding: 0.7rem 1.4rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    color: var(--color-parchment);
+    background-color: var(--color-burgundy);
+    border: 1px solid var(--color-burgundy-deep);
+    border-radius: 2px;
+    box-shadow: inset 0 0 0 1px rgb(212 178 106 / 0.35);
+    transition: background-color 250ms var(--ease-settle);
+  }
+
+  .button-primary:hover {
+    background-color: var(--color-burgundy-highlight);
+  }
+
+  .button-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 2.875rem;
+    padding: 0.7rem 1.4rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    color: var(--color-burgundy);
+    border: 1px solid rgb(107 30 46 / 0.45);
+    border-radius: 2px;
+    transition: border-color 250ms var(--ease-settle), color 250ms var(--ease-settle);
+  }
+
+  .button-secondary:hover {
+    color: var(--color-burgundy-highlight);
+    border-color: var(--color-burgundy-highlight);
+  }
+}
+
+@layer components {
+  /* Lower-case roman numerals for the services list, set in true small caps. */
+  .services-list {
+    counter-reset: service;
+  }
+
+  .services-list > li {
+    counter-increment: service;
+  }
+
+  .service-numeral::before {
+    content: counter(service, lower-roman) ".";
+  }
+
+  /* The core stack reads as one typeset line, separated by brass diamonds. */
+  .specimen-list > li:not(:last-child)::after {
+    content: "";
+    display: inline-block;
+    width: 0.32em;
+    height: 0.32em;
+    margin-inline: 0.55em 0.5em;
+    vertical-align: 0.2em;
+    background-color: var(--color-brass);
+    transform: rotate(45deg);
+  }
+}
