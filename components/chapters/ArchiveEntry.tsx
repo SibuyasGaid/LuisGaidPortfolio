@@ -12,7 +12,7 @@ export function ArchiveEntry({ project }: ArchiveEntryProps) {
         <h3 id={titleId} className="font-display text-[1.5rem] font-semibold leading-tight text-ink">
           {project.title}
         </h3>
-        <p className="font-caps text-[0.95rem] lowercase tracking-[0.12em] text-burgundy">
+        <p className="small-caps text-[0.72rem] tracking-[0.12em] text-burgundy">
           {project.badge?.label ?? PROJECT_CATEGORY_LABELS[project.category]}
         </p>
       </div>

@@ -11,7 +11,7 @@ export function ServicesChapter() {
         <li key={service.id} id={service.id} data-reveal className="scroll-mt-28">
           {index > 0 ? <Fleuron className="mb-14 h-4 w-24 text-brass/60" /> : null}
           <h2 className="flex items-baseline gap-4 font-display text-[2rem] font-semibold leading-tight text-ink sm:text-[2.3rem]">
-            <span aria-hidden="true" className="service-numeral font-caps text-[1.35rem] tracking-[0.06em] text-burgundy" />
+            <span aria-hidden="true" className="service-numeral small-caps text-[1rem] tracking-[0.06em] text-burgundy" />
             {service.title}
           </h2>
           <p className="body-copy mt-4 max-w-[38rem]">{service.summary}</p>
@@ -25,11 +25,11 @@ export function ServicesChapter() {
 
           <dl className="mt-7 space-y-3 border-t border-ink/12 pt-5 text-[0.95rem]">
             <div className="grid gap-1 sm:grid-cols-[7rem_1fr] sm:gap-4">
-              <dt className="font-caps lowercase tracking-[0.1em] text-ink-soft">Tools</dt>
+              <dt className="small-caps tracking-[0.1em] text-ink-soft text-[0.72rem]">Tools</dt>
               <dd className="text-ink">{service.tools.join(" · ")}</dd>
             </div>
             <div className="grid gap-1 sm:grid-cols-[7rem_1fr] sm:gap-4">
-              <dt className="font-caps lowercase tracking-[0.1em] text-ink-soft">See it in</dt>
+              <dt className="small-caps tracking-[0.1em] text-ink-soft text-[0.72rem]">See it in</dt>
               <dd>
                 {service.proofProjectIds.map((projectId, proofIndex) => (
                   <Fragment key={projectId}>

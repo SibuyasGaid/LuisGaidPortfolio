@@ -1,29 +1,27 @@
 import type { Metadata, Viewport } from "next";
-import { Cormorant_Garamond, Cormorant_SC, Inter } from "next/font/google";
+import { preload } from "react-dom";
+import { Cormorant_Garamond, Inter } from "next/font/google";
 import { Colophon } from "@/components/layout/Colophon";
 import { Masthead } from "@/components/layout/Masthead";
 import { SkipLink } from "@/components/layout/SkipLink";
 import { SmoothScrollLayer } from "@/components/motion/SmoothScrollLayer";
 import { DevPerformanceReadout } from "@/components/dev/DevPerformanceReadout";
 import { SITE } from "@/content/portfolio";
+import { getSiteUrl } from "@/lib/siteUrl";
 import "./globals.css";
 
+// The display face never swaps in late. Drop caps, the stack list and every
+// heading reflow when Cormorant replaces its fallback, which broke the layout
+// shift budget on slow connections. "optional" plus the automatic preload means
+// the face is used when it arrives in time (any decent connection, and every
+// repeat visit) and the fallback serif is kept otherwise. Body text (Inter)
+// still swaps, since its fallback metrics match closely.
 const cormorantGaramond = Cormorant_Garamond({
   subsets: ["latin"],
   weight: ["500", "600"],
   style: ["normal", "italic"],
   variable: "--font-cormorant",
-  display: "swap",
-});
-
-// Only chapter labels and first lines use true small caps, so this face is not
-// preloaded and never competes with the fonts behind the largest paint.
-const cormorantSmallCaps = Cormorant_SC({
-  subsets: ["latin"],
-  weight: "500",
-  variable: "--font-cormorant-sc",
-  display: "swap",
-  preload: false,
+  display: "optional",
 });
 
 const inter = Inter({
@@ -35,7 +33,7 @@ const inter = Inter({
 export const ensureStatic = "navigation";
 
 export const metadata: Metadata = {
-  ...(SITE.url ? { metadataBase: new URL(SITE.url) } : {}),
+  metadataBase: new URL(getSiteUrl()),
   title: { default: SITE.title, template: `%s | ${SITE.name}` },
   description: SITE.description,
   openGraph: {
@@ -51,10 +49,15 @@ export const viewport: Viewport = {
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
+  // The paper texture is only referenced from CSS, so the browser would find it
+  // late. Chrome treats textured paper cards as image paints, so a late texture
+  // means a late largest paint.
+  preload("/textures/paper.webp", { as: "image", fetchPriority: "high" });
+
   return (
     <html
       lang="en"
-      className={`${cormorantGaramond.variable} ${cormorantSmallCaps.variable} ${inter.variable}`}
+      className={`${cormorantGaramond.variable} ${inter.variable}`}
     >
       <body>
         <SkipLink />

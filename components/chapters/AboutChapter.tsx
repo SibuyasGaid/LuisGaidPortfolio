@@ -25,7 +25,7 @@ export function AboutChapter() {
         <dl className="mt-5 border-t border-ink/12">
           {ABOUT_FACTS.map((fact) => (
             <div key={fact.label} data-reveal className="grid gap-1 border-b border-ink/12 py-4 sm:grid-cols-[9rem_1fr] sm:gap-6">
-              <dt className="font-caps text-[1.02rem] lowercase tracking-[0.1em] text-ink-soft">{fact.label}</dt>
+              <dt className="small-caps text-[0.76rem] tracking-[0.1em] text-ink-soft">{fact.label}</dt>
               <dd className="text-ink">{fact.value}</dd>
             </div>
           ))}

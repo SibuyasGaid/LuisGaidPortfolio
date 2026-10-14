@@ -12,7 +12,7 @@ export function TitlePage() {
       <p className="mt-5 font-display text-2xl italic text-ink-soft sm:text-[1.7rem]">{PROFILE.headline}</p>
       <BrassRule className="my-9 max-w-[14rem]" />
       <p className="lede drop-cap max-w-[34rem]">{PROFILE.summary}</p>
-      <p className="mt-10 font-caps text-[0.95rem] lowercase tracking-[0.16em] text-ink-soft">
+      <p className="mt-10 small-caps text-[0.72rem] tracking-[0.16em] text-ink-soft">
         Clients in {PROFILE.clientRegions}
       </p>
       <Monogram className="mt-12 hidden size-20 text-brass lg:mt-auto lg:block" />

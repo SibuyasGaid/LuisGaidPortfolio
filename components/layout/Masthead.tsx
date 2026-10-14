@@ -4,15 +4,14 @@ import { PROFILE } from "@/content/portfolio";
 
 export function Masthead() {
   return (
-    <header className="fixed inset-x-0 top-0 z-40 border-b border-brass/20 bg-wood-950/95">
+    <header className="fixed inset-x-0 top-0 z-40 border-b border-brass/20 bg-wood-950">
       <div className="mx-auto flex h-masthead max-w-[90rem] items-center justify-between gap-4 px-4 sm:px-8">
         <Link
           href="/"
-          aria-label={`${PROFILE.fullName}, table of contents`}
           className="flex items-center gap-3 text-brass-light transition-colors duration-300 ease-settle hover:text-parchment"
         >
           <Monogram className="size-9" />
-          <span className="hidden font-caps text-[1.05rem] lowercase tracking-[0.14em] sm:inline">
+          <span className="sr-only sm:not-sr-only small-caps text-[0.78rem] tracking-[0.14em] sm:inline">
             {PROFILE.fullName}
           </span>
         </Link>

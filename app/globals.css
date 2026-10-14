@@ -35,8 +35,16 @@
 
 @theme inline {
   --font-display: var(--font-cormorant), "Cormorant Garamond", Georgia, serif;
-  --font-caps: var(--font-cormorant-sc), "Cormorant SC", Georgia, serif;
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Small capitals set from Cormorant's own capitals: smaller, heavier and
+   tracked out. Google's Cormorant subset has no true small-caps glyphs, and a
+   separate small-caps face re-wrapped the opening paragraphs as it swapped in. */
+@utility small-caps {
+  font-family: var(--font-display);
+  font-weight: 600;
+  text-transform: uppercase;
 }
 
 /* ─── Base ─────────────────────────────────────────────────────────────────── */
@@ -213,10 +221,11 @@
   /* ─── Typography primitives ─────────────────────────────────────────────── */
 
   .small-caps-label {
-    font-family: var(--font-caps);
-    font-size: 0.95rem;
-    letter-spacing: 0.16em;
-    text-transform: lowercase;
+    font-family: var(--font-display);
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
     color: var(--color-burgundy);
   }
 
@@ -246,8 +255,9 @@
   }
 
   .drop-cap::first-line {
-    font-family: var(--font-caps);
-    letter-spacing: 0.02em;
+    font-size: 0.82em;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
   }
 
   .body-copy {
@@ -436,4 +446,24 @@
     background-color: var(--color-brass);
     transform: rotate(45deg);
   }
+}
+
+/* ─── Lenis ─────────────────────────────────────────────────────────────────
+   The library's required rules, inlined to avoid a separate stylesheet request. */
+
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+.lenis:not(.lenis-autoToggle).lenis-stopped {
+  overflow: clip;
+}
+
+.lenis [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+.lenis.lenis-smooth iframe {
+  pointer-events: none;
 }

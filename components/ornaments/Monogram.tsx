@@ -12,7 +12,7 @@ export function Monogram({ className }: MonogramProps) {
         y="24.5"
         textAnchor="middle"
         fill="currentColor"
-        style={{ fontFamily: "var(--font-caps)", fontSize: "12.5px", letterSpacing: "0.04em" }}
+        style={{ fontFamily: "var(--font-display)", fontWeight: 600, fontSize: "12.5px", letterSpacing: "0.04em" }}
       >
         CLG
       </text>

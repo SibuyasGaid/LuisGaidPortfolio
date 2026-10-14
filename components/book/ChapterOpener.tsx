@@ -9,10 +9,12 @@ interface ChapterOpenerProps {
 export function ChapterOpener({ chapter, titleId }: ChapterOpenerProps) {
   return (
     <header className="relative lg:sticky lg:top-[calc(var(--spacing-masthead)+3rem)]">
+      {/* Anchored by its left edge: numerals change width when the display font
+          arrives, and a right-anchored box would visibly shift. */}
       <span
         aria-hidden="true"
         data-parallax="0.25"
-        className="pointer-events-none absolute -top-6 right-0 select-none font-display text-[7.5rem] font-semibold leading-none text-burgundy/[0.07] sm:text-[10rem] lg:-top-10 lg:text-[15rem]"
+        className="pointer-events-none absolute -top-6 left-[60%] select-none font-display text-[7.5rem] font-semibold leading-none text-burgundy/[0.07] sm:text-[10rem] lg:-top-10 lg:left-[58%] lg:text-[15rem]"
       >
         {chapter.numeral}
       </span>

@@ -13,7 +13,7 @@ export function ManuscriptCard({ project, number }: ManuscriptCardProps) {
   return (
     <article id={project.id} aria-labelledby={titleId} data-reveal="sheet" className="manuscript scroll-mt-28">
       <header>
-        <p className="font-caps text-[0.95rem] lowercase tracking-[0.14em] text-burgundy">
+        <p className="small-caps text-[0.72rem] tracking-[0.14em] text-burgundy">
           No. {String(number).padStart(2, "0")}
           <span aria-hidden="true" className="mx-2 text-brass">
             ·

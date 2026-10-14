@@ -31,7 +31,7 @@ export function WaxSeal({ className }: WaxSealProps) {
         textAnchor="middle"
         fill="#c46a7a"
         opacity="0.4"
-        style={{ fontFamily: "var(--font-caps)", fontSize: "24px", letterSpacing: "0.04em" }}
+        style={{ fontFamily: "var(--font-display)", fontWeight: 600, fontSize: "24px", letterSpacing: "0.04em" }}
       >
         CLG
       </text>
@@ -41,7 +41,7 @@ export function WaxSeal({ className }: WaxSealProps) {
         textAnchor="middle"
         fill="#2f0710"
         opacity="0.75"
-        style={{ fontFamily: "var(--font-caps)", fontSize: "24px", letterSpacing: "0.04em" }}
+        style={{ fontFamily: "var(--font-display)", fontWeight: 600, fontSize: "24px", letterSpacing: "0.04em" }}
       >
         CLG
       </text>

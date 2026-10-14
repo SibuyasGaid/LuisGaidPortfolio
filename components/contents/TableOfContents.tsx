@@ -8,7 +8,7 @@ export function TableOfContents() {
     <nav aria-labelledby="contents-title">
       <h2
         id="contents-title"
-        className="font-caps text-[2.1rem] lowercase leading-none tracking-[0.14em] text-ink"
+        className="small-caps text-[1.55rem] leading-none tracking-[0.14em] text-ink"
       >
         {BOOK_COVER.contentsTitle}
       </h2>
@@ -20,7 +20,7 @@ export function TableOfContents() {
               href={getChapterHref(chapter.id)}
               className="group grid grid-cols-[2.75rem_1fr] items-baseline gap-x-2 py-5 sm:grid-cols-[3.5rem_1fr]"
             >
-              <span className="font-caps text-lg lowercase tracking-[0.12em] text-burgundy">{chapter.numeral}</span>
+              <span className="small-caps text-[0.85rem] tracking-[0.12em] text-burgundy">{chapter.numeral}</span>
               <span className="flex flex-col sm:flex-row sm:items-baseline sm:gap-3">
                 <span className="font-display text-[1.75rem] font-semibold leading-tight text-ink transition-colors duration-300 ease-settle group-hover:text-burgundy">
                   {chapter.title}

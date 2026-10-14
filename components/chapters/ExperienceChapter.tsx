@@ -18,7 +18,7 @@ export function ExperienceChapter() {
             {ROLES.map((role) => (
               <li key={role.id} data-reveal className="relative">
                 <span aria-hidden="true" className="absolute -left-[2.05rem] top-2 size-2.5 rotate-45 border border-brass bg-parchment" />
-                <p className="font-caps text-[0.98rem] lowercase tracking-[0.12em] text-burgundy">
+                <p className="small-caps text-[0.74rem] tracking-[0.12em] text-burgundy">
                   <time dateTime={role.start}>{formatYearMonth(role.start)}</time>
                   {" to "}
                   {role.end ? <time dateTime={role.end}>{formatYearMonth(role.end)}</time> : "present"}
@@ -37,7 +37,7 @@ export function ExperienceChapter() {
           Education
         </h2>
         <div data-reveal className="mt-6 border-t border-ink/12 pt-6">
-          <p className="font-caps text-[0.98rem] lowercase tracking-[0.12em] text-burgundy">
+          <p className="small-caps text-[0.74rem] tracking-[0.12em] text-burgundy">
             {EDUCATION.startYear} to {EDUCATION.endYear}
           </p>
           <h3 className="mt-1.5 font-display text-[1.75rem] font-semibold leading-tight text-ink">{EDUCATION.degree}</h3>
