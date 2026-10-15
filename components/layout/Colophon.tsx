@@ -12,7 +12,7 @@ async function getCopyrightYear(): Promise<number> {
 export async function Colophon() {
   const copyrightYear = await getCopyrightYear();
   return (
-    <footer data-inert-during-intro className="relative z-[1] mx-auto mt-16 max-w-[86rem] px-6 pb-14 text-center sm:mt-20">
+    <footer data-colophon data-inert-during-intro className="relative z-[3] mx-auto mt-16 max-w-[86rem] px-6 pb-14 text-center sm:mt-20">
       <Fleuron className="mx-auto mb-5 h-4 w-24 text-brass/60" />
       <p className="eyebrow text-smoke">
         © {copyrightYear} {SITE.name}. {SITE.colophon}

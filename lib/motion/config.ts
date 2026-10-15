@@ -80,7 +80,7 @@ export const INTRO_WALK_PHASES = { setOff: 0.18, arrive: 0.4 } as const;
 export const INTRO_TIMINGS = {
   welcomeExit: 0.7,
   sceneFadeIn: 1.3,
-  /** How long before the walk stops the library starts dissolving onto the real bookcase. */
+  /** How long before the walk stops the home page's navbar and heading start to rise into the scene. */
   landingOverlap: 1,
   landingFade: 1.1,
   settle: 1.4,
@@ -96,8 +96,51 @@ export const INTRO_EASES = {
 
 /** The real bookcase comes forward from this scale as the library dissolves onto it. */
 export const INTRO_LANDING_START_SCALE = 1.06;
-/** The canvas is released after the overlay has finished fading out. */
-export const INTRO_DISPOSE_DELAY_MS = 700;
+
+// ─── The library on the home page ───────────────────────────────────────────
+
+/** Seconds the library takes to fade up once ready, and to fade away behind a book's page. */
+export const SHELF_SCENE_FADE_SECONDS = { in: 0.9, out: 0.5 } as const;
+
+/** How far the camera drifts with the pointer, in metres, and how quickly it follows (share per frame). */
+export const SHELF_PARALLAX = { x: 0.16, y: 0.07, follow: 0.05 } as const;
+/** With nothing moving for this long, the dust drifts on at half the frame rate. */
+export const SHELF_IDLE_AFTER_MS = 3000;
+/** And after this long it settles: nothing is drawn until the pointer moves or a book is named. */
+export const SHELF_REST_AFTER_MS = 15_000;
+
+/** A book named in the navbar slides out of the shelf (metres), tipped by its top edge (radians), and its spine lights up. */
+export const SHELF_PREVIEW = { distance: 0.07, tipRadians: 0.13, glow: 0.95, seconds: 0.35 } as const;
+
+/** Taking a book off the grand bookcase, in seconds from the moment it is chosen. */
+export const SHELF_TAKE_TIMINGS = {
+  /** It slides out tipped by its top edge. */
+  pull: 0.45,
+  /** The camera steps toward it meanwhile. */
+  approach: 1.15,
+  /** It turns to show its cover and comes up to the reader. */
+  turnAt: 0.32,
+  turn: 0.95,
+  /** Its cover opens on the title page. */
+  openAt: 1.18,
+  open: 0.75,
+  /** Share of the opening at which its page is loaded. */
+  navigateShare: 0.4,
+} as const;
+
+export const SHELF_TAKE = {
+  /** How far out of the shelf the book slides before it turns, in metres: clear of its neighbours. */
+  pullDistance: 0.3,
+  tipRadians: 0.17,
+  /** Share of the way from where the camera stands toward the book that it steps. */
+  approachShare: 0.35,
+  /** The closed book's height as a share of the screen's, up close. */
+  heightShare: 0.6,
+  /** The open spread's width as a share of the screen's, where it fits. */
+  spreadWidthShare: 0.82,
+  /** The cover's turn about its hinge when open, in radians: lying nearly flat, as an open book does. */
+  openRadians: -3.02,
+} as const;
 
 // ─── Taking a book off the shelf ────────────────────────────────────────────
 
@@ -137,9 +180,6 @@ export const BOOK_TRANSIT_HEIGHT_SHARE = 0.62;
 export const BOOK_TRANSIT_SPREAD_WIDTH_SHARE = 0.9;
 /** The cover's turn about its hinge when open: just short of flat. */
 export const BOOK_TRANSIT_OPEN_DEGREES = -80;
-/** The neighbours rock into the gap the book leaves, then settle. */
-export const BOOK_NEIGHBOUR_ROCK_DEGREES = 2.6;
-export const BOOK_NEIGHBOUR_REST_DEGREES = 1.1;
 /** Gives up waiting for the next page after this long and fades out anyway. */
 export const BOOK_TRANSIT_ROUTE_TIMEOUT_MS = 2500;
 /**

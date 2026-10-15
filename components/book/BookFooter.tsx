@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { ShelfLink } from "@/components/library/ShelfLink";
 import type { BookId } from "@/content/portfolio";
 import { getAdjacentBooks, getBookHref } from "@/lib/books";
 
@@ -13,16 +13,16 @@ export function BookFooter({ bookId }: BookFooterProps) {
       <ul className="grid grid-cols-2 gap-6">
         <li>
           {previous ? (
-            <FooterLink href={getBookHref(previous.id)} rel="prev" label="Previous book" title={previous.title} direction="back" />
+            <FooterLink href={getBookHref(previous.id)} bookId={previous.id} rel="prev" label="Previous book" title={previous.title} direction="back" />
           ) : (
-            <FooterLink href="/" label="Back to" title="The shelf" direction="back" />
+            <FooterLink href="/" bookId={null} label="Back to" title="The shelf" direction="back" />
           )}
         </li>
         <li className="text-right">
           {next ? (
-            <FooterLink href={getBookHref(next.id)} rel="next" label="Next book" title={next.title} direction="forward" />
+            <FooterLink href={getBookHref(next.id)} bookId={next.id} rel="next" label="Next book" title={next.title} direction="forward" />
           ) : (
-            <FooterLink href="/" label="Back to" title="The shelf" direction="forward" />
+            <FooterLink href="/" bookId={null} label="Back to" title="The shelf" direction="forward" />
           )}
         </li>
       </ul>
@@ -32,16 +32,17 @@ export function BookFooter({ bookId }: BookFooterProps) {
 
 interface FooterLinkProps {
   readonly href: string;
+  readonly bookId: BookId | null;
   readonly label: string;
   readonly title: string;
   readonly direction: "back" | "forward";
   readonly rel?: "prev" | "next";
 }
 
-function FooterLink({ href, label, title, direction, rel }: FooterLinkProps) {
+function FooterLink({ href, bookId, label, title, direction, rel }: FooterLinkProps) {
   const isForward = direction === "forward";
   return (
-    <Link href={href} rel={rel} className="group inline-block">
+    <ShelfLink href={href} bookId={bookId} rel={rel} className="group inline-block">
       <span className="section-label block">{label}</span>
       <span className="mt-1.5 inline-flex items-baseline gap-2 font-display text-xl font-medium text-ink transition-colors duration-300 ease-settle group-hover:text-[color:var(--book-accent)] sm:text-2xl">
         {isForward ? null : (
@@ -56,6 +57,6 @@ function FooterLink({ href, label, title, direction, rel }: FooterLinkProps) {
           </span>
         ) : null}
       </span>
-    </Link>
+    </ShelfLink>
   );
 }

@@ -905,390 +905,6 @@
   }
 }
 
-/* ─── The bookcase ───────────────────────────────────────────────────────────
-   Books are sized in shelf units and rows, both scaled per screen size. The
-   rows wrap like lines of text, and the case is exactly as tall as its rows,
-   so the books that overflow wrap onto rows that are never shown. */
-
-@layer components {
-  .library-stage {
-    position: relative;
-    z-index: 1;
-    padding-bottom: 3rem;
-  }
-
-  /* The unit is a fixed share of the case's width, so every screen fits about
-     the same number of books on a row and the titled books always land on a
-     row that is shown. */
-  .bookcase {
-    --unit: calc((100vw - 3.5rem) / 36);
-    --row: 9.25rem;
-    --rows: 6;
-    --plank: 0.75rem;
-    /* Room above the top row for a book to lift into. */
-    --headroom: 1rem;
-    --caption-height: 4.75rem;
-    --frame: 0.65rem;
-    --spine-shading: linear-gradient(
-      to right,
-      rgb(0 0 0 / 0.42),
-      rgb(255 255 255 / 0.12) 18%,
-      transparent 40%,
-      transparent 66%,
-      rgb(0 0 0 / 0.25) 85%,
-      rgb(0 0 0 / 0.5)
-    );
-    --gilt: rgb(212 178 106 / 0.55);
-    position: relative;
-    margin: 2.25rem auto 0;
-    width: min(100% - 1.5rem, 88rem);
-    padding-bottom: var(--caption-height);
-  }
-
-  /* The smallest phones fit fewer books on a row, so they get one more row. */
-  @media (max-width: 22.4rem) {
-    .bookcase {
-      --rows: 7;
-    }
-  }
-
-  @media (min-width: 40rem) {
-    .bookcase {
-      --unit: calc((min(100vw, 94rem) - 5rem) / 64);
-      --row: 10rem;
-      --rows: 4;
-      width: min(100% - 3rem, 91rem);
-      margin-top: 2.5rem;
-    }
-  }
-
-  @media (min-width: 64rem) {
-    .bookcase {
-      --unit: calc((min(100vw, 94rem) - 5rem) / 82);
-      --row: 11rem;
-    }
-  }
-
-  /* The case: a wooden frame around a recessed back lit from a lamp above. */
-  .bookcase-cabinet {
-    background:
-      radial-gradient(70% 45% at 50% 0%, rgb(212 178 106 / 0.14), transparent 70%),
-      linear-gradient(to bottom, #100905, #1b110a 55%, #22160d);
-    border: solid var(--color-wood-800);
-    border-width: var(--frame) var(--frame) calc(var(--frame) * 1.4);
-    border-radius: 0.7rem 0.7rem 0.35rem 0.35rem;
-    box-shadow:
-      inset 0 1px 0 rgb(255 255 255 / 0.06),
-      0 40px 70px -30px rgb(0 0 0 / 0.85);
-  }
-
-  .bookcase-rows {
-    display: flex;
-    flex-wrap: wrap;
-    align-content: flex-start;
-    column-gap: 2px;
-    row-gap: var(--plank);
-    height: calc(var(--headroom) + var(--rows) * (var(--row) + var(--plank)));
-    padding: var(--headroom) 0.35rem 0;
-    overflow: hidden;
-    /* A plank under every row: a lit front edge, then the board falling into shadow. */
-    background-image: repeating-linear-gradient(
-      to bottom,
-      transparent 0 var(--row),
-      #7a5534 var(--row) calc(var(--row) + 2px),
-      #4a301c calc(var(--row) + 2px) calc(var(--row) + var(--plank) * 0.45),
-      #2b1a12 calc(var(--row) + var(--plank) * 0.45) calc(var(--row) + var(--plank))
-    );
-    background-origin: content-box;
-    background-clip: content-box;
-  }
-
-  /* Shadow cast by each plank onto the books below it and by the case's sides,
-     laid over the books so they sit inside the case rather than on it. */
-  .bookcase::after {
-    content: "";
-    position: absolute;
-    top: var(--frame);
-    inset-inline: var(--frame);
-    height: calc(var(--headroom) + var(--rows) * (var(--row) + var(--plank)));
-    background:
-      repeating-linear-gradient(
-        to bottom,
-        rgb(0 0 0 / 0.5) 0,
-        transparent 2.4rem,
-        transparent calc(var(--row) + var(--plank))
-      )
-      0 var(--headroom) / 100% calc(var(--row) + var(--plank)),
-      linear-gradient(to right, rgb(0 0 0 / 0.55), transparent 2.5rem, transparent calc(100% - 2.5rem), rgb(0 0 0 / 0.55));
-    background-repeat: repeat-y, no-repeat;
-    pointer-events: none;
-  }
-
-  .shelf-book {
-    position: relative;
-    flex: 0 0 auto;
-    width: calc(var(--w) * var(--unit));
-    height: var(--row);
-  }
-
-  /* Untitled books stretch a touch to close the gap at the end of each row. */
-  .shelf-book.is-filler {
-    flex-grow: 1;
-    max-width: calc(var(--w) * var(--unit) * 1.35);
-  }
-
-  .is-filler::before,
-  .is-filler::after {
-    content: "";
-    position: absolute;
-    inset: auto 0 0;
-    height: calc(var(--h) * 100%);
-    border-radius: 2px 2px 1px 1px;
-  }
-
-  .is-filler::before {
-    background-color: var(--c);
-    background-image: var(--spine-shading);
-  }
-
-  .is-filler[data-pattern="banded"]::after {
-    background:
-      linear-gradient(var(--gilt), var(--gilt)) 0 7% / 100% 1px no-repeat,
-      linear-gradient(var(--gilt), var(--gilt)) 0 9.5% / 100% 1px no-repeat,
-      linear-gradient(var(--gilt), var(--gilt)) 0 91% / 100% 1px no-repeat,
-      linear-gradient(var(--gilt), var(--gilt)) 0 93.5% / 100% 1px no-repeat;
-  }
-
-  .is-filler[data-pattern="label"]::after {
-    background: linear-gradient(rgb(232 220 190 / 0.7), rgb(232 220 190 / 0.7)) 50% 20% / 62% 13% no-repeat;
-  }
-
-  /* Raised bands across a leather spine, each with a shadow under a lit ridge. */
-  .is-filler[data-pattern="ribbed"]::after {
-    background:
-      linear-gradient(rgb(255 255 255 / 0.14), rgb(0 0 0 / 0.4)) 0 18% / 100% 3px no-repeat,
-      linear-gradient(rgb(255 255 255 / 0.14), rgb(0 0 0 / 0.4)) 0 38% / 100% 3px no-repeat,
-      linear-gradient(rgb(255 255 255 / 0.14), rgb(0 0 0 / 0.4)) 0 62% / 100% 3px no-repeat,
-      linear-gradient(rgb(255 255 255 / 0.14), rgb(0 0 0 / 0.4)) 0 82% / 100% 3px no-repeat;
-  }
-
-  .is-filler[data-pattern="plain"]::after {
-    background: linear-gradient(var(--gilt), var(--gilt)) 50% 28% / 46% 2px no-repeat;
-  }
-
-  .is-filler[data-pattern="capped"]::after {
-    background: linear-gradient(to bottom, rgb(0 0 0 / 0.35) 0 13%, var(--gilt) 13% calc(13% + 1px), transparent calc(13% + 1px));
-  }
-
-  /* A book leaning against its neighbour, pivoting on its bottom right corner. */
-  .shelf-book.is-leaning {
-    flex-grow: 0;
-    width: calc(var(--w) * var(--unit) + var(--h) * var(--row) * 0.16);
-  }
-
-  .is-leaning::before,
-  .is-leaning::after {
-    right: auto;
-    width: calc(var(--w) * var(--unit));
-    transform: rotate(var(--lean));
-    transform-origin: 100% 100%;
-  }
-
-  .shelf-stack {
-    display: flex;
-    flex: 0 0 auto;
-    flex-direction: column;
-    justify-content: flex-end;
-    align-items: flex-start;
-    height: var(--row);
-    padding-inline: calc(var(--unit) * 0.6);
-  }
-
-  .shelf-lying-book {
-    display: block;
-    width: calc(var(--w) * var(--unit));
-    height: calc(var(--t) * var(--unit) * 1.15);
-    background-color: var(--c);
-    background-image: linear-gradient(to bottom, rgb(255 255 255 / 0.14), transparent 35%, rgb(0 0 0 / 0.4));
-    border-radius: 2px;
-  }
-
-  .shelf-lying-book:nth-child(even) {
-    margin-left: calc(var(--unit) * 0.5);
-  }
-
-  .shelf-bookend {
-    position: relative;
-    flex: 0 0 auto;
-    width: calc(var(--unit) * 1.2);
-    height: var(--row);
-  }
-
-  .shelf-bookend::before {
-    content: "";
-    position: absolute;
-    inset: auto 0 0;
-    height: 46%;
-    background: linear-gradient(90deg, #5c4419, #d4b26a 35%, #b8913a 62%, #5c4419);
-    border-radius: 0.4rem 0.4rem 0.1rem 0.1rem;
-  }
-
-  /* ─── Titled books ────────────────────────────────────────────────────── */
-
-  .shelf-book.is-titled {
-    display: flex;
-    align-items: flex-end;
-    width: max(1.9rem, calc(var(--w) * var(--unit)));
-  }
-
-  /* The ring is drawn on the spine itself so it follows the book as it lifts. */
-  .shelf-book.is-titled:focus-visible {
-    outline: none;
-  }
-
-  .is-titled:focus-visible .shelf-book-body {
-    outline: 2px solid var(--color-brass-light);
-    outline-offset: 3px;
-  }
-
-  /* Bookcloth in the book's own cover colour with gilt bands, standing a
-     little proud of the untitled books around it. */
-  .shelf-book-body {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 100%;
-    height: calc(var(--h) * 100%);
-    padding-block: calc(var(--row) * 0.04) calc(var(--row) * 0.06);
-    color: var(--book-cover-ink);
-    background-color: var(--book-cover);
-    background-image: var(--spine-shading);
-    border-radius: 2px 2px 1px 1px;
-    box-shadow:
-      0 0 0 1px rgb(212 178 106 / 0.22),
-      7px 0 14px -6px rgb(0 0 0 / 0.85),
-      -7px 0 14px -6px rgb(0 0 0 / 0.85);
-    transition: transform 450ms var(--ease-settle);
-  }
-
-  .shelf-book-body::before,
-  .shelf-book-body::after {
-    content: "";
-    position: absolute;
-    inset-inline: 0;
-    height: calc(var(--row) * 0.035);
-    border-block: 1px solid color-mix(in srgb, var(--book-cover-ink) 60%, transparent);
-  }
-
-  .shelf-book-body::before {
-    top: calc(var(--row) * 0.17);
-  }
-
-  .shelf-book-body::after {
-    bottom: calc(var(--row) * 0.035);
-  }
-
-  /* The numeral sits on a small brass plate. */
-  .shelf-spine-numeral {
-    padding: 0.1rem 0.3rem;
-    font-family: var(--font-display);
-    font-size: max(0.7rem, calc(var(--unit) * 0.95));
-    font-weight: 600;
-    line-height: 1.1;
-    letter-spacing: 0.04em;
-    color: var(--color-ink);
-    background: linear-gradient(to bottom, #ecd7a2, #b8913a);
-    border-radius: 2px;
-    box-shadow: 0 1px 2px rgb(0 0 0 / 0.4);
-  }
-
-  /* Fills the space between the bands and centres the title in it. In
-     vertical writing, justify-content runs down the spine. */
-  .shelf-spine-title {
-    display: flex;
-    flex: 1;
-    justify-content: center;
-    margin-block: calc(var(--row) * 0.08) calc(var(--row) * 0.03);
-    writing-mode: vertical-rl;
-    font-family: var(--font-display);
-    /* As large as the width allows, but never longer than the spine: about
-       two thirds of the book's height, shared between its letters. */
-    font-size: min(calc(var(--unit) * 1.6), calc(var(--row) * var(--h) * 0.64 / (var(--chars) * 0.76)));
-    font-weight: 600;
-    line-height: 1;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    white-space: nowrap;
-  }
-
-  .is-titled:focus-visible .shelf-book-body {
-    transform: translateY(calc(var(--headroom) * -0.8));
-  }
-
-  @media (hover: hover) {
-    .is-titled:hover .shelf-book-body {
-      transform: translateY(calc(var(--headroom) * -0.8));
-    }
-  }
-
-  /* Each titled book's caption shares the strip under the case with the
-     instruction; the lifted book shows its own. */
-  .bookcase-instruction,
-  .shelf-caption {
-    position: absolute;
-    inset-inline: 0;
-    bottom: 0;
-    height: var(--caption-height);
-    padding: 1.1rem 1rem 0;
-    text-align: center;
-    transition: opacity 300ms var(--ease-settle);
-  }
-
-  .bookcase-instruction {
-    font-family: var(--font-display);
-    font-size: 1.15rem;
-    font-style: italic;
-    color: var(--color-smoke);
-  }
-
-  .shelf-caption {
-    opacity: 0;
-    pointer-events: none;
-  }
-
-  .shelf-caption-title {
-    display: block;
-    margin-top: 0.4rem;
-    font-family: var(--font-display);
-    font-size: 1.5rem;
-    line-height: 1.1;
-    color: var(--color-parchment-light);
-  }
-
-  .shelf-caption-title em {
-    color: var(--color-smoke);
-  }
-
-  .is-titled:focus-visible + .shelf-caption {
-    opacity: 1;
-  }
-
-  .bookcase:has(.is-titled:focus-visible) .bookcase-instruction {
-    opacity: 0;
-  }
-
-  @media (hover: hover) {
-    .is-titled:hover + .shelf-caption {
-      opacity: 1;
-    }
-
-    .bookcase:has(.is-titled:hover) .bookcase-instruction {
-      opacity: 0;
-    }
-  }
-}
-
 /* ─── A book off the shelf ───────────────────────────────────────────────────
    A CSS 3D box: spine, covers, page edges and a front cover on a hinge. Sizes
    come from --h, --w (cover) and --d (thickness), set by script. */
@@ -1313,6 +929,15 @@
   position: absolute;
   inset: 0;
   background: radial-gradient(ellipse 65% 75% at 50% 50%, #2c1b10, #0d0805 75%);
+  opacity: 0;
+}
+
+/* The dark slot a book leaves on the shelf while it is out. */
+.transit-gap {
+  position: absolute;
+  border-radius: 1px;
+  background: linear-gradient(to bottom, #070403, #120a06);
+  box-shadow: inset 0 0 6px rgb(0 0 0 / 0.85);
   opacity: 0;
 }
 
@@ -1624,6 +1249,251 @@ html.lenis body {
   pointer-events: none;
 }
 
+/* ─── The library ────────────────────────────────────────────────────────────
+   The home page is the grand bookcase the intro walks up to. Its poster
+   (rendered from the WebGL scene) is the base everywhere; where the device
+   runs it, the live scene fades up over the poster in exactly the same place.
+   The live scene lives in a layer of the layout that stays put between pages
+   and rises over a book's page while that book is put back or another is
+   taken. Both are the reference frame cropped to cover the screen, as the
+   WebGL camera crops it, so the links over the titled books line up too. */
+
+:root {
+  --shelf-frame-aspect: 1.7778;
+}
+
+@media (orientation: portrait) {
+  :root {
+    --shelf-frame-aspect: 0.5625;
+  }
+}
+
+.shelf-poster,
+.shelf-hotspots {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  container-type: size;
+  pointer-events: none;
+}
+
+.shelf-frame {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: max(100cqw, 100cqh * var(--shelf-frame-aspect));
+  max-width: none;
+  height: max(100cqh, 100cqw / var(--shelf-frame-aspect));
+  translate: -50% -50%;
+}
+
+img.shelf-frame {
+  object-fit: cover;
+}
+
+.shelf-poster {
+  background-color: var(--color-library-night);
+}
+
+/* The home page's layers, bottom up: its poster, the live library, shading,
+   the heading and colophon, then the links over the books. */
+.shelf-poster.is-home {
+  z-index: 0;
+}
+
+/* Over the poster the page's lamp glow would tint the bookcase differently from the live scene. */
+html[data-at-library] body::before {
+  opacity: 0;
+}
+
+.library-scene {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+html:is([data-at-library], [data-library-transit]) .library-scene {
+  display: block;
+}
+
+/* On the home page its own poster is underneath; this copy is for other pages. */
+html[data-at-library]:not([data-library-transit]) .library-scene > .shelf-poster {
+  display: none;
+}
+
+.library-scene-canvas {
+  position: absolute;
+  inset: 0;
+}
+
+.library-scene-canvas > canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transition: opacity 900ms ease;
+}
+
+html[data-scene-ready] .library-scene-canvas > canvas {
+  opacity: 1;
+}
+
+/* Shade behind the heading, and the room falling into darkness at its edges. */
+.library-scene-shade {
+  position: fixed;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 62% 30% at 50% 21%, rgb(8 4 2 / 0.6), transparent 100%),
+    linear-gradient(to bottom, rgb(8 4 2 / 0.72), rgb(8 4 2 / 0.28) 32%, transparent 50%),
+    radial-gradient(ellipse 95% 85% at 50% 55%, transparent 62%, rgb(5 2 1 / 0.55));
+}
+
+/* One screen: the heading at the top, a line about choosing a book at the foot. */
+.library-stage {
+  --colophon-line: 3rem;
+  position: relative;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: calc(100svh - var(--spacing-masthead) - 2rem - var(--colophon-line));
+  padding-bottom: 0.75rem;
+  pointer-events: none;
+}
+
+.library-stage > * {
+  pointer-events: auto;
+}
+
+@media (min-width: 40rem) {
+  .library-stage {
+    min-height: calc(100svh - var(--spacing-masthead) - 3rem - var(--colophon-line));
+  }
+}
+
+.library-hero :is(h1, p) {
+  text-shadow: 0 2px 22px rgb(0 0 0 / 0.7);
+}
+
+.library-scene-caption {
+  padding-inline: 1rem;
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-style: italic;
+  text-align: center;
+  color: rgb(239 230 210 / 0.86);
+  text-shadow: 0 1px 14px rgb(0 0 0 / 0.9);
+}
+
+/* The colophon becomes one line under the caption, so the page never scrolls the heading off the bookcase. */
+html[data-at-library] [data-colophon] {
+  margin-top: 0;
+  padding-bottom: 1.25rem;
+  text-shadow: 0 1px 12px rgb(0 0 0 / 0.9);
+}
+
+html[data-at-library] [data-colophon] > svg {
+  display: none;
+}
+
+/* ─── The titled books on the shelf ─────────────────────────────────────── */
+
+.shelf-hotspots {
+  z-index: 4;
+}
+
+.shelf-hotspot {
+  --focus-ring: var(--color-brass-light);
+  position: absolute;
+  top: var(--l-top);
+  left: var(--l-left);
+  width: var(--l-width);
+  height: var(--l-height);
+  border-radius: 2px;
+  pointer-events: auto;
+  transition:
+    box-shadow 300ms var(--ease-settle),
+    background-color 300ms var(--ease-settle);
+}
+
+@media (orientation: portrait) {
+  .shelf-hotspot {
+    top: var(--p-top);
+    left: var(--p-left);
+    width: var(--p-width);
+    height: var(--p-height);
+  }
+}
+
+/* A spine is only a few pixels wide on screen; the target is wider. */
+.shelf-hotspot::before {
+  content: "";
+  position: absolute;
+  inset: -6px -10px;
+}
+
+/* Named on the poster (by pointer, keyboard or the navbar), the spine lights up as if lamplit. */
+.shelf-hotspot[data-previewed] {
+  background-color: rgb(255 226 170 / 0.16);
+  box-shadow:
+    0 0 0 1px rgb(236 215 162 / 0.85),
+    0 0 18px 4px rgb(212 178 106 / 0.45);
+}
+
+/* ─── Moves between the shelf and the books ─────────────────────────────── */
+
+/* A book is coming off the shelf, or going back: the heading and shading step back for it. */
+html[data-library-taking] :is(.library-scene-shade, .library-hero, [data-colophon]) {
+  opacity: 0;
+  transition: opacity 400ms ease;
+}
+
+html:is([data-library-taking], [data-library-transit]) .shelf-hotspot {
+  pointer-events: none;
+}
+
+/* Back on the shelf: they rise into place again. */
+html[data-library-settling] :is(.library-hero, [data-colophon]) {
+  animation: shelf-chrome-rise 700ms var(--ease-settle) both;
+}
+
+html[data-library-settling] .library-scene-shade {
+  animation: shelf-shade-in 700ms ease both;
+}
+
+@keyframes shelf-chrome-rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}
+
+@keyframes shelf-shade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+/* Leaving a book or opening one: the library rises over the page (not the navbar), and fades away again after. */
+html[data-library-transit] .library-scene {
+  z-index: 39;
+  transition: opacity 450ms ease;
+}
+
+html[data-library-leaving] .library-scene {
+  opacity: 0;
+  transition: opacity 500ms ease-in;
+}
+
+/* While the intro plays, the navbar, heading, shading and links wait to rise into the view. */
+html[data-intro="play"] :is([data-masthead], .library-scene-shade, .library-hero, .library-scene-caption, .shelf-hotspots, [data-colophon]) {
+  opacity: 0;
+}
+
 /* ─── Library intro ──────────────────────────────────────────────────────────
    A welcome screen painted with the page, then the WebGL library behind it.
    Kept in the global sheet because a route-specific sheet was preloaded,
@@ -1645,27 +1515,6 @@ html.lenis body {
     radial-gradient(ellipse 55% 45% at 50% 34%, rgb(212 178 106 / 0.13), transparent 72%),
     radial-gradient(ellipse 120% 90% at 50% 40%, transparent 50%, rgb(5 3 2 / 0.85)),
     var(--color-library-night);
-}
-
-.intro-canvas-host {
-  position: absolute;
-  inset: 0;
-  opacity: 0;
-}
-
-.intro-canvas-host > canvas {
-  display: block;
-  width: 100%;
-  height: 100%;
-}
-
-.intro-vignette {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background:
-    radial-gradient(ellipse 85% 75% at 50% 48%, transparent 55%, rgb(5 2 1 / 0.5) 85%, rgb(5 2 1 / 0.8)),
-    linear-gradient(to bottom, rgb(5 2 1 / 0.35), transparent 18%, transparent 82%, rgb(5 2 1 / 0.4));
 }
 
 .intro-welcome {

@@ -4,16 +4,14 @@ import { INTRO, PROFILE } from "@/content/portfolio";
 
 // The first visit's opening. The welcome screen is server-rendered, so it is
 // the first thing painted, and it holds while the WebGL library loads behind
-// it; then the camera walks through the library to the real bookcase. The
-// inline boot script decides before the first paint whether any of this shows;
-// without JavaScript it never does.
+// it (in the layout, under this overlay); then the backdrop lifts and the
+// camera walks through the library to the grand bookcase, where the home page
+// is. The inline boot script decides before the first paint whether any of
+// this shows; without JavaScript it never does.
 export function LibraryIntro() {
   return (
     <div className="library-intro" data-intro-overlay data-lenis-prevent role="region" aria-label="Welcome">
       <div className="intro-backdrop" data-intro-backdrop />
-      <div className="intro-canvas-host" data-intro-canvas aria-hidden="true">
-        <div className="intro-vignette" />
-      </div>
       <div className="intro-welcome" data-intro-welcome>
         <Monogram className="intro-welcome-mark" />
         <p className="intro-welcome-eyebrow eyebrow">{INTRO.welcome}</p>

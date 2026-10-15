@@ -1,8 +1,8 @@
 "use client";
 
-import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef } from "react";
+import { ShelfLink } from "@/components/library/ShelfLink";
 import { BOOKS, LIBRARY, type BookId } from "@/content/portfolio";
 import { getBook, getBookHref } from "@/lib/books";
 
@@ -48,6 +48,12 @@ function closeMenuOnDismiss(menu: HTMLDetailsElement): () => void {
   };
 }
 
+// A book chosen from the small-screen menu comes off the shelf behind it, so the menu gets out of the way first.
+function closeMenu(): void {
+  const menu = document.querySelector<HTMLDetailsElement>("[data-site-menu]");
+  if (menu) menu.open = false;
+}
+
 export function SiteNav() {
   const pathname = usePathname();
   const menuRef = useRef<HTMLDetailsElement>(null);
@@ -68,17 +74,17 @@ export function SiteNav() {
       <ul className="hidden items-center gap-1 lg:flex">
         {[LIBRARY_ITEM, ...BOOK_ITEMS].map((item) => (
           <li key={item.href}>
-            <Link href={item.href} aria-current={currentFor(item.href)} className="site-nav-link">
+            <ShelfLink href={item.href} bookId={item.bookId} aria-current={currentFor(item.href)} className="site-nav-link">
               {item.label}
-            </Link>
+            </ShelfLink>
           </li>
         ))}
       </ul>
-      <Link href={CONTACT_ITEM.href} aria-current={currentFor(CONTACT_ITEM.href)} className="site-nav-cta">
+      <ShelfLink href={CONTACT_ITEM.href} bookId={CONTACT_ITEM.bookId} aria-current={currentFor(CONTACT_ITEM.href)} className="site-nav-cta">
         {CONTACT_ITEM.label}
-      </Link>
+      </ShelfLink>
 
-      <details ref={menuRef} className="site-menu lg:hidden">
+      <details ref={menuRef} data-site-menu className="site-menu lg:hidden">
         <summary className="site-menu-button">
           Menu
           <span aria-hidden="true" className="site-menu-icon" />
@@ -87,8 +93,10 @@ export function SiteNav() {
           <ul>
             {MENU_ITEMS.map((item) => (
               <li key={item.href}>
-                <Link
+                <ShelfLink
                   href={item.href}
+                  bookId={item.bookId}
+                  onMoveStart={closeMenu}
                   aria-current={currentFor(item.href)}
                   data-book={item.bookId ?? undefined}
                   className="site-menu-link"
@@ -96,7 +104,7 @@ export function SiteNav() {
                   <span aria-hidden="true" className={item.bookId ? "site-menu-swatch" : "site-menu-swatch is-library"} />
                   <span className="font-display text-[1.45rem] leading-none">{item.label}</span>
                   <span className="eyebrow ml-auto text-smoke">{item.detail}</span>
-                </Link>
+                </ShelfLink>
               </li>
             ))}
           </ul>

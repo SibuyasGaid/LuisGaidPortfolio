@@ -1,6 +1,6 @@
 export interface DeviceCapabilities {
   readonly isLowEndDevice: boolean;
-  /** A 2G or 3G connection, where large optional downloads should be skipped. */
+  /** A 2G connection, where large optional downloads should be skipped. */
   readonly isSlowConnection: boolean;
 }
 
@@ -10,7 +10,7 @@ interface NavigatorWithHints extends Navigator {
   readonly connection?: { readonly saveData?: boolean; readonly effectiveType?: string };
 }
 
-const SLOW_CONNECTION_TYPES = new Set(["slow-2g", "2g", "3g"]);
+const SLOW_CONNECTION_TYPES = new Set(["slow-2g", "2g"]);
 
 const VERY_LOW_CORE_COUNT = 2;
 const VERY_LOW_MEMORY_GB = 2;
