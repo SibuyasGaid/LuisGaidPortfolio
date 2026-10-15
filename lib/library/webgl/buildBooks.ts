@@ -9,8 +9,8 @@ import {
   type Material,
 } from "three";
 import { BOOK_CLOTH_COLORS } from "@/lib/bookCloths";
-import { SPINE_ATLAS } from "@/lib/intro/webgl/createLibraryTextures";
-import { SHELVING } from "@/lib/intro/webgl/libraryLayout";
+import { SPINE_ATLAS } from "@/lib/library/webgl/createLibraryTextures";
+import { SHELVING } from "@/lib/library/webgl/libraryLayout";
 import { pickBetween, pickFrom, type Random } from "@/lib/random/seededRandom";
 
 // Fills runs of shelving with books, drawn as one instanced box per spine
@@ -25,6 +25,14 @@ export interface ShelfRun {
   readonly out: Vector3;
   readonly length: number;
   readonly rowCount: number;
+  /** Stretches of a row kept clear for books placed separately, in metres along the run. */
+  readonly reserved?: readonly ReservedSlot[];
+}
+
+export interface ReservedSlot {
+  readonly row: number;
+  readonly start: number;
+  readonly end: number;
 }
 
 interface Book {
@@ -120,6 +128,19 @@ function fillBay(books: Book[], random: Random, start: number, end: number, base
   }
 }
 
+/** The parts of a bay left once any reserved slots are taken out of it. */
+function splitAroundReserved(start: number, end: number, reserved: readonly ReservedSlot[]): [number, number][] {
+  const segments: [number, number][] = [];
+  let cursor = start;
+  for (const slot of [...reserved].sort((first, second) => first.start - second.start)) {
+    if (slot.end <= cursor || slot.start >= end) continue;
+    if (slot.start > cursor) segments.push([cursor, slot.start]);
+    cursor = Math.max(cursor, slot.end);
+  }
+  if (cursor < end) segments.push([cursor, end]);
+  return segments;
+}
+
 function generateBooks(run: ShelfRun, random: Random): Book[] {
   const books: Book[] = [];
   const clearHeight = SHELVING.rowHeight - SHELVING.boardThickness;
@@ -127,10 +148,13 @@ function generateBooks(run: ShelfRun, random: Random): Book[] {
   const bayWidth = run.length / bayCount;
   for (let row = 0; row < run.rowCount; row++) {
     const base = SHELVING.plinthHeight + row * SHELVING.rowHeight + SHELVING.boardThickness;
+    const reserved = (run.reserved ?? []).filter((slot) => slot.row === row);
     for (let bay = 0; bay < bayCount; bay++) {
       const start = bay * bayWidth + SHELVING.uprightThickness / 2;
       const end = (bay + 1) * bayWidth - SHELVING.uprightThickness / 2;
-      fillBay(books, random, start, end, base, clearHeight);
+      for (const [segmentStart, segmentEnd] of splitAroundReserved(start, end, reserved)) {
+        fillBay(books, random, segmentStart, segmentEnd, base, clearHeight);
+      }
     }
   }
   return books;

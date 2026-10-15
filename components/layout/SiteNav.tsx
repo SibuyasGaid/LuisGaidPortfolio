@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useRef } from "react";
 import { BOOKS, LIBRARY, type BookId } from "@/content/portfolio";
 import { getBook, getBookHref } from "@/lib/books";
+import { getBookPicker } from "@/lib/library/bookPicker";
 
 interface NavItem {
   readonly href: string;
@@ -48,6 +49,40 @@ function closeMenuOnDismiss(menu: HTMLDetailsElement): () => void {
   };
 }
 
+interface NavigateEvent {
+  preventDefault(): void;
+}
+
+// A book chosen from the small-screen menu is taken off the shelf behind it, so the menu gets out of the way first.
+function closeMenu(): void {
+  const menu = document.querySelector<HTMLDetailsElement>("[data-site-menu]");
+  if (menu) menu.open = false;
+}
+
+/**
+ * On the home page a book's link takes the book off the shelf first (the
+ * bookcase registers a picker for that), and naming it, by pointer or by
+ * keyboard, shows where it stands. Elsewhere the links just navigate.
+ */
+function getBookLinkProps(item: NavItem, onPick?: () => void) {
+  const { bookId } = item;
+  if (!bookId) return {};
+  const preview = (target: BookId | null) => getBookPicker()?.preview(target);
+  return {
+    onNavigate(event: NavigateEvent) {
+      const picker = getBookPicker();
+      if (!picker) return;
+      event.preventDefault();
+      onPick?.();
+      picker.pick(bookId, item.href);
+    },
+    onPointerEnter: () => preview(bookId),
+    onPointerLeave: () => preview(null),
+    onFocus: () => preview(bookId),
+    onBlur: () => preview(null),
+  };
+}
+
 export function SiteNav() {
   const pathname = usePathname();
   const menuRef = useRef<HTMLDetailsElement>(null);
@@ -68,17 +103,17 @@ export function SiteNav() {
       <ul className="hidden items-center gap-1 lg:flex">
         {[LIBRARY_ITEM, ...BOOK_ITEMS].map((item) => (
           <li key={item.href}>
-            <Link href={item.href} aria-current={currentFor(item.href)} className="site-nav-link">
+            <Link href={item.href} aria-current={currentFor(item.href)} className="site-nav-link" {...getBookLinkProps(item)}>
               {item.label}
             </Link>
           </li>
         ))}
       </ul>
-      <Link href={CONTACT_ITEM.href} aria-current={currentFor(CONTACT_ITEM.href)} className="site-nav-cta">
+      <Link href={CONTACT_ITEM.href} aria-current={currentFor(CONTACT_ITEM.href)} className="site-nav-cta" {...getBookLinkProps(CONTACT_ITEM)}>
         {CONTACT_ITEM.label}
       </Link>
 
-      <details ref={menuRef} className="site-menu lg:hidden">
+      <details ref={menuRef} data-site-menu className="site-menu lg:hidden">
         <summary className="site-menu-button">
           Menu
           <span aria-hidden="true" className="site-menu-icon" />
@@ -92,6 +127,7 @@ export function SiteNav() {
                   aria-current={currentFor(item.href)}
                   data-book={item.bookId ?? undefined}
                   className="site-menu-link"
+                  {...getBookLinkProps(item, closeMenu)}
                 >
                   <span aria-hidden="true" className={item.bookId ? "site-menu-swatch" : "site-menu-swatch is-library"} />
                   <span className="font-display text-[1.45rem] leading-none">{item.label}</span>

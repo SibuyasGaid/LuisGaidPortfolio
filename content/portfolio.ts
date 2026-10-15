@@ -56,7 +56,10 @@ export interface Fact {
 /** Copy for the home page, where the books stand on a shelf. */
 export interface LibraryCopy {
   readonly eyebrow: string;
+  /** Under the flat bookcase. */
   readonly shelfInstruction: string;
+  /** Under the WebGL library, until a book is named in the navbar. */
+  readonly sceneInstruction: string;
   /** The home page's name in the navigation bar. */
   readonly navLabel: string;
 }
@@ -207,7 +210,8 @@ export const PROFILE: Profile = {
 
 export const LIBRARY: LibraryCopy = {
   eyebrow: "The library of",
-  shelfInstruction: "Six of these books are titled. Pick one to take it off the shelf.",
+  shelfInstruction: "Choose a book from the menu, or take one off the shelf.",
+  sceneInstruction: "Choose a book from the menu to take it off the shelf.",
   navLabel: "Library",
 };
 

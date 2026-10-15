@@ -2,8 +2,10 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import type { BookId } from "@/content/portfolio";
 import { getRovingTargetIndex } from "@/lib/a11y/getRovingTargetIndex";
 import { detectDeviceCapabilities } from "@/lib/device/detectDeviceCapabilities";
+import { setBookPicker } from "@/lib/library/bookPicker";
 import { REDUCED_MOTION_QUERY } from "@/lib/motion/config";
 
 type BookTransit = typeof import("@/lib/shelf/runBookTransit");
@@ -12,6 +14,12 @@ const IDLE_FALLBACK_MS = 1200;
 
 function isPlainClick(event: MouseEvent): boolean {
   return event.button === 0 && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey;
+}
+
+/** Wholly on screen (and not put away behind the WebGL library). */
+function isInView(element: Element): boolean {
+  const bounds = element.getBoundingClientRect();
+  return bounds.width > 0 && bounds.top >= 0 && bounds.bottom <= window.innerHeight;
 }
 
 function canAnimateTransit(): boolean {
@@ -58,8 +66,9 @@ function enableRovingFocus(bookcase: HTMLElement, books: readonly HTMLAnchorElem
 }
 
 // The titled books are plain links inside static markup. This turns a click on
-// one into an in-app navigation, played as the book coming off the shelf when
-// motion is welcome. Without JavaScript the links simply load their pages.
+// one, or choosing its book in the navbar, into an in-app navigation, played
+// as the book coming off the shelf when motion is welcome and the book is in
+// view. Without JavaScript the links simply load their pages.
 export function BookcaseController() {
   const router = useRouter();
 
@@ -80,13 +89,12 @@ export function BookcaseController() {
       }
     });
 
-    function openBook(event: MouseEvent): void {
-      const link = event.target instanceof Element ? event.target.closest<HTMLAnchorElement>("a[data-shelf-book]") : null;
-      if (!link || !isPlainClick(event)) return;
-      event.preventDefault();
+    // From the navbar, a book scrolled out of sight just opens: watching it
+    // leave the shelf only makes sense where it can be seen.
+    function takeBook(link: HTMLAnchorElement, isChosenFromNavbar: boolean): void {
       if (isTransitRunning) return;
       const navigate = () => router.push(link.pathname);
-      if (!transit || !canAnimateTransit()) {
+      if (!transit || !canAnimateTransit() || (isChosenFromNavbar && !isInView(link))) {
         navigate();
         return;
       }
@@ -96,10 +104,34 @@ export function BookcaseController() {
       });
     }
 
+    function openBook(event: MouseEvent): void {
+      const link = event.target instanceof Element ? event.target.closest<HTMLAnchorElement>("a[data-shelf-book]") : null;
+      if (!link || !isPlainClick(event)) return;
+      event.preventDefault();
+      takeBook(link, false);
+    }
+
+    const findBook = (bookId: BookId) => books.find((book) => book.dataset.book === bookId);
+    const unregisterPicker = setBookPicker(
+      {
+        preview(bookId) {
+          for (const book of books) book.classList.toggle("is-previewed", book.dataset.book === bookId);
+        },
+        pick(bookId, href) {
+          const link = findBook(bookId);
+          if (link) takeBook(link, true);
+          else router.push(href);
+        },
+      },
+      "flat",
+    );
+
     bookcase.addEventListener("click", openBook);
     return () => {
       cancelIdleWork();
       stopRovingFocus();
+      unregisterPicker();
+      for (const book of books) book.classList.remove("is-previewed");
       bookcase.removeEventListener("click", openBook);
     };
   }, [router]);

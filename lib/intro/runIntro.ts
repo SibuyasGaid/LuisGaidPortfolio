@@ -5,17 +5,15 @@ import {
   createWelcomeExit,
   releaseIntroElements,
   type IntroElements,
+  type IntroLanding,
   type IntroPlayback,
 } from "@/lib/intro/createIntroTimeline";
 import { markIntroRunning } from "@/lib/intro/introLifecycle";
-import type { LibraryScene } from "@/lib/intro/webgl/createLibraryScene";
+import { applyShelfView, fallBackToFlatShelf } from "@/lib/library/chooseShelfView";
+import { loadLibrary, releaseLibrary } from "@/lib/library/libraryStage";
+import type { RenderQuality } from "@/lib/library/webgl/createLibraryScene";
 import { createWelcomeProgress } from "@/lib/intro/welcomeProgress";
-import {
-  INTRO_DISPOSE_DELAY_MS,
-  INTRO_LOAD_TIMEOUT_SECONDS,
-  INTRO_PROGRESS,
-  INTRO_WELCOME_MIN_SECONDS,
-} from "@/lib/motion/config";
+import { INTRO_LOAD_TIMEOUT_SECONDS, INTRO_PROGRESS, INTRO_WELCOME_MIN_SECONDS } from "@/lib/motion/config";
 import { reportError } from "@/lib/reportError";
 
 export interface RunningIntro {
@@ -29,54 +27,58 @@ function measureRemainingWelcome(): number {
 
 // The welcome screen shows from the first paint. Behind it, the WebGL library
 // downloads and builds in stages that the progress bar reports; once it is
-// ready (and the welcome has had its moment) the walk begins. Anything that
-// goes wrong, or takes too long, hands over to the site instead.
+// ready (and the welcome has had its moment) the walk begins, and the library
+// stays on as the home page. Anything that goes wrong hands over to the flat
+// bookcase; taking too long hands over to the home page, where the library
+// fades up whenever it is ready.
 export function runIntro(elements: IntroElements): RunningIntro {
   markIntroRunning();
   const progress = createWelcomeProgress(elements.progressBar, elements.progressFill, elements.status);
   const variant = chooseIntroVariant();
   let playback: IntroPlayback | null = null;
-  let scene: LibraryScene | null = null;
   let isStopped = false;
   let timeout = 0;
 
-  function enterWithoutWalk(): void {
+  function enter(landing: IntroLanding): void {
     if (isStopped || playback) return;
     progress.advance(1, INTRO.statuses.ready);
-    playback = createWelcomeExit(elements, measureRemainingWelcome());
+    playback = createWelcomeExit(elements, measureRemainingWelcome(), landing);
   }
 
-  async function loadAndWalk(quality: Extract<typeof variant, { kind: "walk" }>["quality"]): Promise<void> {
+  async function loadScene(quality: RenderQuality, isWalking: boolean): Promise<void> {
     try {
-      const { createLibraryScene } = await import("@/lib/intro/webgl/createLibraryScene");
-      if (isStopped || playback) return;
-      progress.advance(INTRO_PROGRESS.sceneModule, INTRO.statuses.lighting);
-      const built = await createLibraryScene(elements.canvasHost, quality, (share) => {
+      const library = await loadLibrary(quality, (share) => {
         const status = share < 0.45 ? INTRO.statuses.lighting : INTRO.statuses.shelving;
         progress.advance(INTRO_PROGRESS.sceneModule + share * INTRO_PROGRESS.sceneSpan, status);
       });
-      // Stopped, or timed out, while building: the site has already taken over.
-      if (isStopped || playback) {
-        built.dispose();
-        return;
-      }
-      scene = built;
+      // Stopped, or timed out, while loading: the home page has taken over.
+      if (isStopped || playback) return;
       window.clearTimeout(timeout);
       progress.advance(1, INTRO.statuses.ready);
-      playback = createWalkTimeline(elements, built, measureRemainingWelcome());
+      if (isWalking) {
+        playback = createWalkTimeline(elements, library.scene, measureRemainingWelcome());
+      } else {
+        library.scene.renderWalk({ progress: 1, stride: 0, elapsed: 0 });
+        playback = createWelcomeExit(elements, measureRemainingWelcome(), "scene");
+      }
     } catch (error) {
       reportError(error, "library intro");
-      enterWithoutWalk();
+      window.clearTimeout(timeout);
+      releaseLibrary();
+      fallBackToFlatShelf();
+      enter("flat");
     }
   }
 
   if (variant.kind === "welcome") {
+    applyShelfView("flat");
     progress.advance(INTRO_PROGRESS.sceneModule, INTRO.statuses.opening);
-    enterWithoutWalk();
+    enter("flat");
   } else {
+    applyShelfView("scene");
     progress.advance(INTRO_PROGRESS.started, INTRO.statuses.opening, INTRO_PROGRESS.downloadCreep);
-    timeout = window.setTimeout(enterWithoutWalk, INTRO_LOAD_TIMEOUT_SECONDS * 1000);
-    void loadAndWalk(variant.quality);
+    timeout = window.setTimeout(() => enter("scene"), INTRO_LOAD_TIMEOUT_SECONDS * 1000);
+    void loadScene(variant.quality, variant.kind === "walk");
   }
 
   return {
@@ -86,9 +88,6 @@ export function runIntro(elements: IntroElements): RunningIntro {
       window.clearTimeout(timeout);
       playback?.kill();
       releaseIntroElements(elements);
-      // The canvas goes once the overlay has finished fading over it.
-      const builtScene = scene;
-      if (builtScene) window.setTimeout(() => builtScene.dispose(), INTRO_DISPOSE_DELAY_MS);
     },
   };
 }

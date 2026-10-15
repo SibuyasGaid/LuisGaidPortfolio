@@ -9,6 +9,7 @@ import { DevPerformanceReadout } from "@/components/dev/DevPerformanceReadout";
 import { IntroStateKeeper } from "@/components/intro/IntroStateKeeper";
 import { SITE } from "@/content/portfolio";
 import { INTRO_BOOT_SCRIPT } from "@/lib/intro/introLifecycle";
+import { SHELF_BOOT_SCRIPT } from "@/lib/library/shelfAttributes";
 import { getSiteUrl } from "@/lib/siteUrl";
 import "./globals.css";
 
@@ -55,10 +56,14 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     // The boot script sets data-intro on <html> before hydration, hence suppressHydrationWarning.
     <html lang="en" className={`${cormorantGaramond.variable} ${inter.variable}`} suppressHydrationWarning>
       <head>
-        <script dangerouslySetInnerHTML={{ __html: INTRO_BOOT_SCRIPT }} />
+        <script dangerouslySetInnerHTML={{ __html: INTRO_BOOT_SCRIPT + SHELF_BOOT_SCRIPT }} />
       </head>
       <body>
         <SkipLink />
+        {/* The WebGL library draws here, behind the home page, and stays put between pages. */}
+        <div data-library-scene aria-hidden="true" className="library-scene">
+          <div className="library-scene-shade" />
+        </div>
         <Masthead />
         <main id="main" tabIndex={-1} className="relative pt-[calc(var(--spacing-masthead)+2rem)] outline-none sm:pt-[calc(var(--spacing-masthead)+3rem)]">
           {children}

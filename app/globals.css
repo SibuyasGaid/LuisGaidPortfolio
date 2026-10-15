@@ -954,18 +954,18 @@
 
   @media (min-width: 40rem) {
     .bookcase {
-      --unit: calc((min(100vw, 94rem) - 5rem) / 64);
+      --unit: calc((min(100vw, 114rem) - 4rem) / 64);
       --row: 10rem;
-      --rows: 4;
-      width: min(100% - 3rem, 91rem);
+      --rows: 5;
+      width: min(100% - 2rem, 110rem);
       margin-top: 2.5rem;
     }
   }
 
   @media (min-width: 64rem) {
     .bookcase {
-      --unit: calc((min(100vw, 94rem) - 5rem) / 82);
-      --row: 11rem;
+      --unit: calc((min(100vw, 114rem) - 4rem) / 82);
+      --row: 11.5rem;
     }
   }
 
@@ -1222,7 +1222,8 @@
     white-space: nowrap;
   }
 
-  .is-titled:focus-visible .shelf-book-body {
+  .is-titled:focus-visible .shelf-book-body,
+  .is-titled.is-previewed .shelf-book-body {
     transform: translateY(calc(var(--headroom) * -0.8));
   }
 
@@ -1270,11 +1271,12 @@
     color: var(--color-smoke);
   }
 
-  .is-titled:focus-visible + .shelf-caption {
+  .is-titled:focus-visible + .shelf-caption,
+  .is-titled.is-previewed + .shelf-caption {
     opacity: 1;
   }
 
-  .bookcase:has(.is-titled:focus-visible) .bookcase-instruction {
+  .bookcase:has(.is-titled:focus-visible, .is-previewed) .bookcase-instruction {
     opacity: 0;
   }
 
@@ -1624,6 +1626,119 @@ html.lenis body {
   pointer-events: none;
 }
 
+/* ─── The library scene ──────────────────────────────────────────────────────
+   The WebGL library behind the home page, drawn into a layer of the layout so
+   it stays put between pages. It shows while the home page is in view on a
+   device that runs it (data-shelf="scene", set before the first paint for a
+   returning reader), and while a book taken from it opens over its page. */
+
+.library-scene {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-color: var(--color-library-night);
+}
+
+html[data-shelf="scene"]:is([data-at-library], [data-library-transit]) .library-scene {
+  display: block;
+}
+
+.library-scene > canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transition: opacity 900ms ease;
+}
+
+html[data-scene-ready] .library-scene > canvas {
+  opacity: 1;
+}
+
+/* Shade behind the heading, and the room falling into darkness at its edges. */
+.library-scene-shade {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 62% 30% at 50% 21%, rgb(8 4 2 / 0.6), transparent 100%),
+    linear-gradient(to bottom, rgb(8 4 2 / 0.72), rgb(8 4 2 / 0.28) 32%, transparent 50%),
+    radial-gradient(ellipse 95% 85% at 50% 55%, transparent 62%, rgb(5 2 1 / 0.55));
+}
+
+/* Over the library the home page is one screen: the heading at the top, a
+   line about the navbar at the foot, the flat bookcase put away. */
+.library-scene-caption {
+  display: none;
+}
+
+html[data-shelf="scene"] .bookcase {
+  display: none;
+}
+
+html[data-shelf="scene"] .library-stage {
+  --colophon-line: 3rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: calc(100svh - var(--spacing-masthead) - 2rem - var(--colophon-line));
+  padding-bottom: 0.75rem;
+}
+
+/* The colophon becomes one line under the caption, so the page never scrolls the heading away from the scene. */
+html[data-shelf="scene"][data-at-library] [data-colophon] {
+  margin-top: 0;
+  padding-bottom: 1.25rem;
+  text-shadow: 0 1px 12px rgb(0 0 0 / 0.9);
+}
+
+html[data-shelf="scene"][data-at-library] [data-colophon] > svg {
+  display: none;
+}
+
+html[data-shelf="scene"] .library-hero :is(h1, p) {
+  text-shadow: 0 2px 22px rgb(0 0 0 / 0.7);
+}
+
+html[data-shelf="scene"] .library-scene-caption {
+  display: block;
+  padding-inline: 1rem;
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-style: italic;
+  text-align: center;
+  color: rgb(239 230 210 / 0.86);
+  text-shadow: 0 1px 14px rgb(0 0 0 / 0.9);
+}
+
+@media (min-width: 40rem) {
+  html[data-shelf="scene"] .library-stage {
+    min-height: calc(100svh - var(--spacing-masthead) - 3rem - var(--colophon-line));
+  }
+}
+
+/* A book is chosen: the heading and shading step back for it. */
+html[data-library-taking] :is(.library-scene-shade, .library-hero, [data-colophon]) {
+  opacity: 0;
+  transition: opacity 400ms ease;
+}
+
+/* Its page loads underneath: the library rises over the page (not the navbar), then fades to it. */
+html[data-library-transit] .library-scene {
+  z-index: 39;
+}
+
+html[data-library-leaving] .library-scene {
+  opacity: 0;
+  transition: opacity 500ms ease-in;
+}
+
+/* While the walk plays, the navbar, heading and shading wait to rise into the scene. */
+html[data-intro="play"][data-shelf="scene"] :is([data-masthead], .library-scene-shade, .library-hero, .library-scene-caption, [data-colophon]) {
+  opacity: 0;
+}
+
 /* ─── Library intro ──────────────────────────────────────────────────────────
    A welcome screen painted with the page, then the WebGL library behind it.
    Kept in the global sheet because a route-specific sheet was preloaded,
@@ -1645,27 +1760,6 @@ html.lenis body {
     radial-gradient(ellipse 55% 45% at 50% 34%, rgb(212 178 106 / 0.13), transparent 72%),
     radial-gradient(ellipse 120% 90% at 50% 40%, transparent 50%, rgb(5 3 2 / 0.85)),
     var(--color-library-night);
-}
-
-.intro-canvas-host {
-  position: absolute;
-  inset: 0;
-  opacity: 0;
-}
-
-.intro-canvas-host > canvas {
-  display: block;
-  width: 100%;
-  height: 100%;
-}
-
-.intro-vignette {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background:
-    radial-gradient(ellipse 85% 75% at 50% 48%, transparent 55%, rgb(5 2 1 / 0.5) 85%, rgb(5 2 1 / 0.8)),
-    linear-gradient(to bottom, rgb(5 2 1 / 0.35), transparent 18%, transparent 82%, rgb(5 2 1 / 0.4));
 }
 
 .intro-welcome {

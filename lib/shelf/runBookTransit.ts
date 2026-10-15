@@ -14,6 +14,7 @@ import {
   BOOK_TRANSIT_TIP_DEGREES,
 } from "@/lib/motion/config";
 import { gsap } from "@/lib/motion/gsap";
+import { waitForPathname } from "@/lib/navigation/waitForPathname";
 
 // Takes a titled book off the shelf as a solid object: a CSS 3D box with a
 // spine, covers, page edges and a hinged front cover. It slides out tipped by
@@ -181,20 +182,6 @@ function findNeighbours(link: HTMLAnchorElement): { left: HTMLElement | null; ri
   };
 }
 
-function waitForPage(pathname: string): Promise<void> {
-  const startedAt = performance.now();
-  return new Promise((resolve) => {
-    function check(): void {
-      if (window.location.pathname === pathname || performance.now() - startedAt > BOOK_TRANSIT_ROUTE_TIMEOUT_MS) {
-        resolve();
-        return;
-      }
-      requestAnimationFrame(check);
-    }
-    check();
-  });
-}
-
 export function runBookTransit({ link, navigate }: BookTransitOptions): Promise<void> {
   const root = document.querySelector<HTMLElement>("[data-transit-root]");
   const spine = link.querySelector<HTMLElement>(".shelf-book-body");
@@ -318,7 +305,7 @@ export function runBookTransit({ link, navigate }: BookTransitOptions): Promise<
       if (isFinishing) return;
       isFinishing = true;
       goToPage();
-      await waitForPage(link.pathname);
+      await waitForPathname(link.pathname, BOOK_TRANSIT_ROUTE_TIMEOUT_MS);
       gsap
         .timeline({ onComplete: cleanUp })
         .to(parts.book, { z: `+=${geometry.height * 0.35}`, duration: revealDuration, ease: BOOK_TRANSIT_EASES.reveal }, 0)
