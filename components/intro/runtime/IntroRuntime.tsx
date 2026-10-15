@@ -2,10 +2,25 @@
 
 import { useEffect } from "react";
 import type { IntroElements } from "@/lib/intro/createIntroTimeline";
-import { finishIntro, isIntroPlaying, subscribeToIntroFinish } from "@/lib/intro/introLifecycle";
+import { queryIntroChrome } from "@/lib/intro/introChrome";
+import { finishIntro, isIntroPlaying, isIntroRewind, subscribeToIntroFinish } from "@/lib/intro/introLifecycle";
 import { runIntro } from "@/lib/intro/runIntro";
 
-const CHROME_SELECTORS = ["[data-masthead]", ".library-scene-shade", ".library-hero", "[data-scene-caption]", ".shelf-hotspots", "[data-colophon]"] as const;
+// On a first visit the boot script handles Skip and Escape; a rewind has to.
+function listenForSkip(): () => void {
+  function skipOnClick(event: MouseEvent): void {
+    if (event.target instanceof Element && event.target.closest("[data-skip-intro]")) finishIntro();
+  }
+  function skipOnEscape(event: KeyboardEvent): void {
+    if (event.key === "Escape") finishIntro();
+  }
+  document.addEventListener("click", skipOnClick);
+  document.addEventListener("keydown", skipOnEscape);
+  return () => {
+    document.removeEventListener("click", skipOnClick);
+    document.removeEventListener("keydown", skipOnEscape);
+  };
+}
 
 function queryIntroElements(): IntroElements | null {
   const find = (selector: string) => document.querySelector<HTMLElement>(selector);
@@ -18,11 +33,11 @@ function queryIntroElements(): IntroElements | null {
   const skip = find("[data-skip-intro]");
   const poster = find("[data-shelf-poster]");
   if (!overlay || !backdrop || !welcome || !progressBar || !progressFill || !status || !skip || !poster) return null;
-  const chrome = CHROME_SELECTORS.map(find).filter((element) => element !== null);
-  return { overlay, backdrop, welcome, progressBar, progressFill, status, skip, poster, chrome };
+  return { overlay, backdrop, welcome, progressBar, progressFill, status, skip, poster, chrome: queryIntroChrome() };
 }
 
-// Loaded only on a first visit, once the page itself has hydrated.
+// Loaded on a first visit once the page itself has hydrated, and again for
+// each rewind from the landing page.
 export default function IntroRuntime() {
   useEffect(() => {
     if (!isIntroPlaying()) return;
@@ -31,10 +46,15 @@ export default function IntroRuntime() {
       finishIntro();
       return;
     }
-    const intro = runIntro(elements);
+    const isRewind = isIntroRewind();
+    const intro = runIntro(elements, { isRewind });
     const unsubscribe = subscribeToIntroFinish(intro.stop);
+    const stopListening = isRewind ? listenForSkip() : () => {};
+    // The rewind button is now behind the overlay; the keyboard carries on at Skip.
+    if (isRewind) elements.skip.focus({ preventScroll: true });
     return () => {
       unsubscribe();
+      stopListening();
       intro.stop();
     };
   }, []);

@@ -4,6 +4,7 @@ import type { LibraryScene } from "@/lib/library/webgl/createLibraryScene";
 import {
   INTRO_EASES,
   INTRO_LANDING_START_SCALE,
+  INTRO_REWIND,
   INTRO_TIMINGS,
   INTRO_WALK_PHASES,
   INTRO_WALK_SECONDS,
@@ -66,11 +67,35 @@ function addLanding(
   timeline.call(finishIntro);
 }
 
+function addWelcomeExit(timeline: gsap.core.Timeline, elements: IntroElements, position: number, landing: IntroLanding): void {
+  timeline.to(elements.welcome, { opacity: 0, y: -10, duration: INTRO_TIMINGS.welcomeExit, ease: INTRO_EASES.fade }, position);
+  addLanding(timeline, elements, [elements.backdrop], position + INTRO_TIMINGS.welcomeExit * 0.4, landing);
+}
+
+/** The welcome card returning over the dark, as a rewind brings it back. */
+function addWelcomeReturn(timeline: gsap.core.Timeline, elements: IntroElements, position: number): void {
+  timeline
+    .fromTo(elements.backdrop, { opacity: 0 }, { opacity: 1, duration: INTRO_REWIND.cardIn, ease: "power1.in" }, position)
+    .fromTo(
+      elements.welcome,
+      { opacity: 0, y: 14 },
+      { opacity: 1, y: 0, duration: INTRO_REWIND.cardIn, ease: INTRO_EASES.land },
+      position + INTRO_REWIND.cardIn * 0.5,
+    );
+}
+
 /** Without the walk: the welcome screen holds for its moment, then gives way to the site. */
 export function createWelcomeExit(elements: IntroElements, delaySeconds: number, landing: IntroLanding): IntroPlayback {
   const timeline = gsap.timeline({ delay: delaySeconds });
-  timeline.to(elements.welcome, { opacity: 0, y: -10, duration: INTRO_TIMINGS.welcomeExit, ease: INTRO_EASES.fade }, 0);
-  addLanding(timeline, elements, [elements.backdrop], INTRO_TIMINGS.welcomeExit * 0.4, landing);
+  addWelcomeExit(timeline, elements, 0, landing);
+  return timeline;
+}
+
+/** A rewind where there is no walk to play: the welcome card returns, holds, and gives way to the shelf again. */
+export function createWelcomeRewind(elements: IntroElements, landing: IntroLanding): IntroPlayback {
+  const timeline = gsap.timeline();
+  addWelcomeReturn(timeline, elements, 0);
+  addWelcomeExit(timeline, elements, INTRO_REWIND.cardIn * 1.5 + INTRO_REWIND.hold, landing);
   return timeline;
 }
 
@@ -96,14 +121,29 @@ function addWalk(timeline: gsap.core.Timeline, walk: { progress: number; stride:
  * timeline runs on its own clock, advanced each frame by at most
  * MAX_FRAME_STEP_SECONDS: if the device stalls, the walk slows for a moment
  * instead of jumping ahead.
+ *
+ * Rewound from the landing page, it first flies the camera back up the aisle
+ * from the bookcase to the door (facing the room the whole way, as a film run
+ * backwards) while the welcome card returns over it, then plays as before.
  */
-export function createWalkTimeline(elements: IntroElements, scene: LibraryScene, delaySeconds: number): IntroPlayback {
-  const walk = { progress: 0, stride: 0 };
-  const walkStart = INTRO_TIMINGS.welcomeExit * 0.5;
+export function createWalkTimeline(
+  elements: IntroElements,
+  scene: LibraryScene,
+  delaySeconds: number,
+  options: { readonly isRewind?: boolean } = {},
+): IntroPlayback {
+  const walk = { progress: options.isRewind ? 1 : 0, stride: 0 };
   const timeline = gsap.timeline({ paused: true });
+  let welcomeExit = 0;
+  if (options.isRewind) {
+    timeline.to(walk, { progress: 0, duration: INTRO_REWIND.flyBack, ease: "power2.inOut" }, 0);
+    addWelcomeReturn(timeline, elements, INTRO_REWIND.flyBack - INTRO_REWIND.cardIn * 0.7);
+    welcomeExit = INTRO_REWIND.flyBack + INTRO_REWIND.cardIn * 0.8 + INTRO_REWIND.hold;
+  }
+  const walkStart = welcomeExit + INTRO_TIMINGS.welcomeExit * 0.5;
 
   timeline
-    .to(elements.welcome, { opacity: 0, y: -10, duration: INTRO_TIMINGS.welcomeExit, ease: INTRO_EASES.fade }, 0)
+    .to(elements.welcome, { opacity: 0, y: -10, duration: INTRO_TIMINGS.welcomeExit, ease: INTRO_EASES.fade }, welcomeExit)
     .to(elements.backdrop, { opacity: 0, duration: INTRO_TIMINGS.sceneFadeIn, ease: "power1.inOut" }, walkStart);
   addWalk(timeline, walk, walkStart);
   addLanding(timeline, elements, [], walkStart + INTRO_WALK_SECONDS - INTRO_TIMINGS.landingOverlap, "scene");

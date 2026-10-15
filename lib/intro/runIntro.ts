@@ -3,6 +3,7 @@ import { chooseIntroVariant } from "@/lib/intro/chooseIntroVariant";
 import {
   createWalkTimeline,
   createWelcomeExit,
+  createWelcomeRewind,
   releaseIntroElements,
   type IntroElements,
   type IntroLanding,
@@ -10,10 +11,11 @@ import {
 } from "@/lib/intro/createIntroTimeline";
 import { markIntroRunning } from "@/lib/intro/introLifecycle";
 import { applyShelfView, fallBackToFlatShelf } from "@/lib/library/chooseShelfView";
-import { loadLibrary, releaseLibrary } from "@/lib/library/libraryStage";
+import { getLoadedLibrary, loadLibrary, releaseLibrary } from "@/lib/library/libraryStage";
 import type { RenderQuality } from "@/lib/library/webgl/createLibraryScene";
 import { createWelcomeProgress } from "@/lib/intro/welcomeProgress";
 import { INTRO_LOAD_TIMEOUT_SECONDS, INTRO_PROGRESS, INTRO_WELCOME_MIN_SECONDS } from "@/lib/motion/config";
+import { gsap } from "@/lib/motion/gsap";
 import { reportError } from "@/lib/reportError";
 
 export interface RunningIntro {
@@ -25,13 +27,38 @@ function measureRemainingWelcome(): number {
   return Math.max(0, INTRO_WELCOME_MIN_SECONDS - performance.now() / 1000);
 }
 
+/**
+ * A rewind from the landing page: everything is already loaded, so the
+ * welcome card comes back (with a full bar) and the walk plays again, or
+ * where there is no walk the card returns and gives way to the shelf.
+ */
+function runRewind(elements: IntroElements): RunningIntro {
+  const variant = chooseIntroVariant();
+  const library = getLoadedLibrary();
+  // Whatever the last run left on the overlay goes; the card and backdrop start unseen.
+  gsap.set([elements.welcome, elements.backdrop, elements.skip, elements.progressFill], { clearProps: "all" });
+  gsap.set([elements.welcome, elements.backdrop], { opacity: 0 });
+  createWelcomeProgress(elements.progressBar, elements.progressFill, elements.status).advance(1, INTRO.statuses.ready);
+  let playback: IntroPlayback;
+  if (variant.kind === "walk" && library) playback = createWalkTimeline(elements, library.scene, 0, { isRewind: true });
+  else playback = createWelcomeRewind(elements, library ? "scene" : "flat");
+  if (library && variant.kind !== "walk") library.scene.renderWalk({ progress: 1, stride: 0, elapsed: 0 });
+  return {
+    stop() {
+      playback.kill();
+      releaseIntroElements(elements);
+    },
+  };
+}
+
 // The welcome screen shows from the first paint. Behind it, the WebGL library
 // downloads and builds in stages that the progress bar reports; once it is
 // ready (and the welcome has had its moment) the walk begins, and the library
-// stays on as the home page. Anything that goes wrong hands over to the flat
-// bookcase; taking too long hands over to the home page, where the library
+// stays on as the home page. Anything that goes wrong hands over to the
+// poster; taking too long hands over to the home page, where the library
 // fades up whenever it is ready.
-export function runIntro(elements: IntroElements): RunningIntro {
+export function runIntro(elements: IntroElements, options: { readonly isRewind?: boolean } = {}): RunningIntro {
+  if (options.isRewind) return runRewind(elements);
   markIntroRunning();
   const progress = createWelcomeProgress(elements.progressBar, elements.progressFill, elements.status);
   const variant = chooseIntroVariant();

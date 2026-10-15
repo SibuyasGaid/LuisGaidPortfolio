@@ -94,6 +94,13 @@ export const INTRO_EASES = {
   fade: "power2.inOut",
 } as const;
 
+/**
+ * Rewinding the intro from the landing page: the camera flies back up the
+ * aisle to the door, the welcome card returns over the dark and holds, then
+ * the walk plays again. Where there is no walk, the card simply returns.
+ */
+export const INTRO_REWIND = { flyBack: 1.9, cardIn: 0.7, hold: 1.3, chromeOut: 0.45 } as const;
+
 /** The real bookcase comes forward from this scale as the library dissolves onto it. */
 export const INTRO_LANDING_START_SCALE = 1.06;
 

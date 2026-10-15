@@ -4,7 +4,7 @@ import dynamic from "next/dynamic";
 import { useEffect, useSyncExternalStore } from "react";
 import { ErrorBoundary } from "@/components/errors/ErrorBoundary";
 import { preloadIntroScene } from "@/lib/intro/chooseIntroVariant";
-import { finishIntro, hasIntroStarted, isIntroPlaying, subscribeToIntroFinish } from "@/lib/intro/introLifecycle";
+import { finishIntro, getIntroRunId, hasIntroStarted, isIntroPlaying, subscribeToIntroChange } from "@/lib/intro/introLifecycle";
 
 const IntroRuntime = dynamic(() => import("@/components/intro/runtime/IntroRuntime"), { ssr: false });
 
@@ -22,8 +22,10 @@ function holdPageBehindIntro(): () => void {
 }
 
 export function IntroDirector() {
-  const isPlaying = useSyncExternalStore(subscribeToIntroFinish, isIntroPlaying, () => false);
-  const shouldMountTimeline = useSyncExternalStore(subscribeToIntroFinish, hasIntroStarted, () => false);
+  const isPlaying = useSyncExternalStore(subscribeToIntroChange, isIntroPlaying, () => false);
+  const shouldMountTimeline = useSyncExternalStore(subscribeToIntroChange, hasIntroStarted, () => false);
+  // Each rewind mounts the runtime afresh, so its effect runs the intro again.
+  const runId = useSyncExternalStore(subscribeToIntroChange, getIntroRunId, () => 0);
 
   useEffect(() => {
     if (!isPlaying) return;
@@ -35,7 +37,7 @@ export function IntroDirector() {
   // Any failure in the animation code ends the intro rather than trapping the page.
   return (
     <ErrorBoundary fallback={null} onError={finishIntro}>
-      <IntroRuntime />
+      <IntroRuntime key={runId} />
     </ErrorBoundary>
   );
 }
