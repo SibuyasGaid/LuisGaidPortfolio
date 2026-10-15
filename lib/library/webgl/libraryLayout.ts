@@ -132,41 +132,10 @@ export function getLampPositions(): LampPosition[] {
 export const CAMERA_PATH = {
   eyeHeight: 1.62,
   startZ: 1.2,
-  /** Vertical field of view on a landscape screen, and on the narrowest portrait one. */
-  fieldOfView: { landscape: 52, portrait: 72 },
 } as const;
 
-/**
- * How the home page frames the grand bookcase: this much of it must fit the
- * screen across or down, whichever comes first, so it fills a wide screen
- * edge to edge and a tall one floor to cornice.
- */
-const SHELF_FRAMING = {
-  height: 4.8,
-  width: 7.7,
-  /** The height at the bookcase that the camera looks toward. */
-  centreY: 2.3,
-  eyeHeight: 1.7,
-} as const;
-
+/** Where the camera stands and what it looks at (see shelfFraming for how the home page frames it). */
 export interface ShelfPose {
   readonly position: { readonly x: number; readonly y: number; readonly z: number };
   readonly target: { readonly x: number; readonly y: number; readonly z: number };
-}
-
-/** Wider on tall portrait screens, so a phone still sees down the aisle. */
-export function chooseFieldOfView(aspectRatio: number): number {
-  const { landscape, portrait } = CAMERA_PATH.fieldOfView;
-  const share = Math.min(1, Math.max(0, (1.3 - aspectRatio) / (1.3 - 0.5)));
-  return landscape + (portrait - landscape) * share;
-}
-
-/** Where the camera stands to show the grand bookcase on a screen of this shape: where the walk ends. */
-export function getShelfPose(aspectRatio: number): ShelfPose {
-  const halfHeight = Math.tan((chooseFieldOfView(aspectRatio) * Math.PI) / 360);
-  const distance = Math.min(SHELF_FRAMING.height / (2 * halfHeight), SHELF_FRAMING.width / (2 * halfHeight * aspectRatio));
-  return {
-    position: { x: 0, y: SHELF_FRAMING.eyeHeight, z: GRAND_BOOKCASE_FRONT_Z + distance },
-    target: { x: 0, y: SHELF_FRAMING.centreY, z: GRAND_BOOKCASE_FRONT_Z },
-  };
 }

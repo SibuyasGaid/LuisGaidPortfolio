@@ -1,10 +1,10 @@
 import { detectDeviceCapabilities } from "@/lib/device/detectDeviceCapabilities";
-import { SHELF_VIEW_ATTRIBUTE, SHELF_VIEW_STORAGE_KEY } from "@/lib/library/shelfAttributes";
+import { SHELF_VIEW_ATTRIBUTE } from "@/lib/library/shelfAttributes";
 import type { RenderQuality } from "@/lib/library/webgl/createLibraryScene";
 
 /**
  * scene: the WebGL library, at a quality to suit the device.
- * flat: the bookcase drawn in HTML and CSS, for every other device.
+ * flat: the poster of the same view, for every other device.
  */
 export type ShelfView = { readonly kind: "scene"; readonly quality: RenderQuality } | { readonly kind: "flat" };
 
@@ -38,24 +38,20 @@ function detectShelfView(): ShelfView {
 let chosenView: ShelfView | null = null;
 
 // The WebGL library is only downloaded where it will run well: never for
-// low-end devices, Save-Data, slow connections or software rendering.
+// low-end devices, Save-Data, very slow connections or software rendering.
+// Everywhere else the poster of the same view is the shelf.
 // Decided once per page, so every caller agrees.
 export function chooseShelfView(): ShelfView {
   chosenView ??= detectShelfView();
   return chosenView;
 }
 
-/** Shows the chosen home page and remembers the choice for the next visit's first paint. */
+/** Marks which shelf this visit has, for the styles that differ. */
 export function applyShelfView(kind: ShelfView["kind"]): void {
   document.documentElement.setAttribute(SHELF_VIEW_ATTRIBUTE, kind);
-  try {
-    localStorage.setItem(SHELF_VIEW_STORAGE_KEY, kind);
-  } catch {
-    // Private browsing: the next visit decides again.
-  }
 }
 
-/** The library failed on this device: the flat bookcase from now on. */
+/** The library failed on this device: the poster is the shelf for the rest of the visit. */
 export function fallBackToFlatShelf(): void {
   chosenView = { kind: "flat" };
   applyShelfView("flat");

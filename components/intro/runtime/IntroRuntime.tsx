@@ -5,7 +5,7 @@ import type { IntroElements } from "@/lib/intro/createIntroTimeline";
 import { finishIntro, isIntroPlaying, subscribeToIntroFinish } from "@/lib/intro/introLifecycle";
 import { runIntro } from "@/lib/intro/runIntro";
 
-const CHROME_SELECTORS = ["[data-masthead]", ".library-scene-shade", ".library-hero", "[data-scene-caption]", "[data-colophon]"] as const;
+const CHROME_SELECTORS = ["[data-masthead]", ".library-scene-shade", ".library-hero", "[data-scene-caption]", ".shelf-hotspots", "[data-colophon]"] as const;
 
 function queryIntroElements(): IntroElements | null {
   const find = (selector: string) => document.querySelector<HTMLElement>(selector);
@@ -16,10 +16,10 @@ function queryIntroElements(): IntroElements | null {
   const progressFill = find("[data-intro-progress-fill]");
   const status = find("[data-intro-status]");
   const skip = find("[data-skip-intro]");
-  const stage = find("[data-shelf-stage]");
-  if (!overlay || !backdrop || !welcome || !progressBar || !progressFill || !status || !skip || !stage) return null;
+  const poster = find("[data-shelf-poster]");
+  if (!overlay || !backdrop || !welcome || !progressBar || !progressFill || !status || !skip || !poster) return null;
   const chrome = CHROME_SELECTORS.map(find).filter((element) => element !== null);
-  return { overlay, backdrop, welcome, progressBar, progressFill, status, skip, stage, chrome };
+  return { overlay, backdrop, welcome, progressBar, progressFill, status, skip, poster, chrome };
 }
 
 // Loaded only on a first visit, once the page itself has hydrated.

@@ -1,7 +1,6 @@
 import { CanvasTexture, SRGBColorSpace } from "three";
 import { BOOKS, type BookId } from "@/content/portfolio";
-import { BOOK_DESIGNS } from "@/lib/bookDesigns";
-import { ROW_CLEAR_HEIGHT, TITLED_BOOK } from "@/lib/library/webgl/libraryLayout";
+import { getTitledBookSize } from "@/lib/library/shelfFraming";
 
 // The six titled books' spines, covers and title pages, painted on canvases
 // in the site's own typefaces and in each book's own cloth and ink, which are
@@ -63,20 +62,16 @@ function readBookColours(bookId: BookId): { cloth: string; ink: string } {
 }
 
 export function describeTitledBooks(): TitledBookArt[] {
-  return BOOKS.map((book) => {
-    const design = BOOK_DESIGNS[book.id];
-    return {
-      bookId: book.id,
-      numeral: book.numeral,
-      spineTitle: book.navLabel.toUpperCase(),
-      title: book.title,
-      subtitle: book.subtitle,
-      volumeLabel: `Volume ${book.numeral} · ${book.kind}`.toUpperCase(),
-      ...readBookColours(book.id),
-      thickness: design.spineWidth * TITLED_BOOK.thicknessPerUnit,
-      height: (design.spineHeight / 100) * ROW_CLEAR_HEIGHT * 0.98,
-    };
-  });
+  return BOOKS.map((book) => ({
+    bookId: book.id,
+    numeral: book.numeral,
+    spineTitle: book.navLabel.toUpperCase(),
+    title: book.title,
+    subtitle: book.subtitle,
+    volumeLabel: `Volume ${book.numeral} · ${book.kind}`.toUpperCase(),
+    ...readBookColours(book.id),
+    ...getTitledBookSize(book.id),
+  }));
 }
 
 /** The page's display and text faces, loaded so the canvases can draw with them. */

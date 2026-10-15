@@ -99,10 +99,6 @@ export const INTRO_LANDING_START_SCALE = 1.06;
 
 // ─── The library on the home page ───────────────────────────────────────────
 
-/** If the library has not drawn by then on the home page, the flat bookcase takes its place. */
-export const SHELF_SCENE_LOAD_TIMEOUT_MS = 8000;
-/** After leaving the home page, the library is kept this long in case the reader comes back. */
-export const SHELF_SCENE_IDLE_RELEASE_MS = 120_000;
 /** Seconds the library takes to fade up once ready, and to fade away behind a book's page. */
 export const SHELF_SCENE_FADE_SECONDS = { in: 0.9, out: 0.5 } as const;
 
@@ -184,9 +180,6 @@ export const BOOK_TRANSIT_HEIGHT_SHARE = 0.62;
 export const BOOK_TRANSIT_SPREAD_WIDTH_SHARE = 0.9;
 /** The cover's turn about its hinge when open: just short of flat. */
 export const BOOK_TRANSIT_OPEN_DEGREES = -80;
-/** The neighbours rock into the gap the book leaves, then settle. */
-export const BOOK_NEIGHBOUR_ROCK_DEGREES = 2.6;
-export const BOOK_NEIGHBOUR_REST_DEGREES = 1.1;
 /** Gives up waiting for the next page after this long and fades out anyway. */
 export const BOOK_TRANSIT_ROUTE_TIMEOUT_MS = 2500;
 /**

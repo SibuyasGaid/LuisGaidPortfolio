@@ -1,39 +1,33 @@
 import type { BookId } from "@/content/portfolio";
 
-// How the navbar reaches the bookcase. While the home page shows a bookcase
-// (the WebGL library or the flat one), it registers a picker here: naming a
-// book in the navbar previews it on the shelf, and choosing one takes it off
-// the shelf before its page loads. Anywhere else the navbar's links simply
-// navigate.
+// How links reach the library. The site's librarian (ShelfTransitions, in the
+// layout) registers here once. Naming a book on the home page shows where it
+// stands on the shelf; following a link to a book, or back to the shelf, lets
+// the librarian play the move: a book taken off the shelf, or the open book
+// put back (and the next one taken). Without a librarian, links just navigate.
 
-export interface BookPicker {
-  /** Shows where a book is on the shelf, or stops showing with null. */
-  preview(bookId: BookId | null): void;
-  /** Takes the book off the shelf, then loads its page. */
-  pick(bookId: BookId, href: string): void;
+export interface ShelfMove {
+  /** The book the link opens, or null for the shelf itself. */
+  readonly bookId: BookId | null;
+  readonly href: string;
 }
 
-/** The WebGL library outranks the flat bookcase, which stays registered underneath as its fallback. */
-export type BookPickerRank = "flat" | "scene";
+export interface BookPicker {
+  /** Shows where a book stands on the shelf, or stops showing with null. */
+  preview(bookId: BookId | null): void;
+  /** Plays the move and navigates when it is time; false leaves the link to navigate by itself. */
+  move(move: ShelfMove): boolean;
+}
 
-const RANK_ORDER: Record<BookPickerRank, number> = { flat: 1, scene: 2 };
-const pickers = new Map<BookPicker, BookPickerRank>();
+let activePicker: BookPicker | null = null;
 
-export function setBookPicker(picker: BookPicker, rank: BookPickerRank): () => void {
-  pickers.set(picker, rank);
+export function setBookPicker(picker: BookPicker): () => void {
+  activePicker = picker;
   return () => {
-    pickers.delete(picker);
+    if (activePicker === picker) activePicker = null;
   };
 }
 
 export function getBookPicker(): BookPicker | null {
-  let best: BookPicker | null = null;
-  let bestRank = 0;
-  for (const [picker, rank] of pickers) {
-    if (RANK_ORDER[rank] > bestRank) {
-      best = picker;
-      bestRank = RANK_ORDER[rank];
-    }
-  }
-  return best;
+  return activePicker;
 }

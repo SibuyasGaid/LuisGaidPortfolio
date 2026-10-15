@@ -1,12 +1,12 @@
 import type { ShelfView } from "@/lib/library/createShelfView";
 import { SCENE_READY_ATTRIBUTE } from "@/lib/library/shelfAttributes";
 import type { LibraryScene, RenderQuality } from "@/lib/library/webgl/createLibraryScene";
-import { REDUCED_MOTION_QUERY, SHELF_SCENE_IDLE_RELEASE_MS } from "@/lib/motion/config";
+import { REDUCED_MOTION_QUERY } from "@/lib/motion/config";
 
 // One library for the whole visit. The intro builds it and walks through it,
-// the home page keeps showing it, and it survives trips to the books and back
-// (the home page's DOM is kept while hidden). Left unseen for a while, it is
-// released to free the GPU, and built again if the reader returns.
+// the home page keeps showing it, and it stays (drawing nothing) while books
+// are read, so leaving one can play in the scene. If the browser takes the
+// GPU back, it is let go and the poster stands in until it is built again.
 
 export interface Library {
   readonly scene: LibraryScene;
@@ -18,7 +18,6 @@ type ProgressListener = (share: number) => void;
 let loading: Promise<Library> | null = null;
 let loaded: Library | null = null;
 let hasWalkBeenSeen = false;
-let releaseTimer = 0;
 const progressListeners = new Set<ProgressListener>();
 
 function loadRuntime(): Promise<typeof import("@/lib/library/libraryRuntime")> {
@@ -31,7 +30,7 @@ export function preloadLibrary(): void {
 }
 
 export function getLibraryHost(): HTMLElement | null {
-  return document.querySelector<HTMLElement>("[data-library-scene]");
+  return document.querySelector<HTMLElement>("[data-scene-canvas]");
 }
 
 /** The library if it is built and still held, for code that must not wait. */
@@ -48,6 +47,7 @@ async function build(quality: RenderQuality): Promise<Library> {
   });
   const view = runtime.createShelfView(scene, { isMotionAllowed: !window.matchMedia(REDUCED_MOTION_QUERY).matches });
   loaded = { scene, view };
+  scene.canvas.addEventListener("webglcontextlost", release, { once: true });
   document.documentElement.setAttribute(SCENE_READY_ATTRIBUTE, "");
   return loaded;
 }
@@ -57,7 +57,6 @@ async function build(quality: RenderQuality): Promise<Library> {
  * build's stages (from 0 to 1) if it is still under way.
  */
 export function loadLibrary(quality: RenderQuality, onProgress?: ProgressListener): Promise<Library> {
-  window.clearTimeout(releaseTimer);
   if (loaded) return Promise.resolve(loaded);
   if (onProgress) progressListeners.add(onProgress);
   loading ??= build(quality).finally(() => {
@@ -79,17 +78,6 @@ function release(): void {
   document.documentElement.removeAttribute(SCENE_READY_ATTRIBUTE);
 }
 
-/** The home page is out of sight: let the library go if it stays that way. */
-export function releaseLibraryLater(): void {
-  window.clearTimeout(releaseTimer);
-  releaseTimer = window.setTimeout(release, SHELF_SCENE_IDLE_RELEASE_MS);
-}
-
-/** The home page is back: keep the library. */
-export function keepLibrary(): void {
-  window.clearTimeout(releaseTimer);
-}
-
 /** The intro's walk has been on screen, so if it is cut short the camera should travel on rather than jump. */
 export function markWalkSeen(): void {
   hasWalkBeenSeen = true;
@@ -104,6 +92,5 @@ export function takeWalkSeen(): boolean {
 
 /** Lets the library go now, after a failure. */
 export function releaseLibrary(): void {
-  window.clearTimeout(releaseTimer);
   release();
 }

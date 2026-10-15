@@ -24,7 +24,8 @@ import { buildLibraryRoom, getShelfRuns } from "@/lib/library/webgl/buildLibrary
 import { buildTitledBooks, dressTitledBook, reserveTitledSlots, type TitledBook } from "@/lib/library/webgl/buildTitledBooks";
 import { createLibraryTextures, type LibraryTextures } from "@/lib/library/webgl/createLibraryTextures";
 import { createTitledFaceTexture, createTitledSpineAtlas, describeTitledBooks, loadCanvasFonts } from "@/lib/library/webgl/createTitledBookArt";
-import { chooseFieldOfView, getLampPositions, getShelfPose, type ShelfPose } from "@/lib/library/webgl/libraryLayout";
+import { chooseShelfReference, getCoverFieldOfView } from "@/lib/library/shelfFraming";
+import { getLampPositions, type ShelfPose } from "@/lib/library/webgl/libraryLayout";
 import { poseCamera, type WalkState } from "@/lib/library/webgl/walkCamera";
 import { createSeededRandom } from "@/lib/random/seededRandom";
 
@@ -231,8 +232,10 @@ async function buildScene(renderer: WebGLRenderer, quality: RenderQuality, onPro
   await yieldToBrowser();
 
   const aspectRatio = () => window.innerWidth / window.innerHeight;
-  const camera = new PerspectiveCamera(chooseFieldOfView(aspectRatio()), aspectRatio(), 0.05, 60);
-  let shelfPose = getShelfPose(aspectRatio());
+  // Framed exactly as the poster of this view is cropped, so the two line up.
+  const reference = () => chooseShelfReference(aspectRatio());
+  const camera = new PerspectiveCamera(getCoverFieldOfView(reference(), aspectRatio()), aspectRatio(), 0.05, 60);
+  let shelfPose = reference().pose;
   poseCamera(camera, { progress: 0, stride: 0, elapsed: 0 }, shelfPose);
   lightLamps(camera.position.x, camera.position.z);
   await renderer.compileAsync(scene, camera);
@@ -246,9 +249,9 @@ async function buildScene(renderer: WebGLRenderer, quality: RenderQuality, onPro
   const resizeListeners = new Set<() => void>();
   function resize(): void {
     camera.aspect = aspectRatio();
-    camera.fov = chooseFieldOfView(camera.aspect);
+    camera.fov = getCoverFieldOfView(reference(), camera.aspect);
     camera.updateProjectionMatrix();
-    shelfPose = getShelfPose(camera.aspect);
+    shelfPose = reference().pose;
     renderer.setSize(window.innerWidth, window.innerHeight);
     for (const listener of resizeListeners) listener();
   }

@@ -1,13 +1,21 @@
 import { LibraryIntro } from "@/components/intro/LibraryIntro";
 import { LibraryShelfDirector } from "@/components/library/LibraryShelfDirector";
-import { Bookcase } from "@/components/shelf/Bookcase";
+import { ShelfHotspots } from "@/components/library/ShelfHotspots";
+import { ShelfPoster } from "@/components/library/ShelfPoster";
 import { LIBRARY, PROFILE } from "@/content/portfolio";
 
+// The home page is the grand bookcase the intro walks up to: its poster
+// first, then (where the device runs it) the live WebGL library fading up
+// over it in exactly the same place, the heading above, and a link over each
+// titled book.
 export default function LibraryPage() {
   return (
     <>
       <LibraryIntro />
-      {/* Over the WebGL library where it runs; above the flat bookcase everywhere else. */}
+      <div data-shelf-poster aria-hidden="true" className="shelf-poster is-home">
+        <ShelfPoster isEager />
+      </div>
+      <div aria-hidden="true" className="library-scene-shade" />
       <div data-shelf-stage data-inert-during-intro className="library-stage">
         <header className="library-hero mx-auto max-w-[46rem] px-4 text-center">
           <p className="eyebrow text-brass-light">{LIBRARY.eyebrow}</p>
@@ -21,8 +29,8 @@ export default function LibraryPage() {
         <p data-scene-caption aria-hidden="true" className="library-scene-caption">
           {LIBRARY.sceneInstruction}
         </p>
-        <Bookcase />
       </div>
+      <ShelfHotspots />
       <LibraryShelfDirector />
     </>
   );

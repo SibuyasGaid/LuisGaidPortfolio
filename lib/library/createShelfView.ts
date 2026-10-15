@@ -13,11 +13,12 @@ import {
 } from "@/lib/motion/config";
 import { gsap } from "@/lib/motion/gsap";
 
-// The home page's view of the grand bookcase. The camera rests where the walk
-// ended and drifts a little with the pointer; a book named in the navbar
-// slides forward and lights up; a book chosen is taken off the shelf, turned
-// to show its cover, brought up to the reader and opened, all in the scene.
-// It draws only while the page is visible, and only as often as it needs to.
+// The view of the grand bookcase. The camera rests where the walk ended and
+// drifts a little with the pointer; a book named in the navbar slides forward
+// and lights up; a book chosen is taken off the shelf, turned to show its
+// cover, brought up to the reader and opened, all in the scene; a book left
+// is closed, turned and slid back into its slot. It draws only while it is
+// shown and the page is visible, and only as often as it needs to.
 
 export interface ShelfView {
   /**
@@ -33,7 +34,11 @@ export interface ShelfView {
    * opens, when its page should load; the promise settles once it lies open.
    */
   take(bookId: BookId, onOpen: () => void): Promise<void>;
-  /** Hurries a book being taken to the moment its page loads. */
+  /** Shows a book lying open before the reader, as a take leaves it: where putting it back starts. */
+  showOpen(bookId: BookId): void;
+  /** Closes the open book and slides it back into its slot as the camera steps back. */
+  putBack(): Promise<void>;
+  /** Hurries a book being taken to the moment its page loads, or one being put back into its slot. */
   hurry(): void;
   /** Puts every book back and the camera at rest, at once (while out of sight). */
   reset(): void;
@@ -46,7 +51,9 @@ interface BookMotion {
 
 interface TakeMotion {
   readonly book: TitledBook;
-  readonly timeline: gsap.core.Timeline;
+  /** Out: coming off the shelf; back: returning to it. */
+  direction: "out" | "back";
+  timeline: gsap.core.Timeline | null;
   readonly state: { pull: number; turn: number; open: number; camera: number };
   readonly cameraPosition: Vector3;
   readonly cameraTarget: Vector3;
@@ -155,7 +162,7 @@ export function createShelfView(scene: LibraryScene, options: { readonly isMotio
   }
 
   function isAnimating(): boolean {
-    if (take?.timeline.isActive() || glide) return true;
+    if (take?.timeline?.isActive() || glide) return true;
     for (const motion of motions.values()) if (gsap.isTweening(motion)) return true;
     return false;
   }
@@ -198,7 +205,9 @@ export function createShelfView(scene: LibraryScene, options: { readonly isMotio
     }
   }
 
-  function buildTake(book: TitledBook, onOpen: () => void, done: () => void): TakeMotion {
+  // Where the camera steps to, where the book comes to before the reader, and
+  // how it faces them, worked out from where the camera rests.
+  function planTake(book: TitledBook): TakeMotion {
     const front = book.restPosition.clone().addScaledVector(book.out, 1.1).addScaledVector(UP, 0.08);
     const cameraPosition = rest.position.clone().lerp(front, SHELF_TAKE.approachShare);
     const cameraTarget = book.restPosition.clone();
@@ -213,15 +222,36 @@ export function createShelfView(scene: LibraryScene, options: { readonly isMotio
     const openShift = reading.isSpreadCentred ? right.multiplyScalar(TITLED_BOOK.depth / 2) : new Vector3();
 
     const state = { pull: 0, turn: 0, open: 0, camera: 0 };
+    return { book, direction: "out", timeline: null, state, cameraPosition, cameraTarget, readingPoint, facing, openShift };
+  }
+
+  function playOut(motion: TakeMotion, onOpen: () => void, done: () => void): void {
+    const { state } = motion;
     const timings = SHELF_TAKE_TIMINGS;
-    const timeline = gsap.timeline({ onComplete: done });
-    timeline
+    motion.direction = "out";
+    motion.timeline = gsap
+      .timeline({ onComplete: done })
       .to(state, { pull: 1, duration: timings.pull, ease: "power2.out" }, 0)
       .to(state, { camera: 1, duration: timings.approach, ease: "power2.inOut" }, 0)
       .to(state, { turn: 1, duration: timings.turn, ease: "power3.inOut" }, timings.turnAt)
       .to(state, { open: 1, duration: timings.open, ease: "power2.inOut" }, timings.openAt)
       .call(onOpen, [], timings.openAt + timings.open * timings.navigateShare);
-    return { book, timeline, state, cameraPosition, cameraTarget, readingPoint, facing, openShift };
+  }
+
+  // The take in reverse: the cover closes, the book turns its spine to the
+  // shelf on its way back, slides home, and the camera steps back to rest.
+  function playBack(motion: TakeMotion, done: () => void): void {
+    const { state } = motion;
+    const timings = SHELF_TAKE_TIMINGS;
+    const turnAt = timings.open * 0.8;
+    const pushAt = turnAt + timings.turn - 0.1;
+    motion.direction = "back";
+    motion.timeline = gsap
+      .timeline({ onComplete: done })
+      .to(state, { open: 0, duration: timings.open, ease: "power2.inOut" }, 0)
+      .to(state, { turn: 0, duration: timings.turn, ease: "power3.inOut" }, turnAt)
+      .to(state, { pull: 0, duration: timings.pull, ease: "power2.inOut" }, pushAt)
+      .to(state, { camera: 0, duration: pushAt + timings.pull, ease: "power2.inOut" }, 0);
   }
 
   function resetBooks(): void {
@@ -296,20 +326,49 @@ export function createShelfView(scene: LibraryScene, options: { readonly isMotio
       scene.dressBook(bookId);
       parallax.targetX = parallax.x;
       parallax.targetY = parallax.y;
-      return new Promise((resolve) => {
-        take = buildTake(book, onOpen, resolve);
-      });
+      const motion = planTake(book);
+      take = motion;
+      return new Promise((resolve) => playOut(motion, onOpen, resolve));
+    },
+    showOpen(bookId) {
+      const book = scene.titledBooks.find((candidate) => candidate.bookId === bookId);
+      if (!book) return;
+      take?.timeline?.kill();
+      resetBooks();
+      scene.dressBook(bookId);
+      parallax.x = parallax.targetX = 0;
+      parallax.y = parallax.targetY = 0;
+      const motion = planTake(book);
+      Object.assign(motion.state, { pull: 1, turn: 1, open: 1, camera: 1 });
+      take = motion;
+      needsDraw = true;
+    },
+    putBack() {
+      const motion = take;
+      if (!motion) return Promise.resolve();
+      motion.timeline?.kill();
+      return new Promise((resolve) =>
+        playBack(motion, () => {
+          if (take === motion) take = null;
+          needsDraw = true;
+          resolve();
+        }),
+      );
     },
     hurry() {
-      if (!take) return;
-      const { timeline } = take;
+      const timeline = take?.timeline;
+      if (!take || !timeline) return;
+      if (take.direction === "back") {
+        timeline.progress(1);
+        return;
+      }
       const openTime = SHELF_TAKE_TIMINGS.openAt + SHELF_TAKE_TIMINGS.open * SHELF_TAKE_TIMINGS.navigateShare;
       // Just past the moment the page loads, so that call still fires.
       if (timeline.time() < openTime) timeline.time(openTime + 0.001, false);
       timeline.timeScale(3);
     },
     reset() {
-      take?.timeline.kill();
+      take?.timeline?.kill();
       take = null;
       resetBooks();
       parallax.x = parallax.targetX = 0;
@@ -318,7 +377,7 @@ export function createShelfView(scene: LibraryScene, options: { readonly isMotio
     },
     dispose() {
       stop();
-      take?.timeline.kill();
+      take?.timeline?.kill();
       take = null;
       if (glide) gsap.killTweensOf(glide.state);
       glide = null;

@@ -19,13 +19,13 @@ export interface IntroElements {
   readonly progressFill: HTMLElement;
   readonly status: HTMLElement;
   readonly skip: HTMLElement;
-  /** The real page's heading and flat bookcase, waiting under the overlay. */
-  readonly stage: HTMLElement;
-  /** The navbar, heading and shading laid over the library, held back while the walk plays. */
+  /** The poster of the grand bookcase under the overlay, which settles into place where the library does not run. */
+  readonly poster: HTMLElement;
+  /** The navbar, heading, shading and shelf links laid over the library, held back while the intro plays. */
   readonly chrome: readonly HTMLElement[];
 }
 
-/** Where the intro lands: on the WebGL library, or on the flat bookcase. */
+/** Where the intro lands: on the WebGL library, or on the poster of it. */
 export type IntroLanding = "scene" | "flat";
 
 /** The most the walk's clock moves in one frame, however long the frame took. */
@@ -36,9 +36,9 @@ export interface IntroPlayback {
   kill(): void;
 }
 
-// As the intro ends, whatever is still over the page dissolves. Over the
-// flat bookcase, the bookcase comes forward into place; over the library,
-// the page's navbar and heading rise into the scene the walk ended on.
+// As the intro ends, whatever is still over the page dissolves and the page's
+// navbar, heading and links rise into the view of the grand bookcase. Over
+// the poster (no walk to arrive by), the bookcase also settles into place.
 function addLanding(
   timeline: gsap.core.Timeline,
   elements: IntroElements,
@@ -51,19 +51,18 @@ function addLanding(
   timeline.to([elements.skip, ...layers], { opacity: 0, duration: INTRO_TIMINGS.landingFade, ease: INTRO_EASES.fade }, "landing");
   if (landing === "flat") {
     timeline.fromTo(
-      elements.stage,
-      { scale: INTRO_LANDING_START_SCALE, transformOrigin: "50% 65%" },
+      elements.poster,
+      { scale: INTRO_LANDING_START_SCALE, transformOrigin: "50% 55%" },
       { scale: 1, duration: INTRO_TIMINGS.settle, ease: INTRO_EASES.land, immediateRender: false },
       "landing",
     );
-  } else {
-    timeline.fromTo(
-      elements.chrome,
-      { opacity: 0, y: 14 },
-      { opacity: 1, y: 0, duration: INTRO_TIMINGS.settle, ease: INTRO_EASES.land, stagger: 0.08, immediateRender: false },
-      "landing",
-    );
   }
+  timeline.fromTo(
+    elements.chrome,
+    { opacity: 0, y: 14 },
+    { opacity: 1, y: 0, duration: INTRO_TIMINGS.settle, ease: INTRO_EASES.land, stagger: 0.08, immediateRender: false },
+    "landing",
+  );
   timeline.call(finishIntro);
 }
 
@@ -131,6 +130,6 @@ export function createWalkTimeline(elements: IntroElements, scene: LibraryScene,
 
 /** Puts the real page back exactly as the CSS lays it out, wherever the intro stopped. */
 export function releaseIntroElements(elements: IntroElements): void {
-  gsap.set(elements.stage, { clearProps: "transform,transformOrigin" });
+  gsap.set(elements.poster, { clearProps: "transform,transformOrigin" });
   gsap.set(elements.chrome, { clearProps: "opacity,transform" });
 }

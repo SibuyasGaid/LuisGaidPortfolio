@@ -1,13 +1,10 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useEffect, useLayoutEffect } from "react";
 import { isIntroPlaying, subscribeToIntroFinish } from "@/lib/intro/introLifecycle";
-import { setBookPicker } from "@/lib/library/bookPicker";
 import { applyShelfView, chooseShelfView, fallBackToFlatShelf } from "@/lib/library/chooseShelfView";
-import { keepLibrary, loadLibrary, releaseLibrary, releaseLibraryLater, takeWalkSeen, type Library } from "@/lib/library/libraryStage";
-import { AT_LIBRARY_ATTRIBUTE, TAKING_ATTRIBUTE } from "@/lib/library/shelfAttributes";
-import { SHELF_SCENE_LOAD_TIMEOUT_MS } from "@/lib/motion/config";
+import { loadLibrary, releaseLibrary, takeWalkSeen, type Library } from "@/lib/library/libraryStage";
+import { AT_LIBRARY_ATTRIBUTE, TAKING_ATTRIBUTE, TRANSIT_ATTRIBUTE } from "@/lib/library/shelfAttributes";
 import { reportError } from "@/lib/reportError";
 
 /** Runs once the intro is out of the way: straight away, or when it finishes. */
@@ -29,13 +26,17 @@ function afterIntro(callback: () => void): () => void {
   };
 }
 
-// The home page's WebGL library. Where the device runs it well, the library
-// the intro walked through stays on as the home page: the grand bookcase,
-// waiting for a book to be chosen from the navbar. Anywhere else, or if it
-// fails or takes too long, the flat bookcase is shown instead.
-export function LibraryShelfDirector() {
-  const router = useRouter();
+/** A book coming or going keeps the library drawing until it is done. */
+function isBookMoving(): boolean {
+  const root = document.documentElement;
+  return root.hasAttribute(TAKING_ATTRIBUTE) || root.hasAttribute(TRANSIT_ATTRIBUTE);
+}
 
+// The home page's live library. Where the device runs it well, the library
+// the intro walked through fades up over the poster of the same view and
+// stays on as the home page; anywhere else, or if it fails, the poster is the
+// home page. Moves between the shelf and the books belong to ShelfTransitions.
+export function LibraryShelfDirector() {
   useLayoutEffect(() => {
     const root = document.documentElement;
     root.setAttribute(AT_LIBRARY_ATTRIBUTE, "");
@@ -47,39 +48,21 @@ export function LibraryShelfDirector() {
     if (!isIntroPlaying()) applyShelfView(view.kind);
     if (view.kind !== "scene") return;
     const { quality } = view;
-
     let isShown = true;
     let library: Library | null = null;
-    let timeout = 0;
-    let unregisterPicker = () => {};
-    keepLibrary();
-
-    function fallBack(error?: unknown): void {
-      if (error) reportError(error, "library scene");
-      if (!isShown || library) return;
-      releaseLibrary();
-      fallBackToFlatShelf();
-    }
 
     async function show(): Promise<void> {
-      timeout = window.setTimeout(() => fallBack(), SHELF_SCENE_LOAD_TIMEOUT_MS);
       try {
         const loaded = await loadLibrary(quality);
-        window.clearTimeout(timeout);
         if (!isShown) return;
         library = loaded;
-        // Back from a book whose page has not finished replacing this one: the shelf is reset when it has.
-        if (!document.documentElement.hasAttribute(TAKING_ATTRIBUTE)) loaded.view.reset();
+        if (!isBookMoving()) loaded.view.reset();
         loaded.view.start({ glide: takeWalkSeen() });
-        const { createScenePicker } = await import("@/lib/library/createScenePicker");
-        if (!isShown) return;
-        unregisterPicker = setBookPicker(
-          createScenePicker(loaded, (href) => router.push(href)),
-          "scene",
-        );
       } catch (error) {
-        window.clearTimeout(timeout);
-        fallBack(error);
+        reportError(error, "library scene");
+        if (!isShown) return;
+        releaseLibrary();
+        fallBackToFlatShelf();
       }
     }
 
@@ -87,13 +70,9 @@ export function LibraryShelfDirector() {
     return () => {
       isShown = false;
       stopWaiting();
-      window.clearTimeout(timeout);
-      unregisterPicker();
-      // A book being taken keeps the library drawing until its page is up.
-      if (library && !document.documentElement.hasAttribute(TAKING_ATTRIBUTE)) library.view.stop();
-      releaseLibraryLater();
+      if (library && !isBookMoving()) library.view.stop();
     };
-  }, [router]);
+  }, []);
 
   return null;
 }

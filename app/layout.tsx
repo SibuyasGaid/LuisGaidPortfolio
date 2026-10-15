@@ -7,6 +7,8 @@ import { SkipLink } from "@/components/layout/SkipLink";
 import { SmoothScrollLayer } from "@/components/motion/SmoothScrollLayer";
 import { DevPerformanceReadout } from "@/components/dev/DevPerformanceReadout";
 import { IntroStateKeeper } from "@/components/intro/IntroStateKeeper";
+import { ShelfPoster } from "@/components/library/ShelfPoster";
+import { ShelfTransitions } from "@/components/library/ShelfTransitions";
 import { SITE } from "@/content/portfolio";
 import { INTRO_BOOT_SCRIPT } from "@/lib/intro/introLifecycle";
 import { SHELF_BOOT_SCRIPT } from "@/lib/library/shelfAttributes";
@@ -60,9 +62,13 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       </head>
       <body>
         <SkipLink />
-        {/* The WebGL library draws here, behind the home page, and stays put between pages. */}
+        {/* The library behind the home page, kept between pages: the live WebGL scene where it runs, and the
+            poster of the same view, which shows here while a book is put back or taken from another page. */}
         <div data-library-scene aria-hidden="true" className="library-scene">
-          <div className="library-scene-shade" />
+          <div className="shelf-poster">
+            <ShelfPoster />
+          </div>
+          <div data-scene-canvas className="library-scene-canvas" />
         </div>
         <Masthead />
         <main id="main" tabIndex={-1} className="relative pt-[calc(var(--spacing-masthead)+2rem)] outline-none sm:pt-[calc(var(--spacing-masthead)+3rem)]">
@@ -72,6 +78,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         {/* Holds the book taken off the shelf while its page loads; filled and emptied by script. */}
         <div data-transit-root aria-hidden="true" className="transit-root" />
         <ArrivalFlagReset />
+        <ShelfTransitions />
         <SmoothScrollLayer />
         <IntroStateKeeper />
         <DevPerformanceReadout />
