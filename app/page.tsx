@@ -1,5 +1,6 @@
 import { LibraryIntro } from "@/components/intro/LibraryIntro";
 import { LibraryShelfDirector } from "@/components/library/LibraryShelfDirector";
+import { RewindIntroButton } from "@/components/library/RewindIntroButton";
 import { ShelfHotspots } from "@/components/library/ShelfHotspots";
 import { ShelfPoster } from "@/components/library/ShelfPoster";
 import { LIBRARY, PROFILE } from "@/content/portfolio";
@@ -26,9 +27,12 @@ export default function LibraryPage() {
             {PROFILE.summary}
           </p>
         </header>
-        <p data-scene-caption aria-hidden="true" className="library-scene-caption">
-          {LIBRARY.sceneInstruction}
-        </p>
+        <div className="library-foot">
+          <p data-scene-caption aria-hidden="true" className="library-scene-caption">
+            {LIBRARY.sceneInstruction}
+          </p>
+          <RewindIntroButton />
+        </div>
       </div>
       <ShelfHotspots />
       <LibraryShelfDirector />

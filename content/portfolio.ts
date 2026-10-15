@@ -75,6 +75,8 @@ export interface IntroCopy {
     readonly ready: string;
   };
   readonly skip: string;
+  /** The landing page's button that plays the intro again. */
+  readonly rewind: string;
 }
 
 export type ProjectCategory = "automation" | "engineering";
@@ -225,6 +227,7 @@ export const INTRO: IntroCopy = {
     ready: "Step inside",
   },
   skip: "Skip intro",
+  rewind: "Rewind intro",
 };
 
 // ─── Books ────────────────────────────────────────────────────────────────

@@ -11,6 +11,7 @@ export type IntroState = "play" | "settle" | "none" | "done";
 
 export const INTRO_STORAGE_KEY = "library:visited";
 export const INTRO_FINISHED_EVENT = "library:intro-finished";
+export const INTRO_STARTED_EVENT = "library:intro-started";
 const INTRO_RUNNING_ATTRIBUTE = "data-intro-running";
 
 /** If the animation code has not started by then (blocked or slow network), the intro steps aside. */
@@ -46,6 +47,37 @@ export function hasIntroStarted(): boolean {
 export function subscribeToIntroFinish(onFinish: () => void): () => void {
   document.addEventListener(INTRO_FINISHED_EVENT, onFinish);
   return () => document.removeEventListener(INTRO_FINISHED_EVENT, onFinish);
+}
+
+/** Hears the intro start (a rewind) and finish, for state that follows both. */
+export function subscribeToIntroChange(onChange: () => void): () => void {
+  document.addEventListener(INTRO_STARTED_EVENT, onChange);
+  document.addEventListener(INTRO_FINISHED_EVENT, onChange);
+  return () => {
+    document.removeEventListener(INTRO_STARTED_EVENT, onChange);
+    document.removeEventListener(INTRO_FINISHED_EVENT, onChange);
+  };
+}
+
+let rewindCount = 0;
+
+/** Counts the rewinds, so each one mounts the intro's runtime afresh. */
+export function getIntroRunId(): number {
+  return rewindCount;
+}
+
+/** Whether the intro under way was asked for again from the landing page, rather than met on a first visit. */
+export function isIntroRewind(): boolean {
+  return rewindCount > 0;
+}
+
+/** Plays the intro again from the landing page. */
+export function startIntroRewind(): void {
+  if (isIntroPlaying()) return;
+  rewindCount += 1;
+  document.documentElement.setAttribute("data-intro", "play");
+  window.__libraryIntroState = "play";
+  document.dispatchEvent(new Event(INTRO_STARTED_EVENT));
 }
 
 export function markIntroRunning(): void {
