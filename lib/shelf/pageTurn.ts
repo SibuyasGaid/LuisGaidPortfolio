@@ -10,6 +10,7 @@ import {
 import { gsap } from "@/lib/motion/gsap";
 import { waitForPathname } from "@/lib/navigation/waitForPathname";
 import { encloseBoxes, type OpenSpread, type ScreenBox, type ShelfLayer } from "@/lib/shelf/openSpread";
+import { printPageCopy } from "@/lib/shelf/printPageCopy";
 import { fitTitlePage, renderTitlePageText } from "@/lib/shelf/titlePage";
 
 // Between the shelf and a book's page. Once a book off the shelf lies open
@@ -17,9 +18,11 @@ import { fitTitlePage, renderTitlePageText } from "@/lib/shelf/titlePage";
 // takes its place and the reader zooms in: the copy grows until its pages lie
 // exactly where the book's page has them, while the shelf behind slips out of
 // focus into the soft copy of it that every page stands on. Then the title
-// page turns over onto the content. Leaving, the title page turns back over
-// the content and the reader steps back from the open book, which is handed
-// back to be closed and shelved. Only transforms and opacity move.
+// page turns over onto the content, and on its back is the book's own left
+// page (printPageCopy), so it lands as that page. Leaving, that page lifts
+// and the title page turns back over the content, and the reader steps back
+// from the open book, which is handed back to be closed and shelved. Only
+// transforms and opacity move.
 
 export interface PageTurnPlayback {
   readonly finished: Promise<void>;
@@ -34,6 +37,8 @@ interface BookPage {
 
 /** Where the copy's parts lie once it has become the book's page. */
 interface PageLayout {
+  /** The book's paper, uncut by the screen. */
+  readonly paper: ScreenBox;
   readonly board: ScreenBox;
   readonly left: ScreenBox;
   readonly right: ScreenBox;
@@ -64,6 +69,8 @@ interface CopyParts {
    * leaf would flatten it, and its front would show through mirrored.
    */
   readonly back: HTMLElement;
+  /** Whether the book's left page is printed on the back. */
+  readonly hasPrintedBack: boolean;
   readonly text: HTMLElement;
   readonly frontShade: HTMLElement;
   readonly backShade: HTMLElement;
@@ -139,7 +146,8 @@ function measurePage(page: BookPage): PageLayout {
     width: book.width,
     height: height + (pages.top - book.top) + (book.bottom - pages.bottom),
   };
-  return { board, left, right, isTwoUp, pageRadius, boardRadius: readRadius(page.book) };
+  const paper = { left: pages.left, top: pages.top, width: pages.width, height: pages.height };
+  return { paper, board, left, right, isTwoUp, pageRadius, boardRadius: readRadius(page.book) };
 }
 
 function describeSpread(spread: OpenSpread): SpreadLayout {
@@ -156,9 +164,16 @@ function queryPart(root: HTMLElement, selector: string): HTMLElement {
   return element;
 }
 
+/** What lies on the left of a book's page once its title page is turned: its left page, or the left half of its one wide page. */
+function findLeftPage(page: BookPage): HTMLElement | null {
+  return page.pages.querySelector<HTMLElement>(":scope > .page-left, :scope > .page-folio");
+}
+
 // The open book as it lies once it has become the page: cloth, the inside of
-// the cover, and the title page with its back, laid out at full size.
-function buildCopy(host: HTMLElement, bookId: BookId, layout: PageLayout): CopyParts {
+// the cover, and the title page with the book's left page printed on its back
+// (where the two pages sit side by side; on one page its back goes off the
+// screen and is plain paper), laid out at full size.
+function buildCopy(host: HTMLElement, bookId: BookId, page: BookPage, layout: PageLayout): CopyParts {
   const root = document.createElement("div");
   root.className = "turn";
   root.dataset.book = bookId;
@@ -172,6 +187,7 @@ function buildCopy(host: HTMLElement, bookId: BookId, layout: PageLayout): CopyP
     </div>`;
   host.append(root);
 
+  const leftPage = layout.isTwoUp ? findLeftPage(page) : null;
   const parts: CopyParts = {
     root,
     board: queryPart(root, "[data-turn-board]"),
@@ -179,6 +195,7 @@ function buildCopy(host: HTMLElement, bookId: BookId, layout: PageLayout): CopyP
     under: queryPart(root, "[data-turn-under]"),
     leaf: queryPart(root, "[data-turn-leaf]"),
     back: queryPart(root, "[data-turn-back]"),
+    hasPrintedBack: leftPage !== null,
     text: queryPart(root, ".title-page-text"),
     frontShade: queryPart(root, "[data-turn-front-shade]"),
     backShade: queryPart(root, "[data-turn-back-shade]"),
@@ -199,6 +216,11 @@ function buildCopy(host: HTMLElement, bookId: BookId, layout: PageLayout): CopyP
   const visibleHeight = Math.min(layout.right.height, window.innerHeight - Math.max(layout.right.top, 0));
   root.style.perspectiveOrigin = `${layout.right.left}px ${Math.max(layout.right.top, 0) + visibleHeight / 2}px`;
   fitTitlePage(front, layout.right.width);
+  if (leftPage) {
+    // Its paper's grain lines up with the book's, and the left page is printed over it.
+    parts.back.style.backgroundPosition = `${layout.paper.left - layout.left.left}px ${layout.paper.top - layout.left.top}px`;
+    printPageCopy(parts.back, leftPage, layout.left);
+  }
   return parts;
 }
 
@@ -240,6 +262,18 @@ function turnLeaf(parts: CopyParts, layout: PageLayout, angle: number): void {
   parts.backShade.style.opacity = String(angle < 90 ? 0 : PAGE_TURN_SHADE * lift);
   parts.under.style.opacity = String(1 - angle / 180);
   if (!layout.isTwoUp) parts.back.style.opacity = String(Math.min(1, Math.max(0, (180 - angle) / OFF_EDGE_FADE_DEGREES)));
+}
+
+/**
+ * The printed back of the title page giving way to the book's own left page
+ * (out), or taking its place (in). They are laid out alike, but text drawn
+ * on a turned page is smoothed a little differently, so the two cross over
+ * rather than swap at once. The back fades, not the leaf: fading the leaf
+ * would flatten it.
+ */
+function crossOverPrint(parts: CopyParts, direction: "in" | "out"): gsap.core.Tween {
+  const isIn = direction === "in";
+  return gsap.fromTo(parts.back, { opacity: isIn ? 0 : 1 }, { opacity: isIn ? 1 : 0, duration: PAGE_TURN_TIMINGS.handoff, ease: "none" });
 }
 
 function findBackdropImage(): HTMLElement | null {
@@ -340,7 +374,7 @@ export function turnIntoPage(options: {
     }
     const layout = measurePage(page);
     const spread = describeSpread(options.from);
-    const copy = buildCopy(host, options.bookId, layout);
+    const copy = buildCopy(host, options.bookId, page, layout);
     parts = copy;
     host.setAttribute("data-active", "");
     const zoom = { progress: 0 };
@@ -366,9 +400,9 @@ export function turnIntoPage(options: {
     const step = () => turnLeaf(copy, layout, turn.angle);
     step();
     const timeline = gsap.timeline().to(turn, { angle: 180, duration: PAGE_TURN_TIMINGS.turn, ease: PAGE_TURN_EASES.turn, onUpdate: step });
-    if (layout.isTwoUp) {
-      // Turned over, its back lies on the left page, then gives way to it.
-      timeline.set(copy.endpaper, { visibility: "hidden" }).to(copy.back, { opacity: 0, duration: PAGE_TURN_TIMINGS.versoFade, ease: "power1.inOut" });
+    if (copy.hasPrintedBack) {
+      // Turned over, it lies as the book's left page, which it is a copy of, and gives way to it.
+      timeline.set(copy.endpaper, { visibility: "hidden" }).add(crossOverPrint(copy, "out"));
     }
     await player.play(timeline);
   }
@@ -413,7 +447,7 @@ export function turnBackFromPage(options: {
       return;
     }
     const layout = measurePage(page);
-    const copy = buildCopy(host, options.bookId, layout);
+    const copy = buildCopy(host, options.bookId, page, layout);
     parts = copy;
     host.setAttribute("data-active", "");
     root.setAttribute(PAGE_TURN_ATTRIBUTE, "turn");
@@ -422,10 +456,10 @@ export function turnBackFromPage(options: {
     const step = () => turnLeaf(copy, layout, turn.angle);
     step();
     const timeline = gsap.timeline();
-    if (layout.isTwoUp) {
-      // The back of the title page settles over the left page before it turns back.
+    if (copy.hasPrintedBack) {
+      // Turned over, the copy lies over the book's left page and takes its place, then lifts off the inside of the cover.
       copy.endpaper.style.visibility = "hidden";
-      timeline.fromTo(copy.back, { opacity: 0 }, { opacity: 1, duration: PAGE_TURN_TIMINGS.versoFade, ease: "power1.inOut" }).set(copy.endpaper, { visibility: "visible" });
+      timeline.add(crossOverPrint(copy, "in")).set(copy.endpaper, { visibility: "visible" });
     }
     timeline.to(turn, { angle: 0, duration: PAGE_TURN_TIMINGS.turn, ease: PAGE_TURN_EASES.turn, onUpdate: step });
     await player.play(timeline);

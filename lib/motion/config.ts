@@ -197,11 +197,9 @@ export const PAGE_TURN_TIMINGS = {
   zoom: 0.9,
   /** Share of the zoom by which the shelf has slipped out of focus. */
   shelfFadeShare: 0.8,
-  /** The copy and the open book it stands in for cross over at either end of the zoom. */
+  /** The copy and what it stands in for (the open book, the book's left page) cross over in this long. */
   handoff: 0.22,
   turn: 0.95,
-  /** The back of the turned page gives way to the book's own left page. */
-  versoFade: 0.35,
 } as const;
 
 export const PAGE_TURN_EASES = { zoom: "power2.inOut", turn: "power2.inOut" } as const;

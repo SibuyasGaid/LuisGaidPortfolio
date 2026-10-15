@@ -440,22 +440,20 @@
     color: var(--color-ink);
   }
 
+  /* Three lines deep, floated in every browser rather than set with
+     initial-letter: Chrome breaks the lines around an initial letter (under
+     a styled first line) differently from one layout to the next, so the
+     drop cap could change size and the page turn's copy of the page could
+     not match it. Sized against the small-caps first line it sits in, its
+     box (line-height 0.8) fits just inside the paragraph's first three lines. */
   .drop-cap::first-letter {
-    initial-letter: 3;
-    -webkit-initial-letter: 3;
+    float: left;
     margin-inline-end: 0.6rem;
     font-family: var(--font-display);
+    font-size: 7.1em;
     font-weight: 500;
+    line-height: 0.8;
     color: var(--book-accent);
-  }
-
-  @supports not ((initial-letter: 3) or (-webkit-initial-letter: 3)) {
-    .drop-cap::first-letter {
-      float: left;
-      margin-top: 0.1em;
-      font-size: 4.2em;
-      line-height: 0.78;
-    }
   }
 
   /* Opening lines in small capitals, set from Cormorant's own capitals because
@@ -1190,12 +1188,13 @@
   font-weight: 600;
 }
 
+/* In the italic the pages already use: a face loaded mid-move would lay their text out again under the copy. */
 .title-page-subtitle {
   top: 76%;
   font-family: var(--font-display);
   font-size: calc(var(--page-w) * 0.071);
   font-style: italic;
-  font-weight: 600;
+  font-weight: 500;
   color: #4a3b31;
 }
 
@@ -1261,14 +1260,12 @@
   backface-visibility: hidden;
 }
 
-/* The back of the turned page, lying over the book's left page until it gives way to it. */
+/* The back of the title page: the book's paper, with its left page printed on it (by script) where there is one. */
 .turn-back {
+  color: var(--color-ink);
   background-color: var(--book-paper);
-  background-image:
-    linear-gradient(to left, rgb(42 31 26 / 0.16), rgb(42 31 26 / 0.05) 1.25rem, rgb(255 253 246 / 0.35) 3rem, transparent 8rem),
-    radial-gradient(ellipse 90% 50% at 35% 8%, rgb(255 253 246 / 0.6), transparent 72%),
-    url("/textures/paper-grain.webp");
-  background-blend-mode: normal, normal, multiply;
+  background-image: url("/textures/paper-grain.webp");
+  background-blend-mode: multiply;
   transform: rotateY(180deg);
 }
 
