@@ -9,9 +9,8 @@ export const AT_LIBRARY_ATTRIBUTE = "data-at-library";
 export const SCENE_READY_ATTRIBUTE = "data-scene-ready";
 /** A book is being taken off the shelf: the page's own text steps back. */
 export const TAKING_ATTRIBUTE = "data-library-taking";
-/** Its page is loading underneath: the library is raised over everything until it fades. */
+/** A book is between the shelf and its page: the library is raised over the page (under the navbar). */
 export const TRANSIT_ATTRIBUTE = "data-library-transit";
-export const LEAVING_ATTRIBUTE = "data-library-leaving";
 /** Back on the shelf after a book was put away: the heading rises into place again. */
 export const SETTLING_ATTRIBUTE = "data-library-settling";
 
