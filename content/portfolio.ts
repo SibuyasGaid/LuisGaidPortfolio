@@ -42,8 +42,6 @@ export interface Profile {
   readonly summary: string;
   readonly roles: readonly string[];
   readonly clientRegions: string;
-  /** The old site only implied location through a +63 phone number. */
-  readonly basedIn: string | null;
 }
 
 export interface Fact {
@@ -58,42 +56,40 @@ export interface BookCover {
   readonly contentsTitle: string;
 }
 
-export type ProjectCategory = "automation" | "web" | "engineering";
+export type ProjectCategory = "automation" | "engineering";
 
-export type ProjectBadgeKind = "production" | "competition" | "award";
+export type ProjectBadgeKind = "production" | "competition" | "award" | "research";
 
 export interface ProjectBadge {
   readonly kind: ProjectBadgeKind;
   readonly label: string;
 }
 
+/** Where a project's illustration plate leads when clicked. */
 export interface ProjectLink {
-  readonly label: string;
+  readonly kind: "website" | "video";
   readonly href: string;
 }
 
-export interface ProjectImage {
+/** Shown cropped to the plate's 16:10 frame. */
+export interface ProjectIllustration {
   readonly src: string;
   readonly alt: string;
-  readonly width: number;
-  readonly height: number;
 }
 
 export interface Project {
   readonly id: string;
   readonly title: string;
   readonly subtitle: string;
-  readonly client: string | null;
   readonly category: ProjectCategory;
   readonly badge: ProjectBadge | null;
-  /** Result-first headline stating what changed for the client. */
-  readonly outcome: string | null;
   readonly problem: string | null;
   readonly solution: string;
   readonly stack: readonly string[];
-  readonly links: readonly ProjectLink[];
-  readonly image: ProjectImage | null;
-  /** Featured projects get full manuscript cards; the rest go in the archive index. */
+  /** Shown as a book plate on featured cards; an engraved placeholder stands in until it is added. */
+  readonly illustration: ProjectIllustration | null;
+  readonly link: ProjectLink | null;
+  /** Featured projects get full cards; the rest go in the archive index. */
   readonly isFeatured: boolean;
 }
 
@@ -190,7 +186,6 @@ export const PROFILE: Profile = {
     "Voice AI Developer",
   ],
   clientRegions: "Australia and the United States",
-  basedIn: null,
 };
 
 export const BOOK_COVER: BookCover = {
@@ -255,7 +250,7 @@ export const CHAPTERS: readonly Chapter[] = [
 
 export const ABOUT_PARAGRAPHS: readonly string[] = [
   "Since late 2024 I've shipped production work for medical platforms, real estate agencies, e-commerce brands, and content creators across Australia and the US. I own the whole job: scoping, architecture, the build, testing, and support after launch.",
-  "My background is Computer Engineering. My thesis, an AI screening tool that spots early signs of diabetic nerve damage from thermal scans of the feet, won the DOST Grand Prize in 2025. I bring the same rigor to a client's lead pipeline that I brought to a medical screening tool.",
+  "My background is Computer Engineering. MammoScan, an AI breast cancer screening project built on thermal imaging and computer vision, won the DOST Grand Prize in 2025. I bring the same rigor to a client's lead pipeline that I brought to medical screening.",
 ];
 
 export const ABOUT_FACTS: readonly Fact[] = [
@@ -269,7 +264,6 @@ export const ABOUT_FACTS: readonly Fact[] = [
 
 export const PROJECT_CATEGORY_LABELS: Record<ProjectCategory, string> = {
   automation: "AI Automation",
-  web: "Web / Apps",
   engineering: "Engineering / Research",
 };
 
@@ -281,278 +275,216 @@ export const PROJECTS = [
     id: "book-launch-pr-dashboard",
     title: "Book Launch PR Dashboard",
     subtitle: "Multi-Track Media Outreach",
-    client: "Dr. Rena Malik MD",
     category: "automation",
     badge: PRODUCTION_BADGE,
-    outcome: null,
     problem:
       "A book launch meant pitching 80+ podcasts, influencers, and media outlets at once, with follow-ups that were easy to lose in an inbox.",
     solution:
       "Multi-track PR outreach system managing 80+ contacts across podcasts, influencers, and media. 7 Make webhook endpoints with Gmail reply detection, Sendr video triggers, automated follow-up scheduling, and per-contact automation toggles.",
     stack: ["Make", "Supabase", "Lovable", "Gmail API", "Sendr", "Bit.ly"],
-    links: [],
-    image: null,
+    illustration: null,
+    link: null,
     isFeatured: true,
   },
   {
     id: "speakradar",
     title: "SpeakRadar",
     subtitle: "Keynote Speaking Opportunity Finder",
-    client: null,
     category: "automation",
     badge: PRODUCTION_BADGE,
-    outcome: null,
     problem:
       "Finding keynote opportunities meant trawling event listings by hand and writing a fresh pitch for each one.",
     solution:
       "Automated pipeline that scrapes speaking events via Apify, scores relevance, and generates personalized AI pitch decks. Surfaces opportunities in a Lovable dashboard with filtering, application tracking, and “Opens for Application” date handling.",
     stack: ["Apify", "OpenAI", "Make", "Lovable", "Supabase"],
-    links: [],
-    image: null,
+    illustration: null,
+    link: null,
     isFeatured: true,
   },
   {
     id: "guest-radar",
     title: "Guest Radar",
     subtitle: "Podcast Guest Credibility Scorer",
-    client: null,
     category: "automation",
     badge: PRODUCTION_BADGE,
-    outcome: null,
     problem: null,
     solution:
       "Research pipeline that scores podcast guest credibility by aggregating social proof, media mentions, and audience fit. Built with Supabase edge functions and Make for real-time scoring and prioritization.",
     stack: ["Supabase", "Make", "OpenAI", "SerpAPI"],
-    links: [],
-    image: null,
+    illustration: null,
+    link: null,
     isFeatured: false,
   },
   {
     id: "aiva",
     title: "AIVA",
     subtitle: "Personal AI Assistant",
-    client: null,
     category: "automation",
     badge: PRODUCTION_BADGE,
-    outcome: null,
     problem:
       "Email, calendar, and task admin kept pulling attention away from real work, and it needed handling from anywhere, including hands-free.",
     solution:
       "Dual-interface AI assistant with voice via Vapi and text via Telegram. Handles email management, calendar scheduling, and task automation. Designed for hands-free operation across devices.",
     stack: ["Vapi", "Telegram API", "OpenAI", "n8n"],
-    links: [],
-    image: null,
+    illustration: null,
+    link: null,
     isFeatured: true,
   },
   {
     id: "sponsorship-lead-gen",
     title: "Sponsorship Lead Gen System",
     subtitle: "Automated Cold Outreach Pipeline",
-    client: null,
     category: "automation",
     badge: PRODUCTION_BADGE,
-    outcome: null,
     problem:
       "Finding sponsors meant researching which software companies were actively advertising, tracking down the right contact, and writing to each one by hand.",
     solution:
       "End-to-end pipeline that pulls active software advertisers from Meta Ad Library, filters by web traffic, finds contact emails via Hunter.io, generates personalized pitches with OpenAI, and sends via Resend. Fully automated on a configurable schedule.",
     stack: ["Meta Ad Library", "Hunter.io", "OpenAI", "Resend"],
-    links: [],
-    image: null,
+    illustration: null,
+    link: null,
     isFeatured: true,
   },
   {
     id: "meta-lead-ads-to-beehiiv",
     title: "Meta Lead Ads to Beehiiv",
     subtitle: "Newsletter Subscriber Pipeline",
-    client: "FemHealth",
     category: "automation",
     badge: PRODUCTION_BADGE,
-    outcome: null,
     problem: null,
     solution:
       "Automated pipeline connecting Meta Lead Ads to the Beehiiv newsletter platform. New lead form submissions are instantly synced as subscribers with proper tagging for segmentation.",
     stack: ["Meta Ads", "Make", "Beehiiv API"],
-    links: [],
-    image: null,
+    illustration: null,
+    link: null,
     isFeatured: false,
   },
   {
     id: "content-review-automation",
     title: "Content Review Automation",
     subtitle: "YouTube & Instagram Pipeline",
-    client: null,
     category: "automation",
     badge: PRODUCTION_BADGE,
-    outcome: null,
     problem: null,
     solution:
       "Automated content review workflow for a medical content creator. Pulls new uploads, runs AI analysis via Perplexity and Gemini, and generates review summaries with platform-specific optimization suggestions.",
     stack: ["Make", "Perplexity", "Gemini", "YouTube API"],
-    links: [],
-    image: null,
+    illustration: null,
+    link: null,
     isFeatured: false,
   },
   {
     id: "multi-platform-posting",
     title: "Multi-Platform Posting App",
     subtitle: "Social Media Distribution System",
-    client: null,
     category: "automation",
     badge: PRODUCTION_BADGE,
-    outcome: null,
     problem: null,
     solution:
       "Streamlit application for multi-platform social media posting across Instagram, LinkedIn, Facebook, and Twitter. Platform-specific formatting, scheduling, and API integrations with GetLate and Substack.",
     stack: ["Streamlit", "Python", "GetLate", "Substack API"],
-    links: [],
-    image: null,
+    illustration: null,
+    link: null,
     isFeatured: false,
   },
   {
     id: "supercast-subscriber-system",
     title: "Supercast Subscriber System",
     subtitle: "Webhook-Triggered Content Delivery",
-    client: null,
     category: "automation",
     badge: PRODUCTION_BADGE,
-    outcome: null,
     problem: null,
     solution:
       "Subscription management automation handling subscriber events with tier-based logic, automated content delivery, and welcome sequences triggered by webhook events.",
     stack: ["Make", "Supercast", "Webhooks"],
-    links: [],
-    image: null,
+    illustration: null,
+    link: null,
     isFeatured: false,
   },
   {
     id: "ai-cold-sms-agent",
     title: "AI Cold SMS Agent",
     subtitle: "CRM-Triggered Outreach",
-    client: null,
     category: "automation",
     badge: PRODUCTION_BADGE,
-    outcome: null,
     problem: null,
     solution:
       "Personalized SMS outreach system triggered by CRM events. Enriches contact data, generates context-aware messages via AI, and tracks response rates for optimization.",
     stack: ["n8n", "OpenAI", "CRM", "SMS API"],
-    links: [],
-    image: null,
+    illustration: null,
+    link: null,
     isFeatured: false,
   },
   {
     id: "meta-ads-lookalike-sync",
     title: "Meta Ads LAL Sync",
     subtitle: "Lookalike Audience Automation",
-    client: null,
     category: "automation",
     badge: PRODUCTION_BADGE,
-    outcome: null,
     problem:
       "Customer lists were exported and uploaded to Meta as CSVs by hand, so lookalike audiences went stale between uploads.",
     solution:
       "Automated Custom Audience sync between CRM customer lists and Meta Business Platform. Eliminates manual CSV uploads by auto-updating source audiences, enabling Lookalike Audiences to refresh continuously.",
     stack: ["Meta Marketing API", "n8n", "CRM"],
-    links: [],
-    image: null,
+    illustration: null,
+    link: null,
     isFeatured: true,
   },
   {
-    id: "opticare",
-    title: "Opticare",
-    subtitle: "Centralized Optometry Clinic Database",
-    client: null,
-    category: "web",
-    badge: null,
-    outcome: null,
+    id: "mammoscan",
+    title: "MammoScan",
+    subtitle: "AI Breast Cancer Screening",
+    category: "engineering",
+    badge: { kind: "award", label: "DOST Grand Prize" },
     problem: null,
     solution:
-      "Nationwide web platform for optometry clinics. Built with Next.js, React, and Tailwind CSS. Handled the user settings module and cross-team coordination across the development team.",
-    stack: ["Next.js", "React", "Tailwind CSS"],
-    links: [],
-    image: null,
-    isFeatured: false,
-  },
-  {
-    id: "mentor-match",
-    title: "Mentor Match",
-    subtitle: "Real-Time Mentorship Chat App",
-    client: null,
-    category: "web",
-    badge: null,
-    outcome: null,
-    problem: null,
-    solution:
-      "Full-stack mobile app pairing mentors and mentees with real-time messaging. Led chat architecture, backend APIs, and UI page development.",
-    stack: ["React Native", "Node.js", "WebSockets"],
-    links: [],
-    image: null,
-    isFeatured: false,
+      "AI-powered early screening method for breast cancer using thermographic imaging and computer vision. Won the DOST Scholar's Technopreneurship Training Program competition.",
+    stack: ["Thermography", "Computer Vision", "CNN"],
+    illustration: null,
+    link: null,
+    isFeatured: true,
   },
   {
     id: "dpn-thermal-screener",
     title: "Thermal Imaging DPN Screener",
     subtitle: "AI-Powered Medical Screening Tool",
-    client: null,
     category: "engineering",
-    badge: { kind: "award", label: "DOST Grand Prize" },
-    outcome: null,
+    badge: { kind: "research", label: "Thesis" },
     problem:
       "Diabetic nerve damage in the feet is often caught late, when it is harder to treat.",
     solution:
       "Early screening system for Diabetic Peripheral Neuropathy using AI analysis of thermographic scans of the plantar surface. CNN classification model running on ESP32-S3 with AWS IoT Core integration and a PyQt5 desktop interface.",
     stack: ["ESP32-S3", "TensorFlow/CNN", "AWS IoT", "PyQt5", "OpenCV"],
-    links: [],
-    image: null,
-    isFeatured: true,
-  },
-  {
-    id: "breast-cancer-thermography",
-    title: "AI Breast Cancer Screening",
-    subtitle: "Thermography + Computer Vision",
-    client: null,
-    category: "engineering",
-    badge: { kind: "award", label: "STTP Champion" },
-    outcome: null,
-    problem: null,
-    solution:
-      "AI-powered early screening method for breast cancer using thermographic imaging and computer vision. Won the DOST Scholar's Technopreneurship Training Program competition.",
-    stack: ["Thermography", "Computer Vision", "CNN"],
-    links: [],
-    image: null,
+    illustration: null,
+    link: null,
     isFeatured: false,
   },
   {
     id: "posidonia-ai",
     title: "Posidonia AI",
     subtitle: "Satellite Seagrass Carbon Estimator",
-    client: null,
     category: "engineering",
     badge: COMPETITION_BADGE,
-    outcome: null,
     problem: null,
     solution:
       "AI-powered platform using Sentinel-2 satellite imagery to map, measure, and monetize seagrass carbon stocks across Southeast Asia. Built for the AI ASEAN READY Youth Challenge 2026. Later reframed as a fisher-first community empowerment tool.",
     stack: ["Sentinel-2", "Google Earth Engine", "Deep Learning", "Blue Carbon"],
-    links: [],
-    image: null,
+    illustration: null,
+    link: null,
     isFeatured: false,
   },
   {
     id: "akkadian-cuneiform-ml",
     title: "Akkadian Cuneiform ML",
     subtitle: "Ancient Script Translation",
-    client: null,
     category: "engineering",
     badge: COMPETITION_BADGE,
-    outcome: null,
     problem: null,
     solution:
       "Machine learning pipeline for translating Akkadian cuneiform script using ByT5 transformer models. Built for the Deep Past Challenge on Kaggle as part of CPE432 coursework.",
     stack: ["ByT5", "Hugging Face", "Kaggle", "NLP"],
-    links: [],
-    image: null,
+    illustration: null,
+    link: null,
     isFeatured: false,
   },
 ] as const satisfies readonly Project[];
@@ -627,7 +559,6 @@ export const SERVICES: readonly Service[] = [
     proofProjectIds: [
       "book-launch-pr-dashboard",
       "speakradar",
-      "opticare",
       "multi-platform-posting",
     ],
   },
@@ -715,6 +646,14 @@ export const STACK_GROUPS: readonly StackGroup[] = [
 
 export const ROLES: readonly Role[] = [
   {
+    id: "kaggle",
+    title: "Machine Learning Competitor",
+    organization: "Kaggle",
+    start: "2026-03",
+    end: null,
+    summary: "Competing in Kaggle machine learning competitions.",
+  },
+  {
     id: "iridel",
     title: "n8n/AI Automation Developer",
     organization: "Iridel, Inc.",
@@ -762,8 +701,8 @@ export const AWARDS: readonly Award[] = [
     endYear: null,
     context: "National Innovation Competition",
     summary:
-      "AI-powered medical screening tool for early detection of Diabetic Peripheral Neuropathy using thermal imaging and CNN classification.",
-    relatedProjectId: "dpn-thermal-screener",
+      "MammoScan, an AI-powered early screening method for breast cancer using thermographic imaging and computer vision.",
+    relatedProjectId: "mammoscan",
   },
   {
     id: "sttp-champion",
@@ -773,7 +712,7 @@ export const AWARDS: readonly Award[] = [
     context: "Scholar's Technopreneurship Training Program",
     summary:
       "AI-powered early screening method for breast cancer using thermographic imaging and computer vision.",
-    relatedProjectId: "breast-cancer-thermography",
+    relatedProjectId: "mammoscan",
   },
   {
     id: "ai-asean-ready",

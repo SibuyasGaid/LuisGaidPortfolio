@@ -104,8 +104,8 @@ export function ContactForm() {
     <div className="mt-6">
       <div role="status" aria-live="polite">
         {status === "sent" ? (
-          <div className="border-l-2 border-brass py-1 pl-5">
-            <p className="font-display text-2xl font-semibold text-ink">Thank you, {senderName}.</p>
+          <div className="rounded-xl border border-brass/40 bg-white/50 px-5 py-4">
+            <p className="font-display text-2xl font-medium text-ink">Thank you, {senderName}.</p>
             <p className="mt-1 text-ink-soft">Your note is on its way. I&apos;ll reply by email.</p>
             <button type="button" onClick={() => setStatus("idle")} className="ink-link mt-3 text-sm font-semibold">
               Send another note
@@ -125,7 +125,7 @@ export function ContactForm() {
               instead.
             </p>
           </noscript>
-          <fieldset disabled={!isHydrated || isSending} className="space-y-7">
+          <fieldset disabled={!isHydrated || isSending} className="space-y-6">
             <TextField name="name" label="Your name" autoComplete="name" error={fieldErrors.name} onEdit={clearFieldError} />
             <TextField
               name="email"
@@ -177,12 +177,12 @@ function TextField({ name, label, type = "text", autoComplete, isMultiline = fal
     "aria-describedby": error ? errorId : undefined,
     onInput: () => onEdit(name),
     className:
-      "mt-1 block w-full border-0 border-b border-ink/30 bg-transparent px-0 py-2 font-display text-xl text-ink placeholder:text-ink-soft/60 transition-colors duration-300 ease-settle focus:border-burgundy aria-[invalid=true]:border-burgundy",
+      "mt-2 block w-full rounded-xl border border-ink/15 bg-white/55 px-4 py-3 text-base text-ink transition-colors duration-300 ease-settle hover:border-ink/30 focus:border-burgundy focus:bg-white/80 aria-[invalid=true]:border-burgundy",
   };
 
   return (
     <div>
-      <label htmlFor={inputId} className="small-caps-label">
+      <label htmlFor={inputId} className="section-label">
         {label}
       </label>
       {isMultiline ? (
@@ -213,7 +213,7 @@ function SubmissionProblem({ status, onRetry }: SubmissionProblemProps) {
   const isRetryable = status !== "unavailable";
 
   return (
-    <div role="alert" className="border-l-2 border-burgundy bg-burgundy/[0.04] py-3 pl-4 pr-3 text-[0.95rem] text-ink">
+    <div role="alert" className="rounded-xl border border-burgundy/30 bg-burgundy/[0.05] px-4 py-3 text-[0.95rem] text-ink">
       {status === "network-error" ? <p>I couldn&apos;t reach the server. Check your connection and try again.</p> : null}
       {status === "failed" ? <p>Your note didn&apos;t send. Try again, or email me at {emailLink}.</p> : null}
       {status === "unavailable" ? <p>The form isn&apos;t connected yet. Please email me at {emailLink}.</p> : null}

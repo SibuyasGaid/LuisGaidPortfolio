@@ -19,8 +19,8 @@ export default function RouteError({ error, retry }: RouteErrorProps) {
     <BookSpread
       leftPage={
         <header>
-          <p className="small-caps-label">Something went wrong</p>
-          <h1 className="mt-3 font-display text-[clamp(2.6rem,2rem+3vw,4.25rem)] font-semibold leading-[1] text-ink">
+          <p className="section-label">Something went wrong</p>
+          <h1 className="mt-3 font-display text-[clamp(2.6rem,2rem+3vw,4.25rem)] font-medium leading-[1] text-ink">
             A page came loose.
           </h1>
         </header>

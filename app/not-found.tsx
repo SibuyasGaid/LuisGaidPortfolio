@@ -7,8 +7,8 @@ export default function NotFound() {
     <BookSpread
       leftPage={
         <header>
-          <p className="small-caps-label">Page not found</p>
-          <h1 className="mt-3 font-display text-[clamp(2.6rem,2rem+3vw,4.25rem)] font-semibold leading-[1] text-ink">
+          <p className="section-label">Page not found</p>
+          <h1 className="mt-3 font-display text-[clamp(2.6rem,2rem+3vw,4.25rem)] font-medium leading-[1] text-ink">
             This page has been torn out.
           </h1>
           <BrassRule className="my-8 max-w-[14rem]" />

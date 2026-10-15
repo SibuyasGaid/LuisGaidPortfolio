@@ -36,9 +36,9 @@ const TEXTURES = [
     height: 320,
     baseColor: "#EFE6D2",
     layers: [
-      createNoiseLayer({ id: "mottle", type: "fractalNoise", baseFrequency: "0.0125", octaves: 3, seed: 7, tint: [0.55, 0.42, 0.24], alphaScale: 0.26, alphaOffset: -0.1 }),
-      createNoiseLayer({ id: "fibre", type: "fractalNoise", baseFrequency: "0.06 0.22", octaves: 2, seed: 11, tint: [0.45, 0.34, 0.2], alphaScale: 0.22, alphaOffset: -0.09 }),
-      createNoiseLayer({ id: "grain", type: "fractalNoise", baseFrequency: "0.85", octaves: 2, seed: 3, tint: [0.4, 0.3, 0.18], alphaScale: 0.32, alphaOffset: -0.1 }),
+      createNoiseLayer({ id: "mottle", type: "fractalNoise", baseFrequency: "0.0125", octaves: 3, seed: 7, tint: [0.55, 0.42, 0.24], alphaScale: 0.12, alphaOffset: -0.05 }),
+      createNoiseLayer({ id: "fibre", type: "fractalNoise", baseFrequency: "0.06 0.22", octaves: 2, seed: 11, tint: [0.45, 0.34, 0.2], alphaScale: 0.14, alphaOffset: -0.06 }),
+      createNoiseLayer({ id: "grain", type: "fractalNoise", baseFrequency: "0.85", octaves: 2, seed: 3, tint: [0.4, 0.3, 0.18], alphaScale: 0.26, alphaOffset: -0.09 }),
     ],
   },
   {
@@ -47,8 +47,8 @@ const TEXTURES = [
     height: 512,
     baseColor: "#24170F",
     layers: [
-      createNoiseLayer({ id: "streak", type: "fractalNoise", baseFrequency: "0.0039 0.0703", octaves: 4, seed: 5, tint: [0.24, 0.16, 0.09], alphaScale: 1.3, alphaOffset: -0.42 }),
-      createNoiseLayer({ id: "shadow", type: "fractalNoise", baseFrequency: "0.0078 0.1172", octaves: 3, seed: 13, tint: [0.07, 0.04, 0.02], alphaScale: 1.1, alphaOffset: -0.4 }),
+      createNoiseLayer({ id: "streak", type: "fractalNoise", baseFrequency: "0.0039 0.0703", octaves: 4, seed: 5, tint: [0.22, 0.15, 0.09], alphaScale: 0.8, alphaOffset: -0.26 }),
+      createNoiseLayer({ id: "shadow", type: "fractalNoise", baseFrequency: "0.0078 0.1172", octaves: 3, seed: 13, tint: [0.07, 0.04, 0.02], alphaScale: 0.7, alphaOffset: -0.25 }),
       createNoiseLayer({ id: "pore", type: "fractalNoise", baseFrequency: "0.04 0.9", octaves: 1, seed: 17, tint: [0.05, 0.03, 0.02], alphaScale: 0.6, alphaOffset: -0.22 }),
     ],
   },
@@ -58,9 +58,9 @@ const TEXTURES = [
     height: 256,
     baseColor: "#5A1524",
     layers: [
-      createNoiseLayer({ id: "mottle", type: "fractalNoise", baseFrequency: "0.0234", octaves: 3, seed: 19, tint: [0.18, 0.03, 0.07], alphaScale: 0.9, alphaOffset: -0.3 }),
-      createNoiseLayer({ id: "pore", type: "turbulence", baseFrequency: "0.42", octaves: 2, seed: 23, tint: [0.16, 0.02, 0.06], alphaScale: 1.4, alphaOffset: -0.12 }),
-      createNoiseLayer({ id: "sheen", type: "fractalNoise", baseFrequency: "0.0469", octaves: 2, seed: 29, tint: [0.62, 0.24, 0.28], alphaScale: 0.45, alphaOffset: -0.22 }),
+      createNoiseLayer({ id: "mottle", type: "fractalNoise", baseFrequency: "0.0234", octaves: 3, seed: 19, tint: [0.18, 0.03, 0.07], alphaScale: 0.4, alphaOffset: -0.14 }),
+      createNoiseLayer({ id: "pore", type: "turbulence", baseFrequency: "0.42", octaves: 2, seed: 23, tint: [0.16, 0.02, 0.06], alphaScale: 0.9, alphaOffset: -0.1 }),
+      createNoiseLayer({ id: "sheen", type: "fractalNoise", baseFrequency: "0.0469", octaves: 2, seed: 29, tint: [0.62, 0.24, 0.28], alphaScale: 0.25, alphaOffset: -0.12 }),
     ],
   },
 ];

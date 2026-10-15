@@ -7,21 +7,18 @@ interface ArchiveEntryProps {
 export function ArchiveEntry({ project }: ArchiveEntryProps) {
   const titleId = `${project.id}-title`;
   return (
-    <article id={project.id} aria-labelledby={titleId} data-reveal className="scroll-mt-28 py-6">
-      <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-        <h3 id={titleId} className="font-display text-[1.5rem] font-semibold leading-tight text-ink">
-          {project.title}
-        </h3>
-        <p className="small-caps text-[0.72rem] tracking-[0.12em] text-burgundy">
-          {project.badge?.label ?? PROJECT_CATEGORY_LABELS[project.category]}
-        </p>
+    <article id={project.id} aria-labelledby={titleId} data-reveal className="scroll-mt-28 py-7">
+      <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-2">
+        <div>
+          <h3 id={titleId} className="font-display text-[1.55rem] font-medium leading-tight text-ink">
+            {project.title}
+          </h3>
+          <p className="mt-0.5 text-sm text-ink-soft">{project.subtitle}</p>
+        </div>
+        <span className="stack-chip">{project.badge?.label ?? PROJECT_CATEGORY_LABELS[project.category]}</span>
       </div>
-      <p className="mt-0.5 font-display text-lg italic text-ink-soft">
-        {project.subtitle}
-        {project.client ? ` for ${project.client}` : ""}
-      </p>
-      <p className="mt-2.5 text-[0.97rem] leading-relaxed text-ink">{project.solution}</p>
-      <p className="mt-3 text-[0.8rem] tracking-wide text-ink-soft">
+      <p className="mt-3 text-[0.97rem] leading-relaxed text-ink">{project.solution}</p>
+      <p className="mt-3 text-xs tracking-wide text-ink-soft">
         <span className="sr-only">Built with: </span>
         {project.stack.join(" · ")}
       </p>

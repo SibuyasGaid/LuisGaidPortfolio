@@ -19,13 +19,13 @@ export function AboutChapter() {
       </div>
 
       <section aria-labelledby="about-facts-title">
-        <h2 id="about-facts-title" className="small-caps-label">
+        <h2 id="about-facts-title" className="section-label">
           At a glance
         </h2>
         <dl className="mt-5 border-t border-ink/12">
           {ABOUT_FACTS.map((fact) => (
             <div key={fact.label} data-reveal className="grid gap-1 border-b border-ink/12 py-4 sm:grid-cols-[9rem_1fr] sm:gap-6">
-              <dt className="small-caps text-[0.76rem] tracking-[0.1em] text-ink-soft">{fact.label}</dt>
+              <dt className="eyebrow text-ink-soft">{fact.label}</dt>
               <dd className="text-ink">{fact.value}</dd>
             </div>
           ))}
@@ -33,7 +33,7 @@ export function AboutChapter() {
       </section>
 
       <section aria-labelledby="about-recognition-title">
-        <h2 id="about-recognition-title" className="small-caps-label">
+        <h2 id="about-recognition-title" className="section-label">
           Recognition
         </h2>
         <ol className="mt-7 space-y-9">
@@ -41,7 +41,7 @@ export function AboutChapter() {
             <li key={award.id} data-reveal className="grid grid-cols-[2.75rem_1fr] gap-5">
               <Medallion className="mt-1 size-11 text-brass" />
               <div>
-                <h3 className="font-display text-[1.6rem] font-semibold leading-tight text-ink">{award.title}</h3>
+                <h3 className="font-display text-[1.6rem] font-medium leading-tight text-ink">{award.title}</h3>
                 <p className="mt-1 font-display text-lg italic text-ink-soft">
                   {award.context}, {formatAwardYears(award)}
                 </p>

@@ -13,8 +13,8 @@ export async function Colophon() {
   const copyrightYear = await getCopyrightYear();
   return (
     <footer className="relative z-[1] mx-auto mt-16 max-w-[86rem] px-6 pb-14 text-center sm:mt-20">
-      <Fleuron className="mx-auto mb-5 h-4 w-24 text-brass/70" />
-      <p className="small-caps text-[0.72rem] tracking-[0.14em] text-smoke">
+      <Fleuron className="mx-auto mb-5 h-4 w-24 text-brass/60" />
+      <p className="eyebrow text-smoke">
         © {copyrightYear} {SITE.name}. {SITE.colophon}
       </p>
     </footer>
