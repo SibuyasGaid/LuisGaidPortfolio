@@ -12,17 +12,28 @@ const LARGE_SCREEN_QUALITY: RenderQuality = { maxPixelRatio: 1.5, minPixelRatio:
 const SMALL_SCREEN_QUALITY: RenderQuality = { maxPixelRatio: 1.5, minPixelRatio: 0.75, antialias: false, castingLamps: 3, dustCount: 280 };
 const SMALL_SCREEN_QUERY = "(max-width: 63.99rem), (pointer: coarse)";
 
+/** Renderers that draw on the CPU, where the library would stall the whole page. */
+const SOFTWARE_RENDERER_PATTERN = /swiftshader|llvmpipe|softpipe|software|basic render driver/i;
+
+/** The context's renderer as the browser names it, unmasked where it allows. */
+function readRenderer(context: WebGLRenderingContext | WebGL2RenderingContext): string {
+  const info = context.getExtension("WEBGL_debug_renderer_info");
+  return String(context.getParameter(info ? info.UNMASKED_RENDERER_WEBGL : context.RENDERER) ?? "");
+}
+
 // Asks for a context and hands it straight back, before anything is downloaded
-// for it. A browser drawing WebGL in software (no usable GPU) refuses a context
-// that must not carry a major performance caveat: there the library would
-// stall the whole page, so the flat bookcase is used.
+// for it. Without a usable GPU some browsers refuse a context that must not
+// carry a major performance caveat, and others quietly draw in software;
+// either way the poster of the library is used instead.
 function supportsFastWebGL(): boolean {
   try {
     const canvas = document.createElement("canvas");
     const options: WebGLContextAttributes = { failIfMajorPerformanceCaveat: true };
     const context = canvas.getContext("webgl2", options) ?? canvas.getContext("webgl", options);
-    context?.getExtension("WEBGL_lose_context")?.loseContext();
-    return context !== null;
+    if (!context) return false;
+    const isSoftware = SOFTWARE_RENDERER_PATTERN.test(readRenderer(context));
+    context.getExtension("WEBGL_lose_context")?.loseContext();
+    return !isSoftware;
   } catch {
     return false;
   }

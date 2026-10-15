@@ -3,7 +3,7 @@
 import { useEffect, useLayoutEffect } from "react";
 import { isIntroPlaying, subscribeToIntroFinish } from "@/lib/intro/introLifecycle";
 import { applyShelfView, chooseShelfView, fallBackToFlatShelf } from "@/lib/library/chooseShelfView";
-import { loadLibrary, releaseLibrary, takeWalkSeen, type Library } from "@/lib/library/libraryStage";
+import { loadLibrary, markLibraryShown, releaseLibrary, takeWalkSeen, type Library } from "@/lib/library/libraryStage";
 import { AT_LIBRARY_ATTRIBUTE, TAKING_ATTRIBUTE, TRANSIT_ATTRIBUTE } from "@/lib/library/shelfAttributes";
 import { reportError } from "@/lib/reportError";
 
@@ -58,6 +58,7 @@ export function LibraryShelfDirector() {
         library = loaded;
         if (!isBookMoving()) loaded.view.reset();
         loaded.view.start({ glide: takeWalkSeen() });
+        markLibraryShown();
       } catch (error) {
         reportError(error, "library scene");
         if (!isShown) return;

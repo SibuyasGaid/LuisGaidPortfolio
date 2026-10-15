@@ -18,6 +18,8 @@ type ProgressListener = (share: number) => void;
 let loading: Promise<Library> | null = null;
 let loaded: Library | null = null;
 let hasWalkBeenSeen = false;
+/** Remembered for the visit once the library has been shown, so book pages may build it again behind them. */
+const SHOWN_STORAGE_KEY = "library:scene-shown";
 const progressListeners = new Set<ProgressListener>();
 
 function loadRuntime(): Promise<typeof import("@/lib/library/libraryRuntime")> {
@@ -76,6 +78,23 @@ function release(): void {
   loaded = null;
   loading = null;
   document.documentElement.removeAttribute(SCENE_READY_ATTRIBUTE);
+}
+
+/** The library has been shown on the home page during this visit. */
+export function markLibraryShown(): void {
+  try {
+    sessionStorage.setItem(SHOWN_STORAGE_KEY, "1");
+  } catch {
+    // Storage blocked: book pages simply play their moves over the poster.
+  }
+}
+
+export function wasLibraryShown(): boolean {
+  try {
+    return sessionStorage.getItem(SHOWN_STORAGE_KEY) === "1";
+  } catch {
+    return false;
+  }
 }
 
 /** The intro's walk has been on screen, so if it is cut short the camera should travel on rather than jump. */

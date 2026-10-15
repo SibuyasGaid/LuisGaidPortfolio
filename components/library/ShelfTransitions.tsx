@@ -5,7 +5,7 @@ import { useEffect, useRef } from "react";
 import { setBookPicker } from "@/lib/library/bookPicker";
 import { chooseShelfView } from "@/lib/library/chooseShelfView";
 import { createLibrarian, type Librarian } from "@/lib/library/createLibrarian";
-import { getLoadedLibrary, loadLibrary } from "@/lib/library/libraryStage";
+import { getLoadedLibrary, loadLibrary, wasLibraryShown } from "@/lib/library/libraryStage";
 
 /** How long a book page waits, once idle, before the library is built behind it for the next move. */
 const BACKGROUND_LOAD_DELAY_MS = 2500;
@@ -20,9 +20,11 @@ function whenIdle(callback: () => void): () => void {
 }
 
 // The librarian for the whole site (see createLibrarian): every link to a
-// book or to the shelf asks it to play the move. On a book page, where the
-// device runs the WebGL library, the library is quietly built in the
-// background so leaving the book can play in the scene.
+// book or to the shelf asks it to play the move. On a book page reached
+// after the WebGL library was shown in this visit (and since let go, or
+// lost to a reload), it is quietly built again in the background so leaving
+// the book plays in the scene. Readers who arrive straight at a book never
+// pay for a library they have not seen; their moves play over the poster.
 export function ShelfTransitions() {
   const router = useRouter();
   const pathname = usePathname();
@@ -52,12 +54,13 @@ export function ShelfTransitions() {
   }, [pathname]);
 
   useEffect(() => {
-    if (pathname === "/") return;
-    const view = chooseShelfView();
-    if (view.kind !== "scene" || getLoadedLibrary()) return;
+    if (pathname === "/" || getLoadedLibrary() || !wasLibraryShown()) return;
     let delay = 0;
     const cancelIdle = whenIdle(() => {
-      delay = window.setTimeout(() => void loadLibrary(view.quality).catch(() => {}), BACKGROUND_LOAD_DELAY_MS);
+      delay = window.setTimeout(() => {
+        const view = chooseShelfView();
+        if (view.kind === "scene") void loadLibrary(view.quality).catch(() => {});
+      }, BACKGROUND_LOAD_DELAY_MS);
     });
     return () => {
       cancelIdle();

@@ -1,7 +1,6 @@
 import { BOOKS, LIBRARY, type BookId } from "@/content/portfolio";
 import { getBookHref } from "@/lib/books";
 import type { BookPicker, ShelfMove } from "@/lib/library/bookPicker";
-import { chooseShelfView } from "@/lib/library/chooseShelfView";
 import { getLoadedLibrary, type Library } from "@/lib/library/libraryStage";
 import { chooseShelfReference, getSpineRect, placeOnScreen } from "@/lib/library/shelfFraming";
 import { AT_LIBRARY_ATTRIBUTE, LEAVING_ATTRIBUTE, SETTLING_ATTRIBUTE, TAKING_ATTRIBUTE, TRANSIT_ATTRIBUTE } from "@/lib/library/shelfAttributes";
@@ -52,9 +51,9 @@ function locateSlot(bookId: BookId): DOMRect {
   return placeOnScreen(getSpineRect(bookId, reference), reference, width, height);
 }
 
-/** The WebGL library, if it is the shelf here and is ready to play a move. */
+/** The WebGL library, if it is built and ready to play a move (it is only ever built where it runs well). */
 function findScene(): Library | null {
-  return chooseShelfView().kind === "scene" ? getLoadedLibrary() : null;
+  return getLoadedLibrary();
 }
 
 export function createLibrarian(options: { readonly navigate: (href: string) => void; readonly getPathname: () => string }): Librarian {

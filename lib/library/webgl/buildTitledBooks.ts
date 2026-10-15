@@ -62,14 +62,15 @@ export function reserveTitledSlots(books: readonly TitledBookArt[]): ReservedSlo
 /** Builds the titled books in their slots on the given run (the grand bookcase). */
 export function buildTitledBooks(run: ShelfRun, books: readonly TitledBookArt[], spineAtlas: Texture): TitledBook[] {
   const paper = new MeshStandardMaterial({ color: "#d9cdb2", roughness: 0.92 });
-  // Inside the cover: a darker laid paper, so the open cover does not outshine the title page.
-  const endpaper = new MeshStandardMaterial({ color: "#6e5a3e", roughness: 0.9 });
   const basis = new Quaternion().setFromRotationMatrix(new Matrix4().makeBasis(run.along, UP, run.out));
   const columnWidth = 1 / books.length;
 
   return books.map((art, column) => {
     const slot = TITLED_BOOK_SLOTS[art.bookId];
     const cloth = new MeshStandardMaterial({ color: new Color(art.cloth), roughness: 0.74 });
+    // Inside the cover: an endpaper in a deeper shade of the book's cloth, so
+    // the open cover frames the title page instead of outshining it.
+    const endpaper = new MeshStandardMaterial({ color: new Color(art.cloth).multiplyScalar(0.55), roughness: 0.9 });
     const spineMaterial = new MeshStandardMaterial({
       map: spineAtlas,
       emissiveMap: spineAtlas,

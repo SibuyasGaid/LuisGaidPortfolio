@@ -36,8 +36,14 @@ async function renderPoster(browser, poster) {
       const isWebGL = /webgl/.test(type);
       return getContext.call(this, type, options && isWebGL ? { ...options, failIfMajorPerformanceCaveat: false } : options, ...rest);
     };
+    // The library declines software renderers by name; this render is the one place it should not.
+    for (const prototype of [WebGLRenderingContext.prototype, WebGL2RenderingContext.prototype]) {
+      const getParameter = prototype.getParameter;
+      prototype.getParameter = function (name) {
+        return name === 0x9246 || name === 0x1f01 ? "Poster renderer" : getParameter.call(this, name);
+      };
+    }
     localStorage.setItem("library:visited", "1");
-    localStorage.setItem("library:shelf", "scene");
   });
   const page = await context.newPage();
   await page.clock.install({ time: new Date("2026-01-01T09:00:00") });
