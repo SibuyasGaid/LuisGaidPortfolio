@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { AuthorPortrait } from "@/components/books/AuthorPortrait";
 import { Medallion } from "@/components/ornaments/Medallion";
 import { ABOUT_FACTS, ABOUT_PARAGRAPHS, AWARDS, type Award } from "@/content/portfolio";
 import { getProject } from "@/lib/projects";
@@ -11,8 +10,6 @@ function formatAwardYears(award: Award): string {
 export function AboutBook() {
   return (
     <div className="space-y-16">
-      <AuthorPortrait />
-
       <div className="body-copy max-w-[38rem]">
         {ABOUT_PARAGRAPHS.map((paragraph) => (
           <p key={paragraph} data-reveal>

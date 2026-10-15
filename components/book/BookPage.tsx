@@ -14,9 +14,11 @@ import { getBook, getBookFolios } from "@/lib/books";
 interface BookPageProps {
   readonly bookId: BookId;
   readonly children: ReactNode;
+  /** An illustration printed under the book's opening lines (on the left page of a spread), such as the author's portrait. */
+  readonly plate?: ReactNode;
 }
 
-export function BookPage({ bookId, children }: BookPageProps) {
+export function BookPage({ bookId, children, plate }: BookPageProps) {
   const book = getBook(bookId);
   const { format } = BOOK_DESIGNS[bookId];
   const titleId = `${bookId}-title`;
@@ -31,7 +33,7 @@ export function BookPage({ bookId, children }: BookPageProps) {
             format="spread"
             cover={cover}
             folios={getBookFolios(bookId)}
-            leftPage={<BookOpener book={book} titleId={titleId} format="spread" />}
+            leftPage={<BookOpener book={book} titleId={titleId} format="spread" plate={plate} />}
             rightPage={
               <>
                 <RunningHead book={book} />
@@ -46,7 +48,7 @@ export function BookPage({ bookId, children }: BookPageProps) {
             cover={cover}
             page={
               <>
-                <BookOpener book={book} titleId={titleId} format="folio" />
+                <BookOpener book={book} titleId={titleId} format="folio" plate={plate} />
                 {content}
                 <BookFooter bookId={bookId} />
               </>
