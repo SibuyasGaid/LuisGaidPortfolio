@@ -1,0 +1,1878 @@
+@import "tailwindcss";
+
+/* ─── Design tokens ─────────────────────────────────────────────────────────
+   Every colour, font and easing used by the site. Tailwind turns each token
+   into utilities (bg-burgundy, text-brass-ink, font-display, ease-settle) and
+   exposes it as a CSS custom property for hand-written rules below. */
+
+@theme {
+  --color-burgundy: #6b1e2e;
+  --color-burgundy-deep: #4a0e1b;
+  --color-burgundy-highlight: #8c2a3c;
+
+  --color-wood-950: #1e130c;
+  --color-wood-900: #2b1a12;
+  --color-wood-800: #3d2817;
+  /* The unlit library of the intro, matched by the WebGL scene's fog. */
+  --color-library-night: #0b0705;
+
+  --color-brass: #b8913a;
+  --color-brass-light: #d4b26a;
+  /* Raw brass is only 2.4:1 on parchment, so text and focus rings on pages use this darker shade (5.1:1). */
+  --color-brass-ink: #7a5a1c;
+
+  --color-parchment: #efe6d2;
+  --color-parchment-light: #f8f3e8;
+  --color-parchment-edge: #d9cdb2;
+  --color-ink: #2a1f1a;
+  --color-ink-soft: #5b4a3e;
+  /* Muted text on dark wood, 6.6:1. */
+  --color-smoke: #a89a86;
+
+  --ease-settle: cubic-bezier(0.215, 0.61, 0.355, 1);
+  --ease-turn: cubic-bezier(0.87, 0, 0.13, 1);
+
+  --spacing-masthead: 4.5rem;
+}
+
+@theme inline {
+  --font-display: var(--font-cormorant), "Cormorant Garamond", Georgia, serif;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Small uppercase labels in the sans face, the modern editorial counterpart to
+   the serif headings. */
+@utility eyebrow {
+  font-family: var(--font-sans);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+/* ─── Base ─────────────────────────────────────────────────────────────────── */
+
+@layer base {
+  html {
+    color-scheme: dark;
+    background-color: var(--color-wood-950);
+    scroll-padding-top: calc(var(--spacing-masthead) + 1.5rem);
+    scrollbar-gutter: stable;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  /* Lenis drives scrolling when it runs; native smooth scroll would fight it. */
+  html:not(.lenis) {
+    scroll-behavior: smooth;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html:not(.lenis) {
+      scroll-behavior: auto;
+    }
+  }
+
+  body {
+    min-height: 100dvh;
+    font-family: var(--font-sans);
+    color: var(--color-parchment);
+    background-color: var(--color-wood-950);
+    background-image: url("/textures/wood.webp");
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Lamp glow and vignette live on a fixed layer so they are painted once and
+     composited, instead of repainting a full-screen gradient on every scroll. */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background:
+      radial-gradient(ellipse 55% 40% at 50% -6%, rgb(212 178 106 / 0.16), transparent 72%),
+      radial-gradient(ellipse 120% 90% at 50% 40%, transparent 55%, rgb(8 4 2 / 0.7) 100%);
+  }
+
+  ::selection {
+    background-color: var(--color-burgundy);
+    color: var(--color-parchment);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--focus-ring, var(--color-brass-light));
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+
+  a {
+    text-underline-offset: 0.22em;
+    text-decoration-thickness: 1px;
+  }
+}
+
+/* ─── Book themes ──────────────────────────────────────────────────────────
+   Every book on the shelf has its own cloth, paper and accent. The shelf
+   spines, the book tabs and the open books all set data-book, and every
+   themed rule reads these variables. Text pairings are checked: 4.5:1 or more. */
+
+@layer base {
+  :root,
+  [data-book="about"] {
+    --book-cover: #6b1e2e;
+    --book-cover-deep: #3e0b16;
+    --book-cover-ink: #e8cf96;
+    --book-paper: #efe6d2;
+    --book-accent: #6b1e2e;
+  }
+
+  [data-book="work"] {
+    --book-cover: #23201d;
+    --book-cover-deep: #110e0c;
+    --book-cover-ink: #d9b96e;
+    --book-paper: #f7f3ea;
+    --book-accent: #6b1e2e;
+  }
+
+  [data-book="services"] {
+    --book-cover: #4a3220;
+    --book-cover-deep: #24170f;
+    --book-cover-ink: #efe3c4;
+    --book-paper: #f2ead6;
+    --book-accent: #7a5a1c;
+  }
+
+  [data-book="stack"] {
+    --book-cover: #c49a45;
+    --book-cover-deep: #8a6a2a;
+    --book-cover-ink: #2a1f1a;
+    --book-paper: #f4eddc;
+    --book-accent: #6b1e2e;
+  }
+
+  [data-book="experience"] {
+    --book-cover: #3a0a15;
+    --book-cover-deep: #1f050b;
+    --book-cover-ink: #d4b26a;
+    --book-paper: #f3ecda;
+    --book-accent: #8c2a3c;
+  }
+
+  [data-book="contact"] {
+    --book-cover: #e9dfc9;
+    --book-cover-deep: #c8b994;
+    --book-cover-ink: #6b1e2e;
+    --book-paper: #f8f3e8;
+    --book-accent: #6b1e2e;
+  }
+}
+
+@layer components {
+  /* Smooth bookcloth: the cover colour lit from the top left. */
+  .book-cover-surface {
+    background-color: var(--book-cover);
+    background-image: linear-gradient(135deg, rgb(255 255 255 / 0.12), transparent 42%, rgb(0 0 0 / 0.32));
+  }
+
+  /* ─── The open book ─────────────────────────────────────────────────────── */
+
+  .book {
+    position: relative;
+    z-index: 1;
+    margin-inline: auto;
+    width: min(100% - 1.5rem, 86rem);
+    padding: 0.5rem;
+    border-radius: 1.1rem;
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.1),
+      inset 0 0 0 1px rgb(0 0 0 / 0.35),
+      0 60px 120px -50px rgb(0 0 0 / 0.85),
+      0 30px 50px -30px rgb(0 0 0 / 0.6);
+  }
+
+  @media (min-width: 64rem) {
+    .book {
+      width: min(100% - 4rem, 86rem);
+      padding: 0.75rem;
+      border-radius: 1.4rem;
+    }
+  }
+
+  /* The paper colour is per book; one grain tile is multiplied over all of
+     them. overflow: clip rounds the pages' own backgrounds into the corners
+     without creating a scroll container, so sticky openers keep working. */
+  .book-pages {
+    --focus-ring: var(--color-brass-ink);
+    position: relative;
+    display: grid;
+    overflow: clip;
+    color: var(--color-ink);
+    background-color: var(--book-paper);
+    background-image: url("/textures/paper-grain.webp");
+    background-blend-mode: multiply;
+    border-radius: 0.8rem;
+    box-shadow:
+      0 1px 0 var(--color-parchment-edge),
+      0 3px 0 -1px #cdbf9f;
+  }
+
+  @media (min-width: 64rem) {
+    .book-pages {
+      border-radius: 1rem;
+    }
+
+    .book[data-format="spread"] .book-pages {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    /* The spine: a soft crease where both pages curve down into the binding. */
+    .book[data-format="spread"] .book-pages::after {
+      content: "";
+      position: absolute;
+      inset-block: 0;
+      left: calc(50% - 1px);
+      width: 2px;
+      background: linear-gradient(to bottom, rgb(42 31 26 / 0.12), rgb(42 31 26 / 0.22) 50%, rgb(42 31 26 / 0.12));
+      pointer-events: none;
+    }
+  }
+
+  .page {
+    position: relative;
+    min-width: 0;
+    padding: 2.75rem 1.4rem;
+  }
+
+  @media (min-width: 40rem) {
+    .page {
+      padding: 4rem 3rem;
+    }
+  }
+
+  @media (min-width: 64rem) {
+    .page {
+      padding: 5rem clamp(3rem, 4.5vw, 5.5rem) 4.5rem;
+    }
+
+    .page-folio {
+      padding-inline: clamp(3.5rem, 6vw, 7rem);
+    }
+  }
+
+  .page-folio {
+    background-image: radial-gradient(ellipse 80% 35% at 50% 0%, rgb(255 253 246 / 0.55), transparent 72%);
+  }
+
+  /* On small screens the two pages read as one continuous page. */
+  .page-left {
+    padding-bottom: 0;
+    background-image: radial-gradient(ellipse 100% 55% at 30% 0%, rgb(255 253 246 / 0.6), transparent 70%);
+  }
+
+  .page-right {
+    padding-top: 2.75rem;
+  }
+
+  @media (min-width: 64rem) {
+    /* Each page darkens into the spine, then catches the light where the paper
+       curves up, which reads as a real spread rather than two flat panels. */
+    .page-left {
+      padding-bottom: 4.5rem;
+      background-image:
+        linear-gradient(
+          to left,
+          rgb(42 31 26 / 0.16),
+          rgb(42 31 26 / 0.05) 1.25rem,
+          rgb(255 253 246 / 0.35) 3rem,
+          transparent 8rem
+        ),
+        radial-gradient(ellipse 90% 50% at 35% 8%, rgb(255 253 246 / 0.6), transparent 72%);
+    }
+
+    .page-right {
+      padding-top: 5rem;
+      background-image:
+        linear-gradient(
+          to right,
+          rgb(42 31 26 / 0.18),
+          rgb(42 31 26 / 0.06) 1.25rem,
+          rgb(255 253 246 / 0.35) 3rem,
+          transparent 8rem
+        ),
+        radial-gradient(ellipse 90% 50% at 65% 6%, rgb(255 253 246 / 0.55), transparent 72%);
+    }
+  }
+
+  /* The ledger: ruled lines and a red margin rule on the writing page. */
+  [data-book="experience"] .page-right {
+    background-image:
+      linear-gradient(to right, transparent 0.9rem, rgb(140 42 60 / 0.3) 0.9rem calc(0.9rem + 1px), transparent calc(0.9rem + 1px)),
+      repeating-linear-gradient(to bottom, transparent 0 calc(2rem - 1px), rgb(42 31 26 / 0.07) calc(2rem - 1px) 2rem);
+  }
+
+  @media (min-width: 64rem) {
+    [data-book="experience"] .page-right {
+      background-image:
+        linear-gradient(to right, rgb(42 31 26 / 0.18), rgb(42 31 26 / 0.06) 1.25rem, transparent 4rem),
+        linear-gradient(
+          to right,
+          transparent calc(clamp(3rem, 4.5vw, 5.5rem) - 1.25rem),
+          rgb(140 42 60 / 0.3) calc(clamp(3rem, 4.5vw, 5.5rem) - 1.25rem) calc(clamp(3rem, 4.5vw, 5.5rem) - 1.25rem + 1px),
+          transparent calc(clamp(3rem, 4.5vw, 5.5rem) - 1.25rem + 1px)
+        ),
+        repeating-linear-gradient(to bottom, transparent 0 calc(2rem - 1px), rgb(42 31 26 / 0.07) calc(2rem - 1px) 2rem);
+    }
+  }
+
+  /* ─── Opening cover ─────────────────────────────────────────────────────────
+     A pure CSS animation: it starts with the first paint, needs no JavaScript,
+     runs on the compositor, and replays whenever a book is shown again. */
+
+  .book-cover-flap {
+    position: absolute;
+    z-index: 5;
+    top: 0;
+    right: 0;
+    width: 100%;
+    height: min(100%, 100svh);
+    transform-origin: left center;
+    backface-visibility: hidden;
+    pointer-events: none;
+    animation: book-cover-open 1.15s cubic-bezier(0.65, 0, 0.35, 1) 0.15s both;
+  }
+
+  .book-cover-face {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1.25rem;
+    padding: 2rem;
+    text-align: center;
+    color: var(--book-cover-ink);
+    border-radius: 1.1rem;
+    background-color: var(--book-cover);
+    background-image:
+      linear-gradient(90deg, rgb(0 0 0 / 0.35), transparent 3%),
+      linear-gradient(135deg, rgb(255 255 255 / 0.14), transparent 45%, rgb(0 0 0 / 0.3));
+    box-shadow: 0 30px 60px -20px rgb(0 0 0 / 0.7);
+  }
+
+  /* A double rule inset around the cover, in the cover's own foil colour. */
+  .book-cover-face::before,
+  .book-cover-face::after {
+    content: "";
+    position: absolute;
+    border: 1px solid currentColor;
+    border-radius: 0.8rem;
+    opacity: 0.5;
+    pointer-events: none;
+  }
+
+  .book-cover-face::before {
+    inset: 1.25rem;
+  }
+
+  .book-cover-face::after {
+    inset: 1.6rem;
+    opacity: 0.25;
+  }
+
+  .book-cover-monogram {
+    width: 4.5rem;
+    height: 4.5rem;
+  }
+
+  .book-cover-title {
+    font-family: var(--font-display);
+    font-size: clamp(2.2rem, 1.6rem + 2.4vw, 3.6rem);
+    font-weight: 500;
+    line-height: 1;
+  }
+
+  .book-cover-kind {
+    font-family: var(--font-sans);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    opacity: 0.85;
+  }
+
+  /* While the cover is closed over the right page, the left page sits in its shadow. */
+  .book-cover-shade {
+    display: none;
+  }
+
+  @media (min-width: 64rem) {
+    .book[data-format="spread"] .book-cover-flap {
+      width: 50%;
+    }
+
+    .book[data-format="spread"] .book-cover-shade {
+      display: block;
+      position: absolute;
+      z-index: 4;
+      top: 0;
+      left: 0;
+      width: 50%;
+      height: min(100%, 100svh);
+      background: rgb(14 7 4 / 0.55);
+      border-radius: 1.4rem 0 0 1.4rem;
+      pointer-events: none;
+      animation: book-shade-lift 1s ease 0.35s both;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .book-cover-flap,
+    .book .book-cover-shade {
+      display: none;
+    }
+  }
+
+  /* ─── Typography primitives ─────────────────────────────────────────────── */
+
+  .section-label {
+    font-family: var(--font-sans);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--book-accent);
+  }
+
+  .lede {
+    font-family: var(--font-display);
+    font-size: clamp(1.35rem, 1.2rem + 0.5vw, 1.6rem);
+    font-weight: 500;
+    line-height: 1.55;
+    color: var(--color-ink);
+  }
+
+  .drop-cap::first-letter {
+    initial-letter: 3;
+    -webkit-initial-letter: 3;
+    margin-inline-end: 0.6rem;
+    font-family: var(--font-display);
+    font-weight: 500;
+    color: var(--book-accent);
+  }
+
+  @supports not ((initial-letter: 3) or (-webkit-initial-letter: 3)) {
+    .drop-cap::first-letter {
+      float: left;
+      margin-top: 0.1em;
+      font-size: 4.2em;
+      line-height: 0.78;
+    }
+  }
+
+  /* Opening lines in small capitals, set from Cormorant's own capitals because
+     Google's subset has no small-caps glyphs. */
+  .drop-cap::first-line {
+    font-size: 0.8em;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+  }
+
+  .body-copy {
+    font-size: 1.0625rem;
+    line-height: 1.75;
+    color: var(--color-ink);
+  }
+
+  .body-copy > * + * {
+    margin-top: 1.1em;
+  }
+
+  .ink-link {
+    color: var(--book-accent);
+    text-decoration-line: underline;
+    text-decoration-color: color-mix(in srgb, var(--book-accent) 30%, transparent);
+    transition: color 200ms var(--ease-settle), text-decoration-color 200ms var(--ease-settle);
+  }
+
+  .ink-link:hover {
+    color: var(--color-ink);
+    text-decoration-color: currentColor;
+  }
+
+  .diamond-list > li {
+    position: relative;
+    padding-left: 1.4rem;
+  }
+
+  .diamond-list > li::before {
+    content: "";
+    position: absolute;
+    left: 0.2rem;
+    top: 0.7em;
+    width: 0.36rem;
+    height: 0.36rem;
+    background-color: var(--color-brass);
+    transform: rotate(45deg);
+  }
+
+  .stack-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.3rem 0.75rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--color-ink-soft);
+    background-color: rgb(42 31 26 / 0.055);
+    border-radius: 999px;
+  }
+
+  /* ─── Cards ─────────────────────────────────────────────────────────────── */
+
+  /* Solid colour rather than a texture: a tiled image would make every card an
+     image paint and pull the largest paint later. */
+  .paper-card {
+    position: relative;
+    background-color: var(--color-parchment-light);
+    border: 1px solid rgb(42 31 26 / 0.09);
+    border-radius: 1rem;
+    box-shadow:
+      0 1px 2px rgb(42 31 26 / 0.06),
+      0 22px 40px -28px rgb(42 31 26 / 0.45);
+  }
+
+  /* Hover lift moves the card with a transform and fades in a deeper shadow
+     on a pseudo-element, so nothing repaints a box-shadow per frame. */
+  .lift-on-hover {
+    transition: transform 500ms var(--ease-settle);
+  }
+
+  .lift-on-hover::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    box-shadow: 0 30px 60px -30px rgb(42 31 26 / 0.55);
+    opacity: 0;
+    transition: opacity 500ms var(--ease-settle);
+    pointer-events: none;
+  }
+
+  @media (hover: hover) {
+    .lift-on-hover:hover {
+      transform: translateY(-4px);
+    }
+
+    .lift-on-hover:hover::after {
+      opacity: 1;
+    }
+  }
+
+  /* The ground of a project plate: burgundy lit from one corner, as if under the lamp. */
+  .plate-surface {
+    background:
+      radial-gradient(110% 90% at 18% 0%, rgb(140 42 60 / 0.95), transparent 62%),
+      linear-gradient(160deg, var(--color-burgundy-deep), #2b0a12 58%, #1a0b0a);
+  }
+
+  /* A hairline inset frame, like the printed border around a book plate. */
+  .plate-surface::after {
+    content: "";
+    position: absolute;
+    inset: 0.75rem;
+    border: 1px solid rgb(212 178 106 / 0.25);
+    border-radius: 0.55rem;
+    pointer-events: none;
+  }
+
+  /* Two faint fold creases make the contact card read as a letter. */
+  .letter {
+    padding: 2.75rem 1.4rem 2.25rem;
+    background-image:
+      linear-gradient(
+        to bottom,
+        transparent calc(33.33% - 1px),
+        rgb(42 31 26 / 0.07) calc(33.33% - 1px) 33.33%,
+        rgb(255 255 255 / 0.6) 33.33%,
+        transparent calc(33.33% + 4px)
+      ),
+      linear-gradient(
+        to bottom,
+        transparent calc(66.66% - 1px),
+        rgb(42 31 26 / 0.07) calc(66.66% - 1px) 66.66%,
+        rgb(255 255 255 / 0.6) 66.66%,
+        transparent calc(66.66% + 4px)
+      );
+  }
+
+  @media (min-width: 40rem) {
+    .letter {
+      padding: 3.5rem 3.25rem 3rem;
+    }
+  }
+
+  /* ─── Buttons ───────────────────────────────────────────────────────────── */
+
+  .button-primary {
+    --focus-ring: var(--color-brass-ink);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    min-height: 3rem;
+    padding: 0.75rem 1.6rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: var(--color-parchment-light);
+    background-color: var(--color-burgundy);
+    background-image: linear-gradient(to bottom, rgb(255 255 255 / 0.1), transparent);
+    border-radius: 999px;
+    box-shadow:
+      inset 0 0 0 1px rgb(212 178 106 / 0.3),
+      0 10px 24px -12px rgb(74 14 27 / 0.7);
+    transition: background-color 250ms var(--ease-settle);
+  }
+
+  .button-primary:hover {
+    background-color: var(--color-burgundy-highlight);
+  }
+
+  .button-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    min-height: 3rem;
+    padding: 0.75rem 1.6rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: var(--color-burgundy);
+    border: 1px solid rgb(107 30 46 / 0.3);
+    border-radius: 999px;
+    transition: border-color 250ms var(--ease-settle), color 250ms var(--ease-settle);
+  }
+
+  .button-secondary:hover {
+    color: var(--color-burgundy-highlight);
+    border-color: var(--color-burgundy-highlight);
+  }
+
+  /* An arrow that slides forward when its link is hovered or focused. */
+  .nudge-arrow {
+    display: inline-block;
+    transition: transform 400ms var(--ease-settle);
+  }
+
+  .nudge-arrow-back {
+    display: inline-block;
+    transition: transform 400ms var(--ease-settle);
+  }
+
+  :is(a, button):is(:hover, :focus-visible) .nudge-arrow {
+    transform: translateX(4px);
+  }
+
+  :is(a, button):is(:hover, :focus-visible) .nudge-arrow-back {
+    transform: translateX(-4px);
+  }
+
+  /* ─── Book furniture ────────────────────────────────────────────────────── */
+
+  /* The field guide's boxed notes under each entry. */
+  .field-notes {
+    padding: 1.15rem 1.25rem 1.3rem;
+    background-color: rgb(255 253 246 / 0.5);
+    border: 1px dashed color-mix(in srgb, var(--book-accent) 45%, transparent);
+    border-radius: 0.85rem;
+  }
+
+  /* The correspondence book's calling card: burgundy stock with a brass hairline. */
+  .calling-card {
+    --focus-ring: var(--color-brass-light);
+    position: relative;
+    padding: 2rem 1.6rem 1.75rem;
+    color: var(--color-parchment);
+    background:
+      radial-gradient(120% 80% at 15% 0%, rgb(140 42 60 / 0.75), transparent 60%),
+      linear-gradient(160deg, var(--color-burgundy-deep), #2b0a12);
+    border-radius: 1rem;
+    box-shadow:
+      0 1px 2px rgb(42 31 26 / 0.2),
+      0 30px 60px -30px rgb(42 31 26 / 0.7);
+  }
+
+  .calling-card::after {
+    content: "";
+    position: absolute;
+    inset: 0.6rem;
+    border: 1px solid rgb(212 178 106 / 0.22);
+    border-radius: 0.6rem;
+    pointer-events: none;
+  }
+
+  @media (min-width: 40rem) {
+    .calling-card {
+      padding: 2.5rem 2.25rem 2.25rem;
+    }
+  }
+
+  .card-link {
+    font-weight: 500;
+    color: var(--color-brass-light);
+    text-decoration-line: underline;
+    text-decoration-color: rgb(212 178 106 / 0.35);
+    text-underline-offset: 0.2em;
+    transition: color 200ms var(--ease-settle), text-decoration-color 200ms var(--ease-settle);
+  }
+
+  .card-link:hover {
+    color: var(--color-parchment-light);
+    text-decoration-color: currentColor;
+  }
+}
+
+/* ─── Navigation bar ─────────────────────────────────────────────────────── */
+
+@layer components {
+  .site-nav-link {
+    --focus-ring: var(--color-brass-light);
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.5rem;
+    padding-inline: 0.8rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--color-smoke);
+    border-radius: 999px;
+    transition: color 300ms var(--ease-settle);
+  }
+
+  /* The current page is underlined in brass; the line draws in from the left. */
+  .site-nav-link::after {
+    content: "";
+    position: absolute;
+    inset-inline: 0.8rem;
+    bottom: 0.4rem;
+    height: 1px;
+    background-color: var(--color-brass-light);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 450ms var(--ease-settle);
+  }
+
+  .site-nav-link:hover,
+  .site-nav-link[aria-current="page"] {
+    color: var(--color-parchment);
+  }
+
+  .site-nav-link[aria-current="page"]::after {
+    transform: scaleX(1);
+  }
+
+  .site-nav-cta {
+    --focus-ring: var(--color-brass-light);
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    min-height: 2.5rem;
+    padding-inline: 1.1rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--color-wood-950);
+    background-color: var(--color-brass-light);
+    border-radius: 999px;
+    transition: background-color 300ms var(--ease-settle);
+  }
+
+  .site-nav-cta:hover,
+  .site-nav-cta[aria-current="page"] {
+    background-color: var(--color-parchment);
+  }
+
+  .site-menu-button {
+    --focus-ring: var(--color-brass-light);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    min-height: 2.5rem;
+    padding-inline: 0.95rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--color-parchment);
+    list-style: none;
+    border: 1px solid rgb(212 178 106 / 0.3);
+    border-radius: 999px;
+    cursor: pointer;
+  }
+
+  .site-menu-button::-webkit-details-marker {
+    display: none;
+  }
+
+  /* Two bars that cross into a close mark when the menu is open. */
+  .site-menu-icon {
+    position: relative;
+    width: 1rem;
+    height: 0.65rem;
+  }
+
+  .site-menu-icon::before,
+  .site-menu-icon::after {
+    content: "";
+    position: absolute;
+    inset-inline: 0;
+    height: 1.5px;
+    background-color: currentColor;
+    transition: transform 300ms var(--ease-settle);
+  }
+
+  .site-menu-icon::before {
+    top: 0;
+  }
+
+  .site-menu-icon::after {
+    bottom: 0;
+  }
+
+  .site-menu[open] .site-menu-icon::before {
+    transform: translateY(0.25rem) rotate(45deg);
+  }
+
+  .site-menu[open] .site-menu-icon::after {
+    transform: translateY(-0.25rem) rotate(-45deg);
+  }
+
+  .site-menu-panel {
+    position: absolute;
+    top: calc(100% + 0.6rem);
+    inset-inline: 0;
+    padding: 0.5rem;
+    background-color: rgb(30 19 12 / 0.98);
+    border: 1px solid rgb(212 178 106 / 0.15);
+    border-radius: 1.25rem;
+    box-shadow: 0 30px 60px -30px rgb(0 0 0 / 0.9);
+  }
+
+  .site-menu[open] .site-menu-panel {
+    animation: menu-drop 280ms var(--ease-settle) both;
+  }
+
+  .site-menu-link {
+    --focus-ring: var(--color-brass-light);
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    min-height: 3.25rem;
+    padding: 0.5rem 0.9rem;
+    color: var(--color-parchment);
+    border-radius: 0.8rem;
+  }
+
+  .site-menu-link:hover {
+    background-color: rgb(239 230 210 / 0.06);
+  }
+
+  .site-menu-link[aria-current="page"] {
+    color: var(--color-brass-light);
+    background-color: rgb(239 230 210 / 0.08);
+  }
+
+  /* A tiny spine in each book's cover colour; the shelf gets three. */
+  .site-menu-swatch {
+    flex-shrink: 0;
+    width: 0.5rem;
+    height: 1.3rem;
+    background-color: var(--book-cover);
+    border-radius: 2px;
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.16);
+  }
+
+  .site-menu-swatch.is-library {
+    width: 0.9rem;
+    background: linear-gradient(to right, #6b1e2e 0 30%, transparent 30% 36%, #c49a45 36% 64%, transparent 64% 70%, #23201d 70%);
+    box-shadow: none;
+  }
+}
+
+@keyframes menu-drop {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+}
+
+/* ─── The bookcase ───────────────────────────────────────────────────────────
+   Books are sized in shelf units and rows, both scaled per screen size. The
+   rows wrap like lines of text, and the case is exactly as tall as its rows,
+   so the books that overflow wrap onto rows that are never shown. */
+
+@layer components {
+  .library-stage {
+    position: relative;
+    z-index: 1;
+    padding-bottom: 3rem;
+  }
+
+  /* The unit is a fixed share of the case's width, so every screen fits about
+     the same number of books on a row and the titled books always land on a
+     row that is shown. */
+  .bookcase {
+    --unit: calc((100vw - 3.5rem) / 36);
+    --row: 9.25rem;
+    --rows: 6;
+    --plank: 0.75rem;
+    /* Room above the top row for a book to lift into. */
+    --headroom: 1rem;
+    --caption-height: 4.75rem;
+    --frame: 0.65rem;
+    --spine-shading: linear-gradient(
+      to right,
+      rgb(0 0 0 / 0.42),
+      rgb(255 255 255 / 0.12) 18%,
+      transparent 40%,
+      transparent 66%,
+      rgb(0 0 0 / 0.25) 85%,
+      rgb(0 0 0 / 0.5)
+    );
+    --gilt: rgb(212 178 106 / 0.55);
+    position: relative;
+    margin: 2.25rem auto 0;
+    width: min(100% - 1.5rem, 88rem);
+    padding-bottom: var(--caption-height);
+  }
+
+  /* The smallest phones fit fewer books on a row, so they get one more row. */
+  @media (max-width: 22.4rem) {
+    .bookcase {
+      --rows: 7;
+    }
+  }
+
+  @media (min-width: 40rem) {
+    .bookcase {
+      --unit: calc((min(100vw, 94rem) - 5rem) / 64);
+      --row: 10rem;
+      --rows: 4;
+      width: min(100% - 3rem, 91rem);
+      margin-top: 2.5rem;
+    }
+  }
+
+  @media (min-width: 64rem) {
+    .bookcase {
+      --unit: calc((min(100vw, 94rem) - 5rem) / 82);
+      --row: 11rem;
+    }
+  }
+
+  /* The case: a wooden frame around a recessed back lit from a lamp above. */
+  .bookcase-cabinet {
+    background:
+      radial-gradient(70% 45% at 50% 0%, rgb(212 178 106 / 0.14), transparent 70%),
+      linear-gradient(to bottom, #100905, #1b110a 55%, #22160d);
+    border: solid var(--color-wood-800);
+    border-width: var(--frame) var(--frame) calc(var(--frame) * 1.4);
+    border-radius: 0.7rem 0.7rem 0.35rem 0.35rem;
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.06),
+      0 40px 70px -30px rgb(0 0 0 / 0.85);
+  }
+
+  .bookcase-rows {
+    display: flex;
+    flex-wrap: wrap;
+    align-content: flex-start;
+    column-gap: 2px;
+    row-gap: var(--plank);
+    height: calc(var(--headroom) + var(--rows) * (var(--row) + var(--plank)));
+    padding: var(--headroom) 0.35rem 0;
+    overflow: hidden;
+    /* A plank under every row: a lit front edge, then the board falling into shadow. */
+    background-image: repeating-linear-gradient(
+      to bottom,
+      transparent 0 var(--row),
+      #7a5534 var(--row) calc(var(--row) + 2px),
+      #4a301c calc(var(--row) + 2px) calc(var(--row) + var(--plank) * 0.45),
+      #2b1a12 calc(var(--row) + var(--plank) * 0.45) calc(var(--row) + var(--plank))
+    );
+    background-origin: content-box;
+    background-clip: content-box;
+  }
+
+  /* Shadow cast by each plank onto the books below it and by the case's sides,
+     laid over the books so they sit inside the case rather than on it. */
+  .bookcase::after {
+    content: "";
+    position: absolute;
+    top: var(--frame);
+    inset-inline: var(--frame);
+    height: calc(var(--headroom) + var(--rows) * (var(--row) + var(--plank)));
+    background:
+      repeating-linear-gradient(
+        to bottom,
+        rgb(0 0 0 / 0.5) 0,
+        transparent 2.4rem,
+        transparent calc(var(--row) + var(--plank))
+      )
+      0 var(--headroom) / 100% calc(var(--row) + var(--plank)),
+      linear-gradient(to right, rgb(0 0 0 / 0.55), transparent 2.5rem, transparent calc(100% - 2.5rem), rgb(0 0 0 / 0.55));
+    background-repeat: repeat-y, no-repeat;
+    pointer-events: none;
+  }
+
+  .shelf-book {
+    position: relative;
+    flex: 0 0 auto;
+    width: calc(var(--w) * var(--unit));
+    height: var(--row);
+  }
+
+  /* Untitled books stretch a touch to close the gap at the end of each row. */
+  .shelf-book.is-filler {
+    flex-grow: 1;
+    max-width: calc(var(--w) * var(--unit) * 1.35);
+  }
+
+  .is-filler::before,
+  .is-filler::after {
+    content: "";
+    position: absolute;
+    inset: auto 0 0;
+    height: calc(var(--h) * 100%);
+    border-radius: 2px 2px 1px 1px;
+  }
+
+  .is-filler::before {
+    background-color: var(--c);
+    background-image: var(--spine-shading);
+  }
+
+  .is-filler[data-pattern="banded"]::after {
+    background:
+      linear-gradient(var(--gilt), var(--gilt)) 0 7% / 100% 1px no-repeat,
+      linear-gradient(var(--gilt), var(--gilt)) 0 9.5% / 100% 1px no-repeat,
+      linear-gradient(var(--gilt), var(--gilt)) 0 91% / 100% 1px no-repeat,
+      linear-gradient(var(--gilt), var(--gilt)) 0 93.5% / 100% 1px no-repeat;
+  }
+
+  .is-filler[data-pattern="label"]::after {
+    background: linear-gradient(rgb(232 220 190 / 0.7), rgb(232 220 190 / 0.7)) 50% 20% / 62% 13% no-repeat;
+  }
+
+  /* Raised bands across a leather spine, each with a shadow under a lit ridge. */
+  .is-filler[data-pattern="ribbed"]::after {
+    background:
+      linear-gradient(rgb(255 255 255 / 0.14), rgb(0 0 0 / 0.4)) 0 18% / 100% 3px no-repeat,
+      linear-gradient(rgb(255 255 255 / 0.14), rgb(0 0 0 / 0.4)) 0 38% / 100% 3px no-repeat,
+      linear-gradient(rgb(255 255 255 / 0.14), rgb(0 0 0 / 0.4)) 0 62% / 100% 3px no-repeat,
+      linear-gradient(rgb(255 255 255 / 0.14), rgb(0 0 0 / 0.4)) 0 82% / 100% 3px no-repeat;
+  }
+
+  .is-filler[data-pattern="plain"]::after {
+    background: linear-gradient(var(--gilt), var(--gilt)) 50% 28% / 46% 2px no-repeat;
+  }
+
+  .is-filler[data-pattern="capped"]::after {
+    background: linear-gradient(to bottom, rgb(0 0 0 / 0.35) 0 13%, var(--gilt) 13% calc(13% + 1px), transparent calc(13% + 1px));
+  }
+
+  /* A book leaning against its neighbour, pivoting on its bottom right corner. */
+  .shelf-book.is-leaning {
+    flex-grow: 0;
+    width: calc(var(--w) * var(--unit) + var(--h) * var(--row) * 0.16);
+  }
+
+  .is-leaning::before,
+  .is-leaning::after {
+    right: auto;
+    width: calc(var(--w) * var(--unit));
+    transform: rotate(var(--lean));
+    transform-origin: 100% 100%;
+  }
+
+  .shelf-stack {
+    display: flex;
+    flex: 0 0 auto;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: flex-start;
+    height: var(--row);
+    padding-inline: calc(var(--unit) * 0.6);
+  }
+
+  .shelf-lying-book {
+    display: block;
+    width: calc(var(--w) * var(--unit));
+    height: calc(var(--t) * var(--unit) * 1.15);
+    background-color: var(--c);
+    background-image: linear-gradient(to bottom, rgb(255 255 255 / 0.14), transparent 35%, rgb(0 0 0 / 0.4));
+    border-radius: 2px;
+  }
+
+  .shelf-lying-book:nth-child(even) {
+    margin-left: calc(var(--unit) * 0.5);
+  }
+
+  .shelf-bookend {
+    position: relative;
+    flex: 0 0 auto;
+    width: calc(var(--unit) * 1.2);
+    height: var(--row);
+  }
+
+  .shelf-bookend::before {
+    content: "";
+    position: absolute;
+    inset: auto 0 0;
+    height: 46%;
+    background: linear-gradient(90deg, #5c4419, #d4b26a 35%, #b8913a 62%, #5c4419);
+    border-radius: 0.4rem 0.4rem 0.1rem 0.1rem;
+  }
+
+  /* ─── Titled books ────────────────────────────────────────────────────── */
+
+  .shelf-book.is-titled {
+    display: flex;
+    align-items: flex-end;
+    width: max(1.9rem, calc(var(--w) * var(--unit)));
+  }
+
+  /* The ring is drawn on the spine itself so it follows the book as it lifts. */
+  .shelf-book.is-titled:focus-visible {
+    outline: none;
+  }
+
+  .is-titled:focus-visible .shelf-book-body {
+    outline: 2px solid var(--color-brass-light);
+    outline-offset: 3px;
+  }
+
+  /* Bookcloth in the book's own cover colour with gilt bands, standing a
+     little proud of the untitled books around it. */
+  .shelf-book-body {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    height: calc(var(--h) * 100%);
+    padding-block: calc(var(--row) * 0.04) calc(var(--row) * 0.06);
+    color: var(--book-cover-ink);
+    background-color: var(--book-cover);
+    background-image: var(--spine-shading);
+    border-radius: 2px 2px 1px 1px;
+    box-shadow:
+      0 0 0 1px rgb(212 178 106 / 0.22),
+      7px 0 14px -6px rgb(0 0 0 / 0.85),
+      -7px 0 14px -6px rgb(0 0 0 / 0.85);
+    transition: transform 450ms var(--ease-settle);
+  }
+
+  .shelf-book-body::before,
+  .shelf-book-body::after {
+    content: "";
+    position: absolute;
+    inset-inline: 0;
+    height: calc(var(--row) * 0.035);
+    border-block: 1px solid color-mix(in srgb, var(--book-cover-ink) 60%, transparent);
+  }
+
+  .shelf-book-body::before {
+    top: calc(var(--row) * 0.17);
+  }
+
+  .shelf-book-body::after {
+    bottom: calc(var(--row) * 0.035);
+  }
+
+  /* The numeral sits on a small brass plate. */
+  .shelf-spine-numeral {
+    padding: 0.1rem 0.3rem;
+    font-family: var(--font-display);
+    font-size: max(0.7rem, calc(var(--unit) * 0.95));
+    font-weight: 600;
+    line-height: 1.1;
+    letter-spacing: 0.04em;
+    color: var(--color-ink);
+    background: linear-gradient(to bottom, #ecd7a2, #b8913a);
+    border-radius: 2px;
+    box-shadow: 0 1px 2px rgb(0 0 0 / 0.4);
+  }
+
+  /* Fills the space between the bands and centres the title in it. In
+     vertical writing, justify-content runs down the spine. */
+  .shelf-spine-title {
+    display: flex;
+    flex: 1;
+    justify-content: center;
+    margin-block: calc(var(--row) * 0.08) calc(var(--row) * 0.03);
+    writing-mode: vertical-rl;
+    font-family: var(--font-display);
+    /* As large as the width allows, but never longer than the spine: about
+       two thirds of the book's height, shared between its letters. */
+    font-size: min(calc(var(--unit) * 1.6), calc(var(--row) * var(--h) * 0.64 / (var(--chars) * 0.76)));
+    font-weight: 600;
+    line-height: 1;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .is-titled:focus-visible .shelf-book-body {
+    transform: translateY(calc(var(--headroom) * -0.8));
+  }
+
+  @media (hover: hover) {
+    .is-titled:hover .shelf-book-body {
+      transform: translateY(calc(var(--headroom) * -0.8));
+    }
+  }
+
+  /* Each titled book's caption shares the strip under the case with the
+     instruction; the lifted book shows its own. */
+  .bookcase-instruction,
+  .shelf-caption {
+    position: absolute;
+    inset-inline: 0;
+    bottom: 0;
+    height: var(--caption-height);
+    padding: 1.1rem 1rem 0;
+    text-align: center;
+    transition: opacity 300ms var(--ease-settle);
+  }
+
+  .bookcase-instruction {
+    font-family: var(--font-display);
+    font-size: 1.15rem;
+    font-style: italic;
+    color: var(--color-smoke);
+  }
+
+  .shelf-caption {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .shelf-caption-title {
+    display: block;
+    margin-top: 0.4rem;
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    line-height: 1.1;
+    color: var(--color-parchment-light);
+  }
+
+  .shelf-caption-title em {
+    color: var(--color-smoke);
+  }
+
+  .is-titled:focus-visible + .shelf-caption {
+    opacity: 1;
+  }
+
+  .bookcase:has(.is-titled:focus-visible) .bookcase-instruction {
+    opacity: 0;
+  }
+
+  @media (hover: hover) {
+    .is-titled:hover + .shelf-caption {
+      opacity: 1;
+    }
+
+    .bookcase:has(.is-titled:hover) .bookcase-instruction {
+      opacity: 0;
+    }
+  }
+}
+
+/* ─── A book off the shelf ───────────────────────────────────────────────────
+   A CSS 3D box: spine, covers, page edges and a front cover on a hinge. Sizes
+   come from --h, --w (cover) and --d (thickness), set by script. */
+
+.transit-root {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  pointer-events: none;
+  perspective: 1600px;
+}
+
+.transit-root:empty {
+  display: none;
+}
+
+.transit-root[data-active] {
+  pointer-events: auto;
+}
+
+.transit-backdrop {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 65% 75% at 50% 50%, #2c1b10, #0d0805 75%);
+  opacity: 0;
+}
+
+.transit-book {
+  position: absolute;
+  width: var(--d);
+  height: var(--h);
+  transform-style: preserve-3d;
+}
+
+.transit-face {
+  position: absolute;
+  top: 0;
+  left: 0;
+  backface-visibility: hidden;
+}
+
+.transit-shade,
+.transit-sheen {
+  position: absolute;
+  inset: 0;
+  display: block;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.transit-shade {
+  background-color: #000;
+}
+
+.transit-sheen {
+  background: linear-gradient(115deg, transparent 30%, rgb(255 255 255 / 0.55) 48%, transparent 64%);
+}
+
+.transit-spine {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: var(--d);
+  height: var(--h);
+  padding-block: calc(var(--h) * 0.05) calc(var(--h) * 0.06);
+  overflow: hidden;
+  color: var(--book-cover-ink);
+  background-color: var(--book-cover);
+  background-image: linear-gradient(
+    to right,
+    rgb(0 0 0 / 0.42),
+    rgb(255 255 255 / 0.12) 18%,
+    transparent 40%,
+    transparent 66%,
+    rgb(0 0 0 / 0.25) 85%,
+    rgb(0 0 0 / 0.5)
+  );
+  border-radius: 3px;
+}
+
+.transit-spine-numeral {
+  font-family: var(--font-display);
+  font-size: calc(var(--d) * 0.3);
+  font-weight: 600;
+  line-height: 1;
+}
+
+.transit-spine-title {
+  display: flex;
+  flex: 1;
+  justify-content: center;
+  margin-top: calc(var(--h) * 0.06);
+  writing-mode: vertical-rl;
+  font-family: var(--font-display);
+  font-size: calc(var(--d) * 0.3);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.transit-back-cover {
+  width: var(--w);
+  height: var(--h);
+  background-color: var(--book-cover-deep);
+  transform-origin: 0 50%;
+  transform: translateZ(calc(var(--w) * -1)) rotateY(-90deg);
+}
+
+/* The fore edge, top and bottom are the page block: paper striped by its leaves. */
+.transit-edge,
+.transit-top,
+.transit-bottom {
+  background-color: var(--book-paper);
+  background-image: repeating-linear-gradient(to right, rgb(42 31 26 / 0.1) 0 1px, transparent 1px 3px);
+}
+
+.transit-edge {
+  top: 3px;
+  width: var(--d);
+  height: calc(var(--h) - 6px);
+  transform: translateZ(calc(var(--w) * -1 + 2px)) rotateY(180deg);
+}
+
+.transit-top,
+.transit-bottom {
+  width: var(--d);
+  height: var(--w);
+  transform-origin: 50% 0;
+}
+
+.transit-top {
+  transform: translateZ(calc(var(--w) * -1)) rotateX(90deg);
+}
+
+.transit-bottom {
+  top: var(--h);
+  transform: rotateX(-90deg);
+}
+
+/* The title page, just inside the front cover. */
+.transit-page {
+  top: 3px;
+  left: var(--d);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: calc(var(--h) * 0.022);
+  width: calc(var(--w) - 4px);
+  height: calc(var(--h) - 6px);
+  padding-inline: 10%;
+  text-align: center;
+  color: var(--color-ink);
+  background-color: var(--book-paper);
+  background-image: linear-gradient(to right, rgb(42 31 26 / 0.22), transparent 14%);
+  transform-origin: 0 50%;
+  transform: rotateY(90deg) translateZ(-3px);
+}
+
+.transit-page-label {
+  font-family: var(--font-sans);
+  font-size: calc(var(--w) * 0.03);
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--book-accent);
+}
+
+.transit-page-title {
+  font-family: var(--font-display);
+  font-size: calc(var(--w) * 0.13);
+  font-weight: 500;
+  line-height: 1;
+}
+
+.transit-page-subtitle {
+  font-family: var(--font-display);
+  font-size: calc(var(--w) * 0.055);
+  font-style: italic;
+  color: var(--color-ink-soft);
+}
+
+.transit-page-rule {
+  width: 22%;
+  height: 1px;
+  margin-top: calc(var(--h) * 0.02);
+  background-color: var(--color-brass);
+}
+
+.transit-cover {
+  position: absolute;
+  top: 0;
+  left: var(--d);
+  width: var(--w);
+  height: var(--h);
+  transform-style: preserve-3d;
+  transform-origin: 0 50%;
+  transform: rotateY(90deg);
+}
+
+.transit-cover-front,
+.transit-cover-inside {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: 2px 6px 6px 2px;
+  backface-visibility: hidden;
+}
+
+.transit-cover-front {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: calc(var(--h) * 0.03);
+  padding-inline: 10%;
+  text-align: center;
+  color: var(--book-cover-ink);
+  background-color: var(--book-cover);
+  background-image:
+    linear-gradient(90deg, rgb(0 0 0 / 0.35), transparent 6%),
+    linear-gradient(135deg, rgb(255 255 255 / 0.14), transparent 45%, rgb(0 0 0 / 0.3));
+}
+
+/* A double rule inset around the cover, in the cover's own foil. */
+.transit-cover-front::before,
+.transit-cover-front::after {
+  content: "";
+  position: absolute;
+  border: 1px solid currentColor;
+  border-radius: 4px;
+  pointer-events: none;
+}
+
+.transit-cover-front::before {
+  inset: 5.5%;
+  opacity: 0.5;
+}
+
+.transit-cover-front::after {
+  inset: 7%;
+  opacity: 0.25;
+}
+
+.transit-monogram {
+  width: calc(var(--w) * 0.22);
+  height: auto;
+}
+
+.transit-cover-title {
+  font-family: var(--font-display);
+  font-size: calc(var(--w) * 0.12);
+  font-weight: 500;
+  line-height: 1;
+}
+
+.transit-cover-kind {
+  font-family: var(--font-sans);
+  font-size: calc(var(--w) * 0.03);
+  font-weight: 600;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  opacity: 0.85;
+}
+
+/* Patterned endpaper inside the cover, framed by the cloth turned in at the edges. */
+.transit-cover-inside {
+  --endpaper-ink: color-mix(in srgb, var(--book-accent) 38%, var(--book-paper));
+  background-color: var(--book-paper);
+  background-image:
+    radial-gradient(circle, var(--endpaper-ink) 0 1.5px, transparent 2px),
+    radial-gradient(circle, var(--endpaper-ink) 0 1px, transparent 1.5px),
+    linear-gradient(45deg, transparent 48%, color-mix(in srgb, var(--endpaper-ink) 50%, transparent) 49% 51%, transparent 52%),
+    linear-gradient(-45deg, transparent 48%, color-mix(in srgb, var(--endpaper-ink) 50%, transparent) 49% 51%, transparent 52%);
+  background-size: 18px 18px;
+  background-position: 0 0, 9px 9px, 0 0, 0 0;
+  box-shadow: inset 0 0 0 calc(var(--w) * 0.035) var(--book-cover);
+  transform: rotateY(180deg);
+}
+
+/* Arriving from the shelf, the book is already open: its page skips the cover. */
+html[data-arrival] :is(.book-cover-flap, .book-cover-shade) {
+  animation: none;
+  visibility: hidden;
+}
+
+html[data-arrival] .book {
+  animation: book-arrive 700ms var(--ease-settle) both;
+}
+
+@keyframes book-arrive {
+  from {
+    transform: translateY(14px) scale(0.985);
+  }
+}
+
+@keyframes book-cover-open {
+  from {
+    transform: perspective(2600px) rotateY(0deg);
+  }
+
+  to {
+    transform: perspective(2600px) rotateY(-110deg);
+    visibility: hidden;
+  }
+}
+
+@keyframes book-shade-lift {
+  to {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+
+/* ─── Lenis ─────────────────────────────────────────────────────────────────
+   The library's required rules, inlined to avoid a separate stylesheet request. */
+
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+.lenis:not(.lenis-autoToggle).lenis-stopped {
+  overflow: clip;
+}
+
+.lenis [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+.lenis.lenis-smooth iframe {
+  pointer-events: none;
+}
+
+/* ─── Library intro ──────────────────────────────────────────────────────────
+   A welcome screen painted with the page, then the WebGL library behind it.
+   Kept in the global sheet because a route-specific sheet was preloaded,
+   unused, on book pages. */
+
+.library-intro {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  overflow: hidden;
+}
+
+/* The dark of the library with one lamp lit above the welcome. */
+.intro-backdrop {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 55% 45% at 50% 34%, rgb(212 178 106 / 0.13), transparent 72%),
+    radial-gradient(ellipse 120% 90% at 50% 40%, transparent 50%, rgb(5 3 2 / 0.85)),
+    var(--color-library-night);
+}
+
+.intro-canvas-host {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+}
+
+.intro-canvas-host > canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.intro-vignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 85% 75% at 50% 48%, transparent 55%, rgb(5 2 1 / 0.5) 85%, rgb(5 2 1 / 0.8)),
+    linear-gradient(to bottom, rgb(5 2 1 / 0.35), transparent 18%, transparent 82%, rgb(5 2 1 / 0.4));
+}
+
+.intro-welcome {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1.5rem;
+  text-align: center;
+  color: var(--color-parchment);
+}
+
+/* Each line rises into place in turn. The name moves but never fades, so it
+   counts as painted from the first frame. */
+.intro-welcome > * {
+  animation: welcome-rise 1s var(--ease-settle) both;
+}
+
+.intro-welcome > :nth-child(2) {
+  animation-delay: 120ms;
+}
+
+.intro-welcome > :nth-child(3) {
+  animation-name: welcome-lift;
+  animation-delay: 200ms;
+}
+
+.intro-welcome > :nth-child(4) {
+  animation-delay: 320ms;
+}
+
+.intro-welcome > :nth-child(n + 5) {
+  animation-delay: 480ms;
+}
+
+.intro-welcome-mark {
+  width: 4.25rem;
+  height: 4.25rem;
+  color: var(--color-brass-light);
+}
+
+.intro-welcome-eyebrow {
+  margin-top: 2rem;
+  color: var(--color-brass-light);
+}
+
+.intro-welcome-name {
+  margin-top: 0.9rem;
+  font-family: var(--font-display);
+  font-size: clamp(2.6rem, 1.7rem + 4vw, 5rem);
+  font-weight: 500;
+  line-height: 0.95;
+  letter-spacing: -0.02em;
+  color: var(--color-parchment-light);
+}
+
+.intro-welcome-headline {
+  margin-top: 0.9rem;
+  font-family: var(--font-display);
+  font-size: clamp(1.1rem, 1rem + 0.5vw, 1.4rem);
+  font-style: italic;
+  color: var(--color-smoke);
+}
+
+.intro-progress {
+  position: relative;
+  width: min(18rem, 70vw);
+  height: 2px;
+  margin-top: 2.75rem;
+  overflow: hidden;
+  background-color: rgb(212 178 106 / 0.18);
+  border-radius: 999px;
+}
+
+/* Until the script reports real stages, the bar breathes to show it is waiting. */
+.intro-progress-fill {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, #b8913a, #ecd7a2);
+  transform: scaleX(0.05);
+  transform-origin: left;
+  animation: progress-wait 1.8s ease-in-out infinite;
+}
+
+.intro-progress[data-progress-active] .intro-progress-fill {
+  animation: none;
+}
+
+.intro-welcome-status {
+  min-height: 1.5em;
+  margin-top: 1rem;
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-style: italic;
+  color: var(--color-smoke);
+}
+
+@keyframes welcome-rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+}
+
+@keyframes welcome-lift {
+  from {
+    transform: translateY(14px);
+  }
+}
+
+@keyframes progress-wait {
+  50% {
+    transform: scaleX(0.16);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .intro-welcome > *,
+  .intro-progress-fill {
+    animation: none;
+  }
+}
+
+/* ─── Skip control ───────────────────────────────────────────────────────── */
+
+.intro-skip {
+  --focus-ring: var(--color-brass-light);
+  position: absolute;
+  top: 1.25rem;
+  right: 1.25rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-height: 2.75rem;
+  padding: 0.55rem 1.1rem;
+  border: 1px solid rgb(212 178 106 / 0.4);
+  border-radius: 999px;
+  background: rgb(18 11 7 / 0.7);
+  color: rgb(239 230 210 / 0.92);
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: border-color 250ms var(--ease-settle), color 250ms var(--ease-settle);
+}
+
+.intro-skip:hover {
+  border-color: rgb(212 178 106 / 0.8);
+  color: #fff;
+}
+
+.intro-skip-key {
+  display: none;
+  padding: 0.1rem 0.4rem;
+  border: 1px solid rgb(239 230 210 / 0.25);
+  border-radius: 0.3rem;
+  font-family: var(--font-sans);
+  font-size: 0.7rem;
+  color: rgb(239 230 210 / 0.6);
+}
+
+@media (min-width: 40rem) {
+  .intro-skip {
+    top: 1.75rem;
+    right: 2rem;
+  }
+
+  .intro-skip-key {
+    display: inline-block;
+  }
+}
+
+/* ─── Intro states ──────────────────────────────────────────────────────────
+   The inline boot script sets data-intro on <html> before the first paint. The
+   intro sits on the library page; these rules apply site-wide. */
+
+html[data-intro="play"] {
+  overflow: hidden;
+  /* The overlay cannot cover the reserved scrollbar gutter, so the gutter
+     takes the library's dark rather than showing a strip of wood beside it. */
+  background-color: var(--color-library-night);
+}
+
+html[data-intro="play"] .library-intro {
+  display: block;
+}
+
+/* Skipping or finishing fades the overlay out; visibility drops it from the
+   accessibility tree and from painting once the fade is done. */
+html[data-intro="done"] .library-intro {
+  display: block;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition:
+    opacity 450ms ease,
+    visibility 0s linear 450ms;
+}
+
+/* Returning visitors: the shelf settles into place instead of replaying the intro.
+   Transform only, so the largest paint and layout are untouched. */
+@keyframes shelf-settle {
+  from {
+    transform: translateY(16px) scale(0.985);
+  }
+}
+
+html[data-intro="settle"] [data-shelf-stage] {
+  animation: shelf-settle 700ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
