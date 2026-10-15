@@ -58,52 +58,99 @@ export const LOW_END_REVEAL_ANIMATION: RevealAnimation = {
 // ─── Library intro ──────────────────────────────────────────────────────────
 
 export interface IntroTimings {
-  /** The camera's walk down the aisle. */
-  readonly pan: number;
-  /** How long before the pan ends the landing begins, so the two overlap. */
+  /** The walk down the aisle into the reading room. */
+  readonly walk: number;
+  /** How long before the walk ends the landing begins, so the two overlap. */
   readonly landingOverlap: number;
   readonly sceneFade: number;
   readonly settle: number;
-  readonly spineDrop: number;
 }
 
 /** About 5 seconds end to end. */
 export const FULL_INTRO_TIMINGS: IntroTimings = {
-  pan: 4.4,
-  landingOverlap: 1,
-  sceneFade: 1.1,
-  settle: 1.4,
-  spineDrop: 0.8,
+  walk: 4.4,
+  landingOverlap: 0.9,
+  sceneFade: 1,
+  settle: 1.3,
 };
 
-/** Low-end devices join the walk near its end: about 2.5 seconds. */
+/** Low-end devices join the walk near the end of the aisle: about 2.5 seconds. */
 export const BRIEF_INTRO_TIMINGS: IntroTimings = {
-  pan: 1.8,
+  walk: 1.8,
   landingOverlap: 0.5,
   sceneFade: 0.7,
   settle: 0.9,
-  spineDrop: 0.5,
 };
 
 export const INTRO_EASES = {
-  pan: "power2.inOut",
+  setOff: "power1.in",
+  stride: "none",
+  arrive: "power2.out",
   land: "power3.out",
   fade: "power2.inOut",
 } as const;
 
-/** How far the aisle travels, in viewport widths. Nearer and further layers scale this by their depth. */
-export const INTRO_PAN_TRAVEL_VIEWPORTS = 2.4;
+/** Shares of the walk spent setting off and slowing to a stop; the rest is an even stride. */
+export const INTRO_WALK_PHASES = { setOff: 0.2, arrive: 0.36 } as const;
 /** The brief walk starts this far along the full one, so both end on the same frame. */
-export const INTRO_BRIEF_START_PROGRESS = 0.6;
-/** A slow dolly back while the camera walks. */
-export const INTRO_DOLLY_START_SCALE = 1.08;
-/** The shelf arrives from the right, continuing the pan, as a fraction of the viewport width. */
-export const INTRO_LANDING_OFFSET = 0.08;
-export const INTRO_LANDING_START_SCALE = 1.04;
-/** The books drop into their slots from this far above, as a percentage of their height. */
-export const INTRO_SPINE_DROP_PERCENT = -14;
-export const INTRO_SPINE_STAGGER_SECONDS = 0.07;
+export const INTRO_BRIEF_START_PROGRESS = 0.55;
+/** Footsteps: a small rise and fall of the camera, one per step. */
+export const INTRO_STEP_SECONDS = 0.34;
+export const INTRO_STEP_RISE_VH = 0.28;
+/** The head turns a little toward the shelves mid-walk, then looks ahead again. */
+export const INTRO_GLANCE_DEGREES = 2.2;
+/** The real bookcase comes forward from this scale as the scene dissolves onto it. */
+export const INTRO_LANDING_START_SCALE = 1.06;
 export const INTRO_DUST_START_DELAY_SECONDS = 0.3;
 /** Reduced motion: hold the still library briefly, then crossfade to the shelf. */
 export const INTRO_CROSSFADE_HOLD_SECONDS = 0.9;
 export const INTRO_CROSSFADE_SECONDS = 0.6;
+
+// ─── Taking a book off the shelf ────────────────────────────────────────────
+
+export interface BookTransitTimings {
+  /** The book slides out of its slot, tipped forward by its top edge. */
+  readonly pull: number;
+  /** It turns to show its cover while it travels to the middle of the screen. */
+  readonly turn: number;
+  readonly open: number;
+  /** The open book fades into its page. */
+  readonly reveal: number;
+}
+
+export const BOOK_TRANSIT_TIMINGS: BookTransitTimings = {
+  pull: 0.38,
+  turn: 0.85,
+  open: 0.8,
+  reveal: 0.45,
+};
+
+export const BOOK_TRANSIT_EASES = {
+  pull: "power2.out",
+  turn: "power3.inOut",
+  open: "power2.inOut",
+  reveal: "power2.in",
+} as const;
+
+/** How far the book comes out of the shelf, in pixels toward the viewer. */
+export const BOOK_TRANSIT_PULL_PX = 70;
+/** Tipping the book out by its top edge, the way a hand takes it. */
+export const BOOK_TRANSIT_TIP_DEGREES = -9;
+/** Cover width as a share of its height. */
+export const BOOK_COVER_ASPECT = 0.7;
+/** The book's height on arrival, as a share of the viewport's height. */
+export const BOOK_TRANSIT_HEIGHT_SHARE = 0.62;
+/** Caps that height when the open spread would be wider than this share of the viewport. */
+export const BOOK_TRANSIT_SPREAD_WIDTH_SHARE = 0.9;
+/** The cover's turn about its hinge when open: just short of flat. */
+export const BOOK_TRANSIT_OPEN_DEGREES = -80;
+/** The neighbours rock into the gap the book leaves, then settle. */
+export const BOOK_NEIGHBOUR_ROCK_DEGREES = 2.6;
+export const BOOK_NEIGHBOUR_REST_DEGREES = 1.1;
+/** Gives up waiting for the next page after this long and fades out anyway. */
+export const BOOK_TRANSIT_ROUTE_TIMEOUT_MS = 2500;
+/**
+ * Set on <html> while a book arrives from the shelf already open, so its page
+ * skips its own cover animation. Cleared on the next navigation.
+ */
+export const BOOK_ARRIVAL_ATTRIBUTE = "data-arrival";

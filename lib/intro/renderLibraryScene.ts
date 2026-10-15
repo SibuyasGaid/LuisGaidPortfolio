@@ -1,31 +1,17 @@
-import { INTRO_PAN_TRAVEL_VIEWPORTS } from "@/lib/motion/config";
+import {
+  AISLE,
+  getSegmentCentres,
+  isLampSegment,
+  measureDistanceFromEye,
+  measureFog,
+  type PieceEdge,
+  ROOM,
+} from "@/lib/intro/libraryGeometry";
 
-// The library the intro walks through, as plain HTML. It is decorative and
-// never changes, so it is rendered once as a string instead of as dozens of
-// React elements that would each need hydrating.
-
-type LayerName = "hall" | "stacks" | "lamps" | "aisle" | "pillars";
-
-interface SceneLayer {
-  readonly name: LayerName;
-  /** Travel relative to the aisle: the far wall barely moves, the pillars rush past. */
-  readonly depth: number;
-  /** Dropped on low-end devices, where the fastest layer costs the most to move. */
-  readonly isDetail?: boolean;
-  readonly pieceClass: string;
-  /** Where each piece stands along the layer, in viewport widths. */
-  readonly pieceOffsets: readonly number[];
-}
-
-// The walk ends with a lamp (194vw on its layer) over the middle of the screen
-// and the aisle's last bookcase just out of view, where the real shelf appears.
-const SCENE_LAYERS: readonly SceneLayer[] = [
-  { name: "hall", depth: 0.15, pieceClass: "intro-window", pieceOffsets: [8, 54, 104] },
-  { name: "stacks", depth: 0.4, pieceClass: "intro-case intro-case-far", pieceOffsets: [0, 38, 76, 114, 152, 190] },
-  { name: "lamps", depth: 0.6, pieceClass: "intro-lamp", pieceOffsets: [24, 68, 112, 154, 194] },
-  { name: "aisle", depth: 1, pieceClass: "intro-case intro-case-near", pieceOffsets: [4, 62, 124, 186] },
-  { name: "pillars", depth: 1.6, isDetail: true, pieceClass: "intro-pillar", pieceOffsets: [36, 152, 270] },
-];
+// The library the intro walks through, as plain HTML: a real CSS 3D space of
+// bookcase walls and lamps, ending in a reading room. It is
+// decorative and never changes, so it is rendered once as a string instead of
+// as React elements that would each need hydrating.
 
 /** Dust caught in the lamp light: left %, top %, size in px. */
 const DUST_MOTES: readonly (readonly [number, number, number])[] = [
@@ -33,18 +19,50 @@ const DUST_MOTES: readonly (readonly [number, number, number])[] = [
   [52, 47, 2], [58, 28, 3], [35, 40, 2], [66, 24, 2], [49, 12, 3],
 ];
 
-/** Wide enough that the layer still covers the screen at the end of its travel. */
-function measureLayerWidth(depth: number): number {
-  return Math.ceil((1 + INTRO_PAN_TRAVEL_VIEWPORTS * depth) * 100 + 6);
+function place(x: number, y: number, z: number, rotation = ""): string {
+  return `transform:translate3d(${x}vh,${y}vh,${z}vh)${rotation ? ` ${rotation}` : ""}`;
 }
 
-function renderLayer(layer: SceneLayer): string {
-  const pieces = layer.pieceOffsets.map((offset) => `<span class="${layer.pieceClass}" style="left:${offset}vw"></span>`).join("");
-  const detailAttribute = layer.isDetail ? " data-intro-detail" : "";
-  return `<div class="intro-layer intro-layer-${layer.name}" data-intro-layer="${layer.depth}"${detailAttribute} style="width:${measureLayerWidth(layer.depth)}vw">${pieces}</div>`;
+const wallCentreY = (AISLE.floorY + AISLE.ceilingY) / 2;
+
+function renderShade(z: number): string {
+  return `<i class="aisle-shade" style="opacity:${measureFog(measureDistanceFromEye(z, 0))}"></i>`;
 }
 
-export const LIBRARY_SCENE_MARKUP = SCENE_LAYERS.map(renderLayer).join("");
+// One slice of the aisle: a bookcase either side, the floor and the ceiling
+// between them, and a lamp over every second slice. Each piece is marked with
+// its depth so the timeline can darken it with distance and hide it once the
+// camera has walked past. The shade starts at the darkness of the first frame,
+// so nothing jumps when the walk begins.
+function markDepth(z: number, edge: PieceEdge): string {
+  return `data-intro-segment="${z}" data-intro-edge="${edge}"`;
+}
+
+// One slice of the aisle: a bookcase either side and, over every second
+// slice, a lamp. Each piece is marked with its depth so the timeline can
+// darken it with distance and hide it once it has left the screen. The floor
+// and ceiling are not pieces at all: see .intro-scene.
+function renderSegment(z: number, segmentIndex: number): string {
+  const pieces = [
+    `<div class="aisle-wall aisle-case" ${markDepth(z, "side")} style="${place(-AISLE.halfWidth, wallCentreY, z, "rotateY(90deg)")}">${renderShade(z)}</div>`,
+    `<div class="aisle-wall aisle-case" ${markDepth(z, "side")} style="${place(AISLE.halfWidth, wallCentreY, z, "rotateY(-90deg)")}">${renderShade(z)}</div>`,
+  ];
+  if (isLampSegment(segmentIndex)) {
+    pieces.push(`<div class="aisle-lamp" ${markDepth(z, "lamp")} style="${place(0, AISLE.ceilingY + 24, z)}"></div>`);
+  }
+  return pieces.join("");
+}
+
+function renderRoom(): string {
+  return [
+    `<div class="aisle-end-wall" style="${place(0, (ROOM.endWallTop + AISLE.floorY) / 2, ROOM.endWallZ)};height:${AISLE.floorY - ROOM.endWallTop}vh;margin-top:${(ROOM.endWallTop - AISLE.floorY) / 2}vh">`,
+    `<span class="aisle-window is-left"></span><span class="aisle-window is-right"></span>`,
+    `<span class="aisle-end-glow"></span><span class="aisle-case aisle-end-case"></span>`,
+    `</div>`,
+  ].join("");
+}
+
+export const LIBRARY_SCENE_MARKUP = getSegmentCentres().map(renderSegment).join("") + renderRoom();
 
 export const DUST_MARKUP = DUST_MOTES.map(
   ([left, top, size]) => `<span data-intro-mote class="intro-mote" style="left:${left}%;top:${top}%;width:${size}px;height:${size}px"></span>`,

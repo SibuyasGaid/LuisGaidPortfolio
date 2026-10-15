@@ -24,6 +24,8 @@ export interface Book {
   /** What sort of book it is on the shelf, which also sets its design. */
   readonly kind: string;
   readonly title: string;
+  /** Shorter title for the navigation bar. */
+  readonly navLabel: string;
   readonly subtitle: string;
   /** Opening paragraph, set with a drop cap on the book's first page. */
   readonly introduction: string;
@@ -55,6 +57,8 @@ export interface Fact {
 export interface LibraryCopy {
   readonly eyebrow: string;
   readonly shelfInstruction: string;
+  /** The home page's name in the navigation bar. */
+  readonly navLabel: string;
 }
 
 export type ProjectCategory = "automation" | "engineering";
@@ -190,7 +194,8 @@ export const PROFILE: Profile = {
 
 export const LIBRARY: LibraryCopy = {
   eyebrow: "The library of",
-  shelfInstruction: "Pick a book to open it.",
+  shelfInstruction: "Six of these books are titled. Pick one to take it off the shelf.",
+  navLabel: "Library",
 };
 
 // ─── Books ────────────────────────────────────────────────────────────────
@@ -201,6 +206,7 @@ export const BOOKS: readonly Book[] = [
     numeral: "I",
     kind: "Memoir",
     title: "About",
+    navLabel: "About",
     subtitle: "The author",
     introduction:
       "I'm Charles Luis Gaid. I build the systems that sit behind a growing business: automations that take repetitive work off your team, voice and SMS agents that answer and follow up, CRM setups that keep leads moving, and the web apps that tie it all together.",
@@ -210,6 +216,7 @@ export const BOOKS: readonly Book[] = [
     numeral: "II",
     kind: "Monograph",
     title: "Selected Work",
+    navLabel: "Work",
     subtitle: "What I've shipped",
     introduction:
       "Production automations, web apps, embedded systems, and research projects. Everything here was built to solve a real problem.",
@@ -219,6 +226,7 @@ export const BOOKS: readonly Book[] = [
     numeral: "III",
     kind: "Field guide",
     title: "Services",
+    navLabel: "Services",
     subtitle: "What I build for clients",
     introduction:
       "Most clients come to me with one slow, manual process. These are the four ways I usually fix it.",
@@ -228,6 +236,7 @@ export const BOOKS: readonly Book[] = [
     numeral: "IV",
     kind: "Specimens",
     title: "Stack",
+    navLabel: "Stack",
     subtitle: "Tools I ship with",
     introduction:
       "The tools I reach for first, followed by everything else I've shipped with.",
@@ -237,6 +246,7 @@ export const BOOKS: readonly Book[] = [
     numeral: "V",
     kind: "Ledger",
     title: "Experience",
+    navLabel: "Experience",
     subtitle: "Where I've built",
     introduction:
       "Production automation systems for medical platforms, real estate agencies, e-commerce businesses, and content creators.",
@@ -246,6 +256,7 @@ export const BOOKS: readonly Book[] = [
     numeral: "VI",
     kind: "Correspondence",
     title: "Contact",
+    navLabel: "Contact",
     subtitle: "Let's build something",
     introduction:
       "Available across US, AU, and APAC time zones. Currently open to freelance and full-time AI automation roles.",

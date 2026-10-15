@@ -15,11 +15,11 @@ import { gsap, useGSAP } from "@/lib/motion/gsap";
 function queryIntroElements(): IntroElements | null {
   const scene = document.querySelector<HTMLElement>("[data-intro-scene]");
   const camera = document.querySelector<HTMLElement>("[data-intro-camera]");
+  const world = document.querySelector<HTMLElement>("[data-intro-world]");
   const stage = document.querySelector<HTMLElement>("[data-shelf-stage]");
-  const layers = gsap.utils.toArray<HTMLElement>("[data-intro-layer]");
-  if (!scene || !camera || !stage || layers.length === 0) return null;
-  const spines = gsap.utils.toArray<HTMLElement>(".shelf-spine", stage);
-  return { scene, camera, stage, layers, spines };
+  if (!scene || !camera || !world || !stage) return null;
+  const segments = gsap.utils.toArray<HTMLElement>("[data-intro-segment]");
+  return { scene, camera, world, segments, stage };
 }
 
 function chooseIntroVariant(): IntroVariant {

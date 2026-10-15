@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Cormorant_Garamond, Inter } from "next/font/google";
+import { ArrivalFlagReset } from "@/components/layout/ArrivalFlagReset";
 import { Colophon } from "@/components/layout/Colophon";
 import { Masthead } from "@/components/layout/Masthead";
 import { SkipLink } from "@/components/layout/SkipLink";
@@ -63,6 +64,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           {children}
         </main>
         <Colophon />
+        {/* Holds the book taken off the shelf while its page loads; filled and emptied by script. */}
+        <div data-transit-root aria-hidden="true" className="transit-root" />
+        <ArrivalFlagReset />
         <SmoothScrollLayer />
         <IntroStateKeeper />
         <DevPerformanceReadout />
