@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { BookSpread } from "@/components/book/BookSpread";
+import { OpenBook } from "@/components/book/OpenBook";
 import { CONTACT } from "@/content/portfolio";
 import { reportError } from "@/lib/reportError";
 
@@ -16,7 +16,8 @@ export default function RouteError({ error, retry }: RouteErrorProps) {
   }, [error]);
 
   return (
-    <BookSpread
+    <OpenBook
+      format="spread"
       leftPage={
         <header>
           <p className="section-label">Something went wrong</p>

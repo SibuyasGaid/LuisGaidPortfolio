@@ -1,10 +1,11 @@
 import Link from "next/link";
-import { BookSpread } from "@/components/book/BookSpread";
+import { OpenBook } from "@/components/book/OpenBook";
 import { BrassRule } from "@/components/ornaments/BrassRule";
 
 export default function NotFound() {
   return (
-    <BookSpread
+    <OpenBook
+      format="spread"
       leftPage={
         <header>
           <p className="section-label">Page not found</p>
@@ -17,9 +18,9 @@ export default function NotFound() {
       }
       rightPage={
         <div className="flex h-full flex-col items-start justify-center gap-6">
-          <p className="body-copy">Everything else is still bound in. Head back to the contents to pick a chapter.</p>
+          <p className="body-copy">Everything else is still on the shelf. Head back to the library to pick a book.</p>
           <Link href="/" className="button-primary">
-            Back to contents
+            Back to the library
           </Link>
         </div>
       }

@@ -1,13 +1,13 @@
-import { ChapterPage } from "@/components/book/ChapterPage";
-import { ContactChapter } from "@/components/chapters/ContactChapter";
-import { createChapterMetadata } from "@/lib/chapters";
+import { BookPage } from "@/components/book/BookPage";
+import { ContactBook } from "@/components/books/ContactBook";
+import { createBookMetadata } from "@/lib/books";
 
-export const metadata = createChapterMetadata("contact");
+export const metadata = createBookMetadata("contact");
 
 export default function ContactPage() {
   return (
-    <ChapterPage chapterId="contact">
-      <ContactChapter />
-    </ChapterPage>
+    <BookPage bookId="contact">
+      <ContactBook />
+    </BookPage>
   );
 }

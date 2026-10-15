@@ -1,13 +1,13 @@
-import { ChapterPage } from "@/components/book/ChapterPage";
-import { ExperienceChapter } from "@/components/chapters/ExperienceChapter";
-import { createChapterMetadata } from "@/lib/chapters";
+import { BookPage } from "@/components/book/BookPage";
+import { ExperienceBook } from "@/components/books/ExperienceBook";
+import { createBookMetadata } from "@/lib/books";
 
-export const metadata = createChapterMetadata("experience");
+export const metadata = createBookMetadata("experience");
 
 export default function ExperiencePage() {
   return (
-    <ChapterPage chapterId="experience">
-      <ExperienceChapter />
-    </ChapterPage>
+    <BookPage bookId="experience">
+      <ExperienceBook />
+    </BookPage>
   );
 }

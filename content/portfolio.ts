@@ -10,7 +10,7 @@
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
-export type ChapterId =
+export type BookId =
   | "about"
   | "work"
   | "services"
@@ -18,12 +18,14 @@ export type ChapterId =
   | "experience"
   | "contact";
 
-export interface Chapter {
-  readonly id: ChapterId;
+export interface Book {
+  readonly id: BookId;
   readonly numeral: string;
+  /** What sort of book it is on the shelf, which also sets its design. */
+  readonly kind: string;
   readonly title: string;
   readonly subtitle: string;
-  /** Opening paragraph, set with a drop cap on the chapter's first page. */
+  /** Opening paragraph, set with a drop cap on the book's first page. */
   readonly introduction: string;
 }
 
@@ -49,11 +51,10 @@ export interface Fact {
   readonly value: string;
 }
 
-export interface BookCover {
-  readonly spineTitle: string;
-  readonly coverTitle: string;
-  readonly coverSubtitle: string;
-  readonly contentsTitle: string;
+/** Copy for the home page, where the books stand on a shelf. */
+export interface LibraryCopy {
+  readonly eyebrow: string;
+  readonly shelfInstruction: string;
 }
 
 export type ProjectCategory = "automation" | "engineering";
@@ -153,7 +154,6 @@ export interface ContactChannel {
 }
 
 export interface ContactDetails {
-  readonly availability: string;
   /** Cal.com or Calendly link behind the primary "Book a call" button. */
   readonly bookingUrl: string | null;
   readonly email: string;
@@ -188,19 +188,18 @@ export const PROFILE: Profile = {
   clientRegions: "Australia and the United States",
 };
 
-export const BOOK_COVER: BookCover = {
-  spineTitle: "PORTFOLIO",
-  coverTitle: "Charles Luis Gaid",
-  coverSubtitle: "Fullstack Developer and AI Automation Specialist",
-  contentsTitle: "Contents",
+export const LIBRARY: LibraryCopy = {
+  eyebrow: "The library of",
+  shelfInstruction: "Pick a book to open it.",
 };
 
-// ─── Chapters ────────────────────────────────────────────────────────────────
+// ─── Books ────────────────────────────────────────────────────────────────
 
-export const CHAPTERS: readonly Chapter[] = [
+export const BOOKS: readonly Book[] = [
   {
     id: "about",
     numeral: "I",
+    kind: "Memoir",
     title: "About",
     subtitle: "The author",
     introduction:
@@ -209,6 +208,7 @@ export const CHAPTERS: readonly Chapter[] = [
   {
     id: "work",
     numeral: "II",
+    kind: "Monograph",
     title: "Selected Work",
     subtitle: "What I've shipped",
     introduction:
@@ -217,6 +217,7 @@ export const CHAPTERS: readonly Chapter[] = [
   {
     id: "services",
     numeral: "III",
+    kind: "Field guide",
     title: "Services",
     subtitle: "What I build for clients",
     introduction:
@@ -225,6 +226,7 @@ export const CHAPTERS: readonly Chapter[] = [
   {
     id: "stack",
     numeral: "IV",
+    kind: "Specimens",
     title: "Stack",
     subtitle: "Tools I ship with",
     introduction:
@@ -233,6 +235,7 @@ export const CHAPTERS: readonly Chapter[] = [
   {
     id: "experience",
     numeral: "V",
+    kind: "Ledger",
     title: "Experience",
     subtitle: "Where I've built",
     introduction:
@@ -241,6 +244,7 @@ export const CHAPTERS: readonly Chapter[] = [
   {
     id: "contact",
     numeral: "VI",
+    kind: "Correspondence",
     title: "Contact",
     subtitle: "Let's build something",
     introduction:
@@ -696,33 +700,13 @@ export const EDUCATION: Education = {
 export const AWARDS: readonly Award[] = [
   {
     id: "dost-grand-prize",
-    title: "DOST Grand Prize Winner",
-    startYear: 2025,
-    endYear: null,
-    context: "National Innovation Competition",
-    summary:
-      "MammoScan, an AI-powered early screening method for breast cancer using thermographic imaging and computer vision.",
-    relatedProjectId: "mammoscan",
-  },
-  {
-    id: "sttp-champion",
-    title: "STTP Champion",
+    title: "DOST Grand Prize",
     startYear: 2025,
     endYear: null,
     context: "Scholar's Technopreneurship Training Program",
     summary:
-      "AI-powered early screening method for breast cancer using thermographic imaging and computer vision.",
+      "MammoScan, an AI-powered early screening method for breast cancer using thermographic imaging and computer vision.",
     relatedProjectId: "mammoscan",
-  },
-  {
-    id: "ai-asean-ready",
-    title: "AI ASEAN READY Youth Challenge",
-    startYear: 2026,
-    endYear: null,
-    context: "International Competition",
-    summary:
-      "Developed Posidonia AI, a satellite-based seagrass carbon stock estimator for blue carbon credits across Southeast Asia.",
-    relatedProjectId: "posidonia-ai",
   },
   {
     id: "icpep-vp-internal",
@@ -739,8 +723,6 @@ export const AWARDS: readonly Award[] = [
 // ─── Contact ─────────────────────────────────────────────────────────────────
 
 export const CONTACT: ContactDetails = {
-  availability:
-    "Available across US, AU, and APAC time zones. Currently open to freelance and full-time AI automation roles.",
   bookingUrl: null,
   email: "charlesluisgaid@gmail.com",
   letterOpening:

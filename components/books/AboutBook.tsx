@@ -7,7 +7,7 @@ function formatAwardYears(award: Award): string {
   return award.endYear ? `${award.startYear} to ${award.endYear}` : String(award.startYear);
 }
 
-export function AboutChapter() {
+export function AboutBook() {
   return (
     <div className="space-y-16">
       <div className="body-copy max-w-[38rem]">

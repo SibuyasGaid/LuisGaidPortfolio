@@ -1,23 +1,30 @@
-import { ProjectPlate } from "@/components/chapters/plate/ProjectPlate";
+import { ProjectPlate } from "@/components/books/plate/ProjectPlate";
 import { PROJECT_CATEGORY_LABELS, type Project } from "@/content/portfolio";
 
 interface ProjectCardProps {
   readonly project: Project;
   readonly plateNumber: number;
+  /** On wide screens plates alternate sides down the page, like a monograph. */
+  readonly isPlateOnRight: boolean;
 }
 
-export function ProjectCard({ project, plateNumber }: ProjectCardProps) {
+export function ProjectCard({ project, plateNumber, isPlateOnRight }: ProjectCardProps) {
   const titleId = `${project.id}-title`;
   const metaLabels = [PROJECT_CATEGORY_LABELS[project.category], project.badge?.label].filter(Boolean);
+  const plateCorners = isPlateOnRight ? "lg:order-2 lg:rounded-r-[calc(1rem-1px)]" : "lg:rounded-l-[calc(1rem-1px)]";
 
   // The reveal animates the wrapper so its transforms never fight the card's hover lift.
   return (
     <div data-reveal="sheet">
-      <article id={project.id} aria-labelledby={titleId} className="paper-card lift-on-hover scroll-mt-28">
-        <div className="overflow-hidden rounded-t-[calc(1rem-1px)]">
+      <article
+        id={project.id}
+        aria-labelledby={titleId}
+        className="paper-card lift-on-hover grid scroll-mt-28 lg:grid-cols-[1.15fr_1fr]"
+      >
+        <div className={`overflow-hidden rounded-t-[calc(1rem-1px)] lg:rounded-none ${plateCorners}`}>
           <ProjectPlate project={project} plateNumber={plateNumber} />
         </div>
-        <div className="px-6 pb-7 pt-6 sm:px-8 sm:pb-8 sm:pt-7">
+        <div className="px-6 pb-7 pt-6 sm:px-8 sm:pb-8 sm:pt-7 lg:px-10 lg:py-10">
           <p className="section-label">{metaLabels.join("  ·  ")}</p>
           <h3 id={titleId} className="mt-3 font-display text-[1.95rem] font-medium leading-[1.08] tracking-[-0.01em] text-ink sm:text-[2.25rem]">
             {project.title}

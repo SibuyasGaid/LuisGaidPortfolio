@@ -58,51 +58,52 @@ export const LOW_END_REVEAL_ANIMATION: RevealAnimation = {
 // ─── Library intro ──────────────────────────────────────────────────────────
 
 export interface IntroTimings {
+  /** The camera's walk down the aisle. */
   readonly pan: number;
-  readonly pushIn: number;
-  readonly pull: number;
-  readonly turn: number;
-  readonly open: number;
-  readonly handoff: number;
-  readonly fadeOut: number;
+  /** How long before the pan ends the landing begins, so the two overlap. */
+  readonly landingOverlap: number;
+  readonly sceneFade: number;
+  readonly settle: number;
+  readonly spineDrop: number;
 }
 
-/** About 6.5 seconds end to end. */
+/** About 5 seconds end to end. */
 export const FULL_INTRO_TIMINGS: IntroTimings = {
-  pan: 2.6,
-  pushIn: 1.2,
-  pull: 0.6,
-  turn: 1.1,
-  open: 1.2,
-  handoff: 0.9,
-  fadeOut: 0.45,
+  pan: 4.4,
+  landingOverlap: 1,
+  sceneFade: 1.1,
+  settle: 1.4,
+  spineDrop: 0.8,
 };
 
-/** Low-end devices start already in front of the book: about 3 seconds. */
+/** Low-end devices join the walk near its end: about 2.5 seconds. */
 export const BRIEF_INTRO_TIMINGS: IntroTimings = {
-  pan: 0,
-  pushIn: 0.7,
-  pull: 0.35,
-  turn: 0.75,
-  open: 0.75,
-  handoff: 0.6,
-  fadeOut: 0.35,
+  pan: 1.8,
+  landingOverlap: 0.5,
+  sceneFade: 0.7,
+  settle: 0.9,
+  spineDrop: 0.5,
 };
 
 export const INTRO_EASES = {
-  camera: "power2.inOut",
-  heavy: "power3.inOut",
-  lift: "power2.out",
+  pan: "power2.inOut",
+  land: "power3.out",
+  fade: "power2.inOut",
 } as const;
 
-export const INTRO_DOLLY_SCALE = 1.06;
-export const INTRO_PUSH_IN_SCALE = 1.85;
-export const INTRO_BRIEF_START_SCALE = 1.35;
-/** How far the wall and the foreground upright travel relative to the shelf. */
-export const INTRO_WALL_PARALLAX = 0.35;
-export const INTRO_FOREGROUND_PARALLAX = 1.6;
-export const INTRO_DIM_FOCUS = 0.55;
-export const INTRO_DIM_FULL = 0.8;
-/** Reduced motion: hold the still library briefly, then crossfade to the book. */
+/** How far the aisle travels, in viewport widths. Nearer and further layers scale this by their depth. */
+export const INTRO_PAN_TRAVEL_VIEWPORTS = 2.4;
+/** The brief walk starts this far along the full one, so both end on the same frame. */
+export const INTRO_BRIEF_START_PROGRESS = 0.6;
+/** A slow dolly back while the camera walks. */
+export const INTRO_DOLLY_START_SCALE = 1.08;
+/** The shelf arrives from the right, continuing the pan, as a fraction of the viewport width. */
+export const INTRO_LANDING_OFFSET = 0.08;
+export const INTRO_LANDING_START_SCALE = 1.04;
+/** The books drop into their slots from this far above, as a percentage of their height. */
+export const INTRO_SPINE_DROP_PERCENT = -14;
+export const INTRO_SPINE_STAGGER_SECONDS = 0.07;
+export const INTRO_DUST_START_DELAY_SECONDS = 0.3;
+/** Reduced motion: hold the still library briefly, then crossfade to the shelf. */
 export const INTRO_CROSSFADE_HOLD_SECONDS = 0.9;
 export const INTRO_CROSSFADE_SECONDS = 0.6;

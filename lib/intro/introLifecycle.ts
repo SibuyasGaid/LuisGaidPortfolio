@@ -2,8 +2,8 @@
 // both agree on the attribute, the storage key and the finish event.
 
 /**
- * play: first visit to the contents page, the library intro runs.
- * settle: every other hard load, the book lands with a short settle.
+ * play: first visit to the library page, the intro pans through the library.
+ * settle: every other hard load, the shelf settles into place.
  * none: reduced motion, no entrance at all.
  * done: the intro has finished or been skipped.
  */

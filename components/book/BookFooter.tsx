@@ -1,28 +1,28 @@
 import Link from "next/link";
-import type { ChapterId } from "@/content/portfolio";
-import { getAdjacentChapters, getChapterHref } from "@/lib/chapters";
+import type { BookId } from "@/content/portfolio";
+import { getAdjacentBooks, getBookHref } from "@/lib/books";
 
-interface ChapterFooterProps {
-  readonly chapterId: ChapterId;
+interface BookFooterProps {
+  readonly bookId: BookId;
 }
 
-export function ChapterFooter({ chapterId }: ChapterFooterProps) {
-  const { previous, next } = getAdjacentChapters(chapterId);
+export function BookFooter({ bookId }: BookFooterProps) {
+  const { previous, next } = getAdjacentBooks(bookId);
   return (
-    <nav aria-label="Chapters" className="mt-20 border-t border-ink/10 pt-7">
+    <nav aria-label="More books" className="mt-20 border-t border-ink/10 pt-7">
       <ul className="grid grid-cols-2 gap-6">
         <li>
           {previous ? (
-            <FooterLink href={getChapterHref(previous.id)} rel="prev" label="Previous" title={previous.title} direction="back" />
+            <FooterLink href={getBookHref(previous.id)} rel="prev" label="Previous book" title={previous.title} direction="back" />
           ) : (
-            <FooterLink href="/" label="Back to" title="Contents" direction="back" />
+            <FooterLink href="/" label="Back to" title="The shelf" direction="back" />
           )}
         </li>
         <li className="text-right">
           {next ? (
-            <FooterLink href={getChapterHref(next.id)} rel="next" label="Next" title={next.title} direction="forward" />
+            <FooterLink href={getBookHref(next.id)} rel="next" label="Next book" title={next.title} direction="forward" />
           ) : (
-            <FooterLink href="/" label="Back to" title="Contents" direction="forward" />
+            <FooterLink href="/" label="Back to" title="The shelf" direction="forward" />
           )}
         </li>
       </ul>
@@ -43,7 +43,7 @@ function FooterLink({ href, label, title, direction, rel }: FooterLinkProps) {
   return (
     <Link href={href} rel={rel} className="group inline-block">
       <span className="section-label block">{label}</span>
-      <span className="mt-1.5 inline-flex items-baseline gap-2 font-display text-xl font-medium text-ink transition-colors duration-300 ease-settle group-hover:text-burgundy sm:text-2xl">
+      <span className="mt-1.5 inline-flex items-baseline gap-2 font-display text-xl font-medium text-ink transition-colors duration-300 ease-settle group-hover:text-[color:var(--book-accent)] sm:text-2xl">
         {isForward ? null : (
           <span aria-hidden="true" className="nudge-arrow-back">
             ←

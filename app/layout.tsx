@@ -1,5 +1,4 @@
 import type { Metadata, Viewport } from "next";
-import { preload } from "react-dom";
 import { Cormorant_Garamond, Inter } from "next/font/google";
 import { Colophon } from "@/components/layout/Colophon";
 import { Masthead } from "@/components/layout/Masthead";
@@ -51,11 +50,6 @@ export const viewport: Viewport = {
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
-  // The paper texture is only referenced from CSS, so the browser would find it
-  // late. Chrome treats textured paper cards as image paints, so a late texture
-  // means a late largest paint.
-  preload("/textures/paper.webp", { as: "image", fetchPriority: "high" });
-
   return (
     // The boot script sets data-intro on <html> before hydration, hence suppressHydrationWarning.
     <html lang="en" className={`${cormorantGaramond.variable} ${inter.variable}`} suppressHydrationWarning>

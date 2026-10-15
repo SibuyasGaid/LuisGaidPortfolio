@@ -1,13 +1,13 @@
-import { ChapterPage } from "@/components/book/ChapterPage";
-import { ServicesChapter } from "@/components/chapters/ServicesChapter";
-import { createChapterMetadata } from "@/lib/chapters";
+import { BookPage } from "@/components/book/BookPage";
+import { ServicesBook } from "@/components/books/ServicesBook";
+import { createBookMetadata } from "@/lib/books";
 
-export const metadata = createChapterMetadata("services");
+export const metadata = createBookMetadata("services");
 
 export default function ServicesPage() {
   return (
-    <ChapterPage chapterId="services">
-      <ServicesChapter />
-    </ChapterPage>
+    <BookPage bookId="services">
+      <ServicesBook />
+    </BookPage>
   );
 }

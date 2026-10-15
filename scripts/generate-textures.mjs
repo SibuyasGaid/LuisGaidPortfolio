@@ -1,4 +1,4 @@
-// Renders the tiled surface textures (paper, wood, leather) from SVG noise
+// Renders the tiled surface textures (paper grain, desk wood) from SVG noise
 // filters. Kept as a script so the tiles can be regenerated or retuned instead
 // of being opaque binary assets. Run with `npm run textures`.
 import { mkdir } from "node:fs/promises";
@@ -31,14 +31,16 @@ function createTextureSvg({ width, height, baseColor, layers }) {
 
 const TEXTURES = [
   {
-    name: "paper",
+    // Near-white grain, multiplied over each book's paper colour in CSS: white
+    // leaves the colour untouched and only the specks darken it.
+    name: "paper-grain",
     width: 320,
     height: 320,
-    baseColor: "#EFE6D2",
+    baseColor: "#FFFFFF",
     layers: [
-      createNoiseLayer({ id: "mottle", type: "fractalNoise", baseFrequency: "0.0125", octaves: 3, seed: 7, tint: [0.55, 0.42, 0.24], alphaScale: 0.12, alphaOffset: -0.05 }),
-      createNoiseLayer({ id: "fibre", type: "fractalNoise", baseFrequency: "0.06 0.22", octaves: 2, seed: 11, tint: [0.45, 0.34, 0.2], alphaScale: 0.14, alphaOffset: -0.06 }),
-      createNoiseLayer({ id: "grain", type: "fractalNoise", baseFrequency: "0.85", octaves: 2, seed: 3, tint: [0.4, 0.3, 0.18], alphaScale: 0.26, alphaOffset: -0.09 }),
+      createNoiseLayer({ id: "mottle", type: "fractalNoise", baseFrequency: "0.0125", octaves: 3, seed: 7, tint: [0.42, 0.3, 0.16], alphaScale: 0.1, alphaOffset: -0.04 }),
+      createNoiseLayer({ id: "fibre", type: "fractalNoise", baseFrequency: "0.06 0.22", octaves: 2, seed: 11, tint: [0.36, 0.26, 0.15], alphaScale: 0.14, alphaOffset: -0.06 }),
+      createNoiseLayer({ id: "grain", type: "fractalNoise", baseFrequency: "0.85", octaves: 2, seed: 3, tint: [0.3, 0.22, 0.13], alphaScale: 0.24, alphaOffset: -0.085 }),
     ],
   },
   {
@@ -50,17 +52,6 @@ const TEXTURES = [
       createNoiseLayer({ id: "streak", type: "fractalNoise", baseFrequency: "0.0039 0.0703", octaves: 4, seed: 5, tint: [0.22, 0.15, 0.09], alphaScale: 0.8, alphaOffset: -0.26 }),
       createNoiseLayer({ id: "shadow", type: "fractalNoise", baseFrequency: "0.0078 0.1172", octaves: 3, seed: 13, tint: [0.07, 0.04, 0.02], alphaScale: 0.7, alphaOffset: -0.25 }),
       createNoiseLayer({ id: "pore", type: "fractalNoise", baseFrequency: "0.04 0.9", octaves: 1, seed: 17, tint: [0.05, 0.03, 0.02], alphaScale: 0.6, alphaOffset: -0.22 }),
-    ],
-  },
-  {
-    name: "leather",
-    width: 256,
-    height: 256,
-    baseColor: "#5A1524",
-    layers: [
-      createNoiseLayer({ id: "mottle", type: "fractalNoise", baseFrequency: "0.0234", octaves: 3, seed: 19, tint: [0.18, 0.03, 0.07], alphaScale: 0.4, alphaOffset: -0.14 }),
-      createNoiseLayer({ id: "pore", type: "turbulence", baseFrequency: "0.42", octaves: 2, seed: 23, tint: [0.16, 0.02, 0.06], alphaScale: 0.9, alphaOffset: -0.1 }),
-      createNoiseLayer({ id: "sheen", type: "fractalNoise", baseFrequency: "0.0469", octaves: 2, seed: 29, tint: [0.62, 0.24, 0.28], alphaScale: 0.25, alphaOffset: -0.12 }),
     ],
   },
 ];

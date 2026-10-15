@@ -1,5 +1,5 @@
-import { EngravedRosette } from "@/components/chapters/plate/EngravedRosette";
-import { PlateIllustration } from "@/components/chapters/plate/PlateIllustration";
+import { EngravedRosette } from "@/components/books/plate/EngravedRosette";
+import { PlateIllustration } from "@/components/books/plate/PlateIllustration";
 import type { Project, ProjectLink } from "@/content/portfolio";
 import { toRomanNumeral } from "@/lib/romanNumerals";
 
@@ -17,7 +17,7 @@ const LINK_LABELS: Record<ProjectLink["kind"], { readonly visible: string; reado
 // the whole plate opens the live site or video.
 export function ProjectPlate({ project, plateNumber }: ProjectPlateProps) {
   const plate = (
-    <div className="plate-surface relative aspect-[16/10] overflow-hidden">
+    <div className="plate-surface relative aspect-[16/10] overflow-hidden lg:aspect-auto lg:h-full lg:min-h-[26rem]">
       <EngravedRosette plateNumber={plateNumber} />
       {project.illustration ? <PlateIllustration illustration={project.illustration} /> : null}
       <span aria-hidden="true" className="eyebrow absolute bottom-4 left-5 text-brass-light/90">
@@ -37,7 +37,7 @@ export function ProjectPlate({ project, plateNumber }: ProjectPlateProps) {
 
   if (!project.link) return plate;
   return (
-    <a href={project.link.href} target="_blank" rel="noreferrer" className="group block">
+    <a href={project.link.href} target="_blank" rel="noreferrer" className="group block lg:h-full">
       {plate}
     </a>
   );

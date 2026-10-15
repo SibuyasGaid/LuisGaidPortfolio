@@ -1,18 +1,19 @@
-import { ArchiveEntry } from "@/components/chapters/ArchiveEntry";
-import { ProjectCard } from "@/components/chapters/ProjectCard";
+import { ArchiveEntry } from "@/components/books/ArchiveEntry";
+import { ProjectCard } from "@/components/books/ProjectCard";
 import { ARCHIVED_PROJECTS, FEATURED_PROJECTS } from "@/lib/projects";
 
-export function WorkChapter() {
+// The monograph: full-width plates that alternate sides, then a two-column archive.
+export function WorkBook() {
   return (
-    <div className="space-y-20">
+    <div className="space-y-24">
       <section aria-labelledby="work-featured-title">
         <h2 id="work-featured-title" className="section-label">
-          Featured
+          Featured plates
         </h2>
-        <ol className="mt-6 space-y-10">
+        <ol className="mt-8 space-y-12">
           {FEATURED_PROJECTS.map((project, index) => (
             <li key={project.id}>
-              <ProjectCard project={project} plateNumber={index + 1} />
+              <ProjectCard project={project} plateNumber={index + 1} isPlateOnRight={index % 2 === 1} />
             </li>
           ))}
         </ol>
@@ -22,9 +23,9 @@ export function WorkChapter() {
         <h2 id="work-archive-title" className="section-label">
           From the archive
         </h2>
-        <ul className="mt-4 divide-y divide-ink/10 border-y border-ink/10">
+        <ul className="mt-4 grid gap-x-14 border-t border-ink/10 lg:grid-cols-2">
           {ARCHIVED_PROJECTS.map((project) => (
-            <li key={project.id}>
+            <li key={project.id} className="border-b border-ink/10">
               <ArchiveEntry project={project} />
             </li>
           ))}

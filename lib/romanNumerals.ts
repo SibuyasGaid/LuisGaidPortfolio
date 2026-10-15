@@ -6,7 +6,7 @@ const NUMERAL_VALUES = [
   [1, "I"],
 ] as const;
 
-/** Covers the small counts the book needs (plates, chapters), up to 39. */
+/** Covers the small counts the book needs (plates, books), up to 39. */
 export function toRomanNumeral(value: number): string {
   let remaining = value;
   let numeral = "";
