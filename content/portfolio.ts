@@ -297,7 +297,7 @@ export const BOOKS: readonly Book[] = [
 
 export const ABOUT_PARAGRAPHS: readonly string[] = [
   "Since late 2024 I've shipped production work for medical platforms, real estate agencies, e-commerce brands, and content creators across Australia and the US. I own the whole job: scoping, architecture, the build, testing, and support after launch.",
-  "My background is Computer Engineering. MammoScan, an AI breast cancer screening project built on thermal imaging and computer vision, won the DOST Grand Prize in 2025. I bring the same rigor to a client's lead pipeline that I brought to medical screening.",
+  "My background is Computer Engineering. MammoScan, an AI breast cancer screening project built on thermal imaging and computer vision, was named Champion of the DOST Scholar's Technopreneurship Training Program (STTP) in 2025. I bring the same rigor to a client's lead pipeline that I brought to medical screening.",
 ];
 
 export const ABOUT_FACTS: readonly Fact[] = [
@@ -328,7 +328,7 @@ export const PROJECTS = [
       "A book launch meant pitching 80+ podcasts, influencers, and media outlets at once, with follow-ups that were easy to lose in an inbox.",
     solution:
       "Multi-track PR outreach system managing 80+ contacts across podcasts, influencers, and media. 7 Make webhook endpoints with Gmail reply detection, Sendr video triggers, automated follow-up scheduling, and per-contact automation toggles.",
-    stack: ["Make", "Supabase", "Lovable", "Gmail API", "Sendr", "Bit.ly"],
+    stack: ["Make", "Supabase", "Gmail API", "Sendr", "Bit.ly"],
     illustration: null,
     link: null,
     isFeatured: true,
@@ -342,8 +342,8 @@ export const PROJECTS = [
     problem:
       "Finding keynote opportunities meant trawling event listings by hand and writing a fresh pitch for each one.",
     solution:
-      "Automated pipeline that scrapes speaking events via Apify, scores relevance, and generates personalized AI pitch decks. Surfaces opportunities in a Lovable dashboard with filtering, application tracking, and “Opens for Application” date handling.",
-    stack: ["Apify", "OpenAI", "Make", "Lovable", "Supabase"],
+      "Automated pipeline that scrapes speaking events via Apify, scores relevance, and generates personalized AI pitch decks. Surfaces opportunities in a custom dashboard with filtering, application tracking, and “Opens for Application” date handling.",
+    stack: ["Apify", "OpenAI", "Make", "Supabase"],
     illustration: null,
     link: null,
     isFeatured: true,
@@ -482,10 +482,10 @@ export const PROJECTS = [
     title: "MammoScan",
     subtitle: "AI Breast Cancer Screening",
     category: "engineering",
-    badge: { kind: "award", label: "DOST Grand Prize" },
+    badge: { kind: "award", label: "STTP Champion" },
     problem: null,
     solution:
-      "AI-powered early screening method for breast cancer using thermographic imaging and computer vision. Won the DOST Scholar's Technopreneurship Training Program competition.",
+      "AI-powered early screening method for breast cancer using thermographic imaging and computer vision. Champion of the DOST Scholar's Technopreneurship Training Program (STTP) competition.",
     stack: ["Thermography", "Computer Vision", "CNN"],
     illustration: null,
     link: null,
@@ -566,11 +566,11 @@ export const SERVICES: readonly Service[] = [
       "Agents that pick up calls, handle routine questions, book time on your calendar, and follow up by text when your CRM flags a lead.",
     deliverables: [
       "Inbound and outbound voice agents on Retell AI or Vapi",
-      "SMS follow-up triggered by events in your CRM",
+      "SMS bots on Closebot, and follow-up triggered by events in your CRM",
       "Calendar booking and email handling",
       "Chat interfaces on Telegram and similar channels",
     ],
-    tools: ["Retell AI", "Vapi", "Twilio", "Telegram API", "OpenAI API", "Anthropic API"],
+    tools: ["Retell AI", "Vapi", "Closebot", "Twilio", "Telegram API", "OpenAI API", "Anthropic API"],
     proofProjectIds: ["aiva", "ai-cold-sms-agent"],
   },
   {
@@ -579,7 +579,7 @@ export const SERVICES: readonly Service[] = [
     summary:
       "Pipelines and automations inside GoHighLevel or the CRM you already run, so leads get followed up on time and your ad audiences stay in sync with your real customer list.",
     deliverables: [
-      "GoHighLevel pipelines, workflows, and automations",
+      "GoHighLevel setups: pipelines, workflows, triggers, and snapshots",
       "CRM-triggered outreach and follow-up",
       "Customer lists synced to Meta ad audiences",
       "Lead capture from forms and ads into your CRM or newsletter",
@@ -641,10 +641,18 @@ export const STACK_GROUPS: readonly StackGroup[] = [
       "OpenAI API",
       "Anthropic API",
       "Gemini API",
-      "Vapi",
-      "Retell AI",
-      "Twilio",
+      "Mistral",
       "OpenRouter",
+      "Retell AI",
+      "Vapi",
+      "Closebot",
+      "Twilio",
+      "Inngest",
+      "Vercel Cron",
+      "Apify",
+      "HeyGen",
+      "Meta Graph API",
+      "Custom webhooks & REST APIs",
     ],
   },
   {
@@ -655,32 +663,54 @@ export const STACK_GROUPS: readonly StackGroup[] = [
   {
     id: "frontend",
     title: "Frontend",
-    items: ["React", "Next.js", "Tailwind CSS", "HTML5/CSS3"],
+    items: ["React", "Next.js", "Vue.js", "Tailwind CSS", "HTML5/CSS3"],
   },
   {
     id: "backend",
-    title: "Backend & Databases",
-    items: [
-      "Node.js",
-      "Express.js",
-      ".NET / ASP.NET",
-      "PostgreSQL",
-      "Supabase",
-      "MongoDB",
-      "Firebase",
-      "Pinecone",
-      "MySQL",
-    ],
+    title: "Backend & Frameworks",
+    items: ["Node.js", "Express.js", ".NET / ASP.NET", "Zod", "Supabase Edge Functions"],
+  },
+  {
+    id: "databases",
+    title: "Databases",
+    items: ["PostgreSQL", "Supabase", "MySQL", "MongoDB", "SQLite", "Firebase", "Pinecone"],
   },
   {
     id: "machine-learning",
     title: "Machine Learning",
-    items: ["TensorFlow", "Keras", "PyTorch", "OpenCV", "Hugging Face", "scikit-learn", "CNNs"],
+    items: [
+      "TensorFlow",
+      "Keras",
+      "PyTorch",
+      "scikit-learn",
+      "OpenCV",
+      "Hugging Face Transformers",
+      "YOLO",
+      "CNNs",
+      "Pandas",
+      "NumPy",
+      "Matplotlib",
+    ],
   },
   {
     id: "cloud",
-    title: "Cloud & DevOps",
-    items: ["AWS", "Google Cloud", "Azure", "Vercel", "Docker", "Git/GitHub"],
+    title: "Cloud & Hosting",
+    items: ["Vercel", "AWS", "Azure", "Google Cloud", "Firebase Hosting"],
+  },
+  {
+    id: "devops",
+    title: "DevOps & Tools",
+    items: ["Git/GitHub", "Docker", "Jest", "Vitest", "npm audit"],
+  },
+  {
+    id: "design",
+    title: "Design & Prototyping",
+    items: ["Figma", "Canva", "SketchUp"],
+  },
+  {
+    id: "productivity",
+    title: "Productivity",
+    items: ["Notion", "Google Workspace", "Microsoft 365"],
   },
   {
     id: "embedded",
@@ -692,6 +722,15 @@ export const STACK_GROUPS: readonly StackGroup[] = [
 // ─── Experience, education, awards ───────────────────────────────────────────
 
 export const ROLES: readonly Role[] = [
+  {
+    id: "ai-automation-agency",
+    title: "Tech Automation Specialist",
+    organization: "AI Automation Agency",
+    start: "2026-03",
+    end: "2026-08",
+    summary:
+      "Built and delivered custom n8n automations, Retell voice bots, Closebot SMS bots, and AI frameworks for the agency's Australian clients. Handled custom GoHighLevel setups, automations, triggers, and snapshots, wrote SOPs and technical documentation for handoff, and gave clients hands-on tech support as needed.",
+  },
   {
     id: "kaggle",
     title: "Machine Learning Competitor",
@@ -716,7 +755,7 @@ export const ROLES: readonly Role[] = [
     start: "2025-10",
     end: "2026-02",
     summary:
-      "Embedded within the company as sole automation engineer. Identified operational bottlenecks and built AI-driven systems eliminating manual overhead across data handling, document workflows, social media, ad pipelines, and internal communications. Built custom web apps and dashboards for non-technical staff.",
+      "Embedded within the company to find operational bottlenecks and build AI-driven systems that removed manual overhead across data handling, document workflows, social media, ad pipelines, and internal communications. Built custom web apps and dashboards as front ends for the automations, so non-technical staff could run them on their own. Owned every AI automation initiative end to end, with SOPs and technical documentation for handoff and onboarding.",
   },
   {
     id: "ace-1",
@@ -725,7 +764,7 @@ export const ROLES: readonly Role[] = [
     start: "2024-12",
     end: "2025-10",
     summary:
-      "Designed and delivered end-to-end AI agent and automation solutions for Australian clients across real estate and e-commerce industries. Owned full project lifecycle: client discovery, scoping, architecture, implementation, testing, and deployment.",
+      "Designed and delivered end-to-end AI agent and automation solutions for Australian clients across real estate and e-commerce industries. Owned full project lifecycle: client discovery, scoping, architecture, implementation, testing, and deployment. Maintained and iterated on live systems from client feedback, and handled documentation and cloud server setup for hosted automations.",
   },
 ];
 
@@ -742,8 +781,8 @@ export const EDUCATION: Education = {
 
 export const AWARDS: readonly Award[] = [
   {
-    id: "dost-grand-prize",
-    title: "DOST Grand Prize",
+    id: "sttp-champion",
+    title: "STTP Champion",
     startYear: 2025,
     endYear: null,
     context: "Scholar's Technopreneurship Training Program",
@@ -794,8 +833,8 @@ export const CONTACT: ContactDetails = {
     {
       kind: "linkedin",
       label: "LinkedIn",
-      display: "linkedin.com/in/charlesluis-gaid-28739634a",
-      href: "https://www.linkedin.com/in/charlesluis-gaid-28739634a",
+      display: "linkedin.com/in/charles-luis-gaid-28739634a",
+      href: "https://www.linkedin.com/in/charles-luis-gaid-28739634a",
     },
   ],
 };
