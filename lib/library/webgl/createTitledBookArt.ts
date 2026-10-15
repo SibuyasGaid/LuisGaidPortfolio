@@ -15,6 +15,8 @@ export interface TitledBookArt {
   readonly volumeLabel: string;
   readonly cloth: string;
   readonly ink: string;
+  /** The title page's paper, as on the book's own page. */
+  readonly paper: string;
   /** Metres. */
   readonly thickness: number;
   readonly height: number;
@@ -28,10 +30,9 @@ interface CanvasFonts {
 /** One column per titled book, in the order of BOOKS. */
 export const TITLED_SPINE_ATLAS = { width: 1024, height: 1024 } as const;
 const FACE_SIZE = { width: 704, height: 1024 } as const;
-const PAPER = "#efe6d2";
 const PAPER_INK = "#2a1f1a";
 const BRASS_INK = "#7a5a1c";
-const FALLBACK_CLOTH = { cloth: "#4a3220", ink: "#efe3c4" } as const;
+const FALLBACK_COLOURS = { cloth: "#4a3220", ink: "#efe3c4", paper: "#efe6d2" } as const;
 
 function createCanvas(width: number, height: number): { canvas: HTMLCanvasElement; context: CanvasRenderingContext2D } {
   const canvas = document.createElement("canvas");
@@ -48,8 +49,8 @@ function toColourTexture(canvas: HTMLCanvasElement): CanvasTexture {
   return texture;
 }
 
-/** Each book's cloth and ink, as the CSS themes set them for [data-book]. */
-function readBookColours(bookId: BookId): { cloth: string; ink: string } {
+/** Each book's cloth, ink and paper, as the CSS themes set them for [data-book]. */
+function readBookColours(bookId: BookId): { cloth: string; ink: string; paper: string } {
   const probe = document.createElement("span");
   probe.dataset.book = bookId;
   probe.hidden = true;
@@ -57,8 +58,9 @@ function readBookColours(bookId: BookId): { cloth: string; ink: string } {
   const style = getComputedStyle(probe);
   const cloth = style.getPropertyValue("--book-cover").trim();
   const ink = style.getPropertyValue("--book-cover-ink").trim();
+  const paper = style.getPropertyValue("--book-paper").trim();
   probe.remove();
-  return cloth && ink ? { cloth, ink } : FALLBACK_CLOTH;
+  return cloth && ink && paper ? { cloth, ink, paper } : FALLBACK_COLOURS;
 }
 
 export function describeTitledBooks(): TitledBookArt[] {
@@ -240,7 +242,7 @@ function drawTitlePage(context: CanvasRenderingContext2D, art: TitledBookArt, fo
   const { width, height } = FACE_SIZE;
   context.save();
   context.translate(FACE_SIZE.width, 0);
-  context.fillStyle = PAPER;
+  context.fillStyle = art.paper;
   context.fillRect(0, 0, width, height);
   const gutter = context.createLinearGradient(0, 0, width * 0.22, 0);
   gutter.addColorStop(0, "rgb(60 40 20 / 0.28)");

@@ -14,6 +14,7 @@ import { INTRO_BOOT_SCRIPT } from "@/lib/intro/introLifecycle";
 import { SHELF_BOOT_SCRIPT } from "@/lib/library/shelfAttributes";
 import { getSiteUrl } from "@/lib/siteUrl";
 import "./globals.css";
+import "./shelf-backdrop.css";
 
 // The display face never swaps in late. Drop caps, the stack list and every
 // heading reflow when Cormorant replaces its fallback, which broke the layout
@@ -62,6 +63,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       </head>
       <body>
         <SkipLink />
+        {/* The grand bookcase out of focus, behind every page but the home page. */}
+        <div data-shelf-backdrop aria-hidden="true" className="shelf-backdrop">
+          <div className="shelf-backdrop-image" />
+        </div>
         {/* The library behind the home page, kept between pages: the live WebGL scene where it runs, and the
             poster of the same view, which shows here while a book is put back or taken from another page. */}
         <div data-library-scene aria-hidden="true" className="library-scene">
@@ -75,7 +80,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           {children}
         </main>
         <Colophon />
-        {/* Holds the book taken off the shelf while its page loads; filled and emptied by script. */}
+        {/* Holds a book on its way between the shelf and its page; filled and emptied by script. */}
         <div data-transit-root aria-hidden="true" className="transit-root" />
         <ArrivalFlagReset />
         <ShelfTransitions />

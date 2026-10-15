@@ -76,23 +76,9 @@
     min-height: 100dvh;
     font-family: var(--font-sans);
     color: var(--color-parchment);
-    background-color: var(--color-wood-950);
-    background-image: url("/textures/wood.webp");
+    background-color: var(--color-library-night);
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
-  }
-
-  /* Lamp glow and vignette live on a fixed layer so they are painted once and
-     composited, instead of repainting a full-screen gradient on every scroll. */
-  body::before {
-    content: "";
-    position: fixed;
-    inset: 0;
-    z-index: 0;
-    pointer-events: none;
-    background:
-      radial-gradient(ellipse 55% 40% at 50% -6%, rgb(212 178 106 / 0.16), transparent 72%),
-      radial-gradient(ellipse 120% 90% at 50% 40%, transparent 55%, rgb(8 4 2 / 0.7) 100%);
   }
 
   ::selection {
@@ -191,9 +177,10 @@
       0 30px 50px -30px rgb(0 0 0 / 0.6);
   }
 
+  /* Wide enough to read in comfort, with the shelf still in sight either side. */
   @media (min-width: 64rem) {
     .book {
-      width: min(100% - 4rem, 86rem);
+      width: min(100% - 7rem, 84rem);
       padding: 0.75rem;
       border-radius: 1.4rem;
     }
@@ -453,22 +440,20 @@
     color: var(--color-ink);
   }
 
+  /* Three lines deep, floated in every browser rather than set with
+     initial-letter: Chrome breaks the lines around an initial letter (under
+     a styled first line) differently from one layout to the next, so the
+     drop cap could change size and the page turn's copy of the page could
+     not match it. Sized against the small-caps first line it sits in, its
+     box (line-height 0.8) fits just inside the paragraph's first three lines. */
   .drop-cap::first-letter {
-    initial-letter: 3;
-    -webkit-initial-letter: 3;
+    float: left;
     margin-inline-end: 0.6rem;
     font-family: var(--font-display);
+    font-size: 7.1em;
     font-weight: 500;
+    line-height: 0.8;
     color: var(--book-accent);
-  }
-
-  @supports not ((initial-letter: 3) or (-webkit-initial-letter: 3)) {
-    .drop-cap::first-letter {
-      float: left;
-      margin-top: 0.1em;
-      font-size: 4.2em;
-      line-height: 0.78;
-    }
   }
 
   /* Opening lines in small capitals, set from Cormorant's own capitals because
@@ -909,10 +894,11 @@
    A CSS 3D box: spine, covers, page edges and a front cover on a hinge. Sizes
    come from --h, --w (cover) and --d (thickness), set by script. */
 
+/* Under the navbar, which stays put through every move, as it does on the pages either side. */
 .transit-root {
   position: fixed;
   inset: 0;
-  z-index: 70;
+  z-index: 39;
   pointer-events: none;
   perspective: 1600px;
 }
@@ -925,10 +911,11 @@
   pointer-events: auto;
 }
 
+/* Dims the shelf behind a book off it, more toward the edges, as the live scene's lamps do. */
 .transit-backdrop {
   position: absolute;
   inset: 0;
-  background: radial-gradient(ellipse 65% 75% at 50% 50%, #2c1b10, #0d0805 75%);
+  background: radial-gradient(ellipse 70% 80% at 50% 50%, rgb(8 4 2 / 0.55), #080402 85%);
   opacity: 0;
 }
 
@@ -1056,52 +1043,13 @@
 
 /* The title page, just inside the front cover. */
 .transit-page {
+  --page-w: calc(var(--w) - 4px);
   top: 3px;
   left: var(--d);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: calc(var(--h) * 0.022);
   width: calc(var(--w) - 4px);
   height: calc(var(--h) - 6px);
-  padding-inline: 10%;
-  text-align: center;
-  color: var(--color-ink);
-  background-color: var(--book-paper);
-  background-image: linear-gradient(to right, rgb(42 31 26 / 0.22), transparent 14%);
   transform-origin: 0 50%;
   transform: rotateY(90deg) translateZ(-3px);
-}
-
-.transit-page-label {
-  font-family: var(--font-sans);
-  font-size: calc(var(--w) * 0.03);
-  font-weight: 600;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--book-accent);
-}
-
-.transit-page-title {
-  font-family: var(--font-display);
-  font-size: calc(var(--w) * 0.13);
-  font-weight: 500;
-  line-height: 1;
-}
-
-.transit-page-subtitle {
-  font-family: var(--font-display);
-  font-size: calc(var(--w) * 0.055);
-  font-style: italic;
-  color: var(--color-ink-soft);
-}
-
-.transit-page-rule {
-  width: 22%;
-  height: 1px;
-  margin-top: calc(var(--h) * 0.02);
-  background-color: var(--color-brass);
 }
 
 .transit-cover {
@@ -1180,35 +1128,163 @@
   opacity: 0.85;
 }
 
-/* Patterned endpaper inside the cover, framed by the cloth turned in at the edges. */
+/* Inside the cover, an endpaper in a deeper shade of the cloth, as the live scene's lamps show it. */
 .transit-cover-inside {
-  --endpaper-ink: color-mix(in srgb, var(--book-accent) 38%, var(--book-paper));
+  transform: rotateY(180deg);
+}
+
+.transit-cover-inside,
+.turn-endpaper {
+  background-color: color-mix(in srgb, var(--book-cover) 78%, #1a0e06);
+  background-image: linear-gradient(to left, rgb(0 0 0 / 0.3), transparent 14%);
+}
+
+/* ─── A title page ───────────────────────────────────────────────────────────
+   The page just inside a book's cover, as the live scene paints it: its
+   label, title, subtitle and rule set in proportion to the page's width
+   (--page-w), so it looks the same at any size, near or far. */
+
+.title-page {
+  overflow: hidden;
+  color: var(--color-ink);
   background-color: var(--book-paper);
   background-image:
-    radial-gradient(circle, var(--endpaper-ink) 0 1.5px, transparent 2px),
-    radial-gradient(circle, var(--endpaper-ink) 0 1px, transparent 1.5px),
-    linear-gradient(45deg, transparent 48%, color-mix(in srgb, var(--endpaper-ink) 50%, transparent) 49% 51%, transparent 52%),
-    linear-gradient(-45deg, transparent 48%, color-mix(in srgb, var(--endpaper-ink) 50%, transparent) 49% 51%, transparent 52%);
-  background-size: 18px 18px;
-  background-position: 0 0, 9px 9px, 0 0, 0 0;
-  box-shadow: inset 0 0 0 calc(var(--w) * 0.035) var(--book-cover);
+    linear-gradient(to right, rgb(60 40 20 / 0.28), transparent calc(var(--page-w) * 0.22)),
+    url("/textures/paper-grain.webp");
+  background-blend-mode: normal, multiply;
+}
+
+.title-page-text {
+  position: absolute;
+  top: 43.75%;
+  left: 54%;
+  width: calc(var(--page-w) * 0.76);
+  height: calc(var(--page-w) * 0.43);
+  translate: -50% -50%;
+}
+
+.title-page-text > * {
+  position: absolute;
+  left: 50%;
+  translate: -50% -50%;
+  white-space: nowrap;
+  line-height: 1;
+}
+
+.title-page-label {
+  top: 0;
+  font-family: var(--font-sans);
+  font-size: calc(var(--page-w) * 0.034);
+  font-weight: 600;
+  letter-spacing: 0.21em;
+  text-transform: uppercase;
+  color: var(--color-brass-ink);
+}
+
+.title-page-title {
+  top: 43.9%;
+  font-family: var(--font-display);
+  font-size: calc(var(--page-w) * 0.148);
+  font-weight: 600;
+}
+
+/* In the italic the pages already use: a face loaded mid-move would lay their text out again under the copy. */
+.title-page-subtitle {
+  top: 76%;
+  font-family: var(--font-display);
+  font-size: calc(var(--page-w) * 0.071);
+  font-style: italic;
+  font-weight: 500;
+  color: #4a3b31;
+}
+
+.title-page-rule {
+  top: 100%;
+  width: calc(var(--page-w) * 0.2);
+  height: max(1px, calc(var(--page-w) * 0.0057));
+  background-color: var(--color-brass);
+}
+
+/* ─── Into a book, page by page ──────────────────────────────────────────────
+   A flat copy of the open book takes over from the one off the shelf, grows
+   until it lies where the book's page is, and its title page turns over onto
+   the content. Leaving, the same in reverse. Each part is laid out where it
+   ends up and moved there by its transform alone. */
+
+.turn {
+  position: absolute;
+  inset: 0;
+  perspective: 2400px;
+}
+
+.turn > *,
+.turn-face,
+.turn-shade {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.turn-board {
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.1),
+    inset 0 0 0 1px rgb(0 0 0 / 0.35),
+    0 60px 120px -50px rgb(0 0 0 / 0.85),
+    0 30px 50px -30px rgb(0 0 0 / 0.6);
+}
+
+.turn-board,
+.turn-endpaper,
+.turn-leaf,
+.turn-under {
+  transform-origin: 0 0;
+}
+
+.turn-endpaper,
+.turn-face {
+  overflow: hidden;
+}
+
+/* The shadow the turning page casts on the page it uncovers, deepest at the spine. */
+.turn-under {
+  background: linear-gradient(to right, rgb(30 18 10 / 0.55), rgb(30 18 10 / 0.12) 40%, transparent);
+  opacity: 0;
+}
+
+.turn-leaf {
+  transform-style: preserve-3d;
+}
+
+.turn-face {
+  inset: 0;
+  backface-visibility: hidden;
+}
+
+/* The back of the title page: the book's paper, with its left page printed on it (by script) where there is one. */
+.turn-back {
+  color: var(--color-ink);
+  background-color: var(--book-paper);
+  background-image: url("/textures/paper-grain.webp");
+  background-blend-mode: multiply;
   transform: rotateY(180deg);
+}
+
+.turn-shade {
+  inset: 0;
+  background-color: #000;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* While a book's page is still hidden under the copy coming to cover it. */
+html[data-page-turn="hold"] main .book {
+  visibility: hidden;
 }
 
 /* Arriving from the shelf, the book is already open: its page skips the cover. */
 html[data-arrival] :is(.book-cover-flap, .book-cover-shade) {
   animation: none;
   visibility: hidden;
-}
-
-html[data-arrival] .book {
-  animation: book-arrive 700ms var(--ease-settle) both;
-}
-
-@keyframes book-arrive {
-  from {
-    transform: translateY(14px) scale(0.985);
-  }
 }
 
 @keyframes book-cover-open {
@@ -1247,6 +1323,55 @@ html.lenis body {
 
 .lenis.lenis-smooth iframe {
   pointer-events: none;
+}
+
+/* ─── The shelf behind the books ─────────────────────────────────────────────
+   Every page but the home page stands before the grand bookcase, out of
+   focus and in shadow, as if the reader had stepped up to it with a book in
+   hand. A tiny blurred copy of the poster (app/shelf-backdrop.css), cropped
+   as the poster is and set a little closer, so zooming into a book from the
+   shelf carries on into it. */
+
+:root {
+  --shelf-backdrop-zoom: 1.15;
+}
+
+.shelf-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  background-color: var(--color-library-night);
+}
+
+html[data-at-library] .shelf-backdrop {
+  display: none;
+}
+
+.shelf-backdrop-image,
+.shelf-backdrop::after {
+  position: absolute;
+  inset: 0;
+}
+
+.shelf-backdrop-image {
+  background: var(--shelf-soft-landscape) center / cover no-repeat;
+  transform: scale(var(--shelf-backdrop-zoom));
+}
+
+@media (orientation: portrait) {
+  .shelf-backdrop-image {
+    background-image: var(--shelf-soft-portrait);
+  }
+}
+
+/* In shadow, under the lamp's glow, falling into darkness at the edges. */
+.shelf-backdrop::after {
+  content: "";
+  background:
+    radial-gradient(ellipse 55% 40% at 50% -6%, rgb(212 178 106 / 0.12), transparent 72%),
+    radial-gradient(ellipse 110% 85% at 50% 42%, rgb(8 4 2 / 0.12), rgb(8 4 2 / 0.6) 100%);
 }
 
 /* ─── The library ────────────────────────────────────────────────────────────
@@ -1299,11 +1424,6 @@ img.shelf-frame {
    the heading and colophon, then the links over the books. */
 .shelf-poster.is-home {
   z-index: 0;
-}
-
-/* Over the poster the page's lamp glow would tint the bookcase differently from the live scene. */
-html[data-at-library] body::before {
-  opacity: 0;
 }
 
 .library-scene {
@@ -1457,6 +1577,10 @@ html:is([data-library-taking], [data-library-transit]) .rewind-intro {
 html[data-at-library] [data-colophon] {
   margin-top: 0;
   padding-bottom: 1.25rem;
+}
+
+/* Every page's colophon is set over the shelf, lit or out of focus. */
+[data-colophon] {
   text-shadow: 0 1px 12px rgb(0 0 0 / 0.9);
 }
 
@@ -1544,13 +1668,7 @@ html[data-library-settling] .library-scene-shade {
 
 /* Leaving a book or opening one: the library rises over the page (not the navbar), and fades away again after. */
 html[data-library-transit] .library-scene {
-  z-index: 39;
-  transition: opacity 450ms ease;
-}
-
-html[data-library-leaving] .library-scene {
-  opacity: 0;
-  transition: opacity 500ms ease-in;
+  z-index: 38;
 }
 
 /* While the intro plays, the navbar, heading, shading and links wait to rise into the view. */

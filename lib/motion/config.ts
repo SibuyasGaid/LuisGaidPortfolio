@@ -106,9 +106,6 @@ export const INTRO_LANDING_START_SCALE = 1.06;
 
 // ─── The library on the home page ───────────────────────────────────────────
 
-/** Seconds the library takes to fade up once ready, and to fade away behind a book's page. */
-export const SHELF_SCENE_FADE_SECONDS = { in: 0.9, out: 0.5 } as const;
-
 /** How far the camera drifts with the pointer, in metres, and how quickly it follows (share per frame). */
 export const SHELF_PARALLAX = { x: 0.16, y: 0.07, follow: 0.05 } as const;
 /** With nothing moving for this long, the dust drifts on at half the frame rate. */
@@ -157,22 +154,18 @@ export interface BookTransitTimings {
   /** It turns to show its cover while it travels to the middle of the screen. */
   readonly turn: number;
   readonly open: number;
-  /** The open book fades into its page. */
-  readonly reveal: number;
 }
 
 export const BOOK_TRANSIT_TIMINGS: BookTransitTimings = {
   pull: 0.38,
   turn: 0.85,
   open: 0.8,
-  reveal: 0.45,
 };
 
 export const BOOK_TRANSIT_EASES = {
   pull: "power2.out",
   turn: "power3.inOut",
   open: "power2.inOut",
-  reveal: "power2.in",
 } as const;
 
 /** How far the book comes out of the shelf, in pixels toward the viewer. */
@@ -185,12 +178,37 @@ export const BOOK_COVER_ASPECT = 0.7;
 export const BOOK_TRANSIT_HEIGHT_SHARE = 0.62;
 /** Caps that height when the open spread would be wider than this share of the viewport. */
 export const BOOK_TRANSIT_SPREAD_WIDTH_SHARE = 0.9;
-/** The cover's turn about its hinge when open: just short of flat. */
-export const BOOK_TRANSIT_OPEN_DEGREES = -80;
-/** Gives up waiting for the next page after this long and fades out anyway. */
+/** The cover's turn about its hinge when open: lying flat, so the open book can be zoomed into. */
+export const BOOK_TRANSIT_OPEN_DEGREES = -90;
+/** How dark the shelf gets behind a CSS book off it, at its darkest. */
+export const BOOK_TRANSIT_SHELF_DIM = 0.6;
+/** Gives up waiting for the next page after this long and carries on anyway. */
 export const BOOK_TRANSIT_ROUTE_TIMEOUT_MS = 2500;
 /**
  * Set on <html> while a book arrives from the shelf already open, so its page
  * skips its own cover animation. Cleared on the next navigation.
  */
 export const BOOK_ARRIVAL_ATTRIBUTE = "data-arrival";
+
+// ─── Into a book's page ─────────────────────────────────────────────────────
+
+/** Zooming into the open book until it lies where its page is, then turning its title page over onto the content (seconds). */
+export const PAGE_TURN_TIMINGS = {
+  zoom: 0.9,
+  /** Share of the zoom by which the shelf has slipped out of focus. */
+  shelfFadeShare: 0.8,
+  /** The copy and what it stands in for (the open book, the book's left page) cross over in this long. */
+  handoff: 0.22,
+  turn: 0.95,
+} as const;
+
+export const PAGE_TURN_EASES = { zoom: "power2.inOut", turn: "power2.inOut" } as const;
+/** How dark a turning page gets, edge on to the lamp. */
+export const PAGE_TURN_SHADE = 0.3;
+/**
+ * Set on <html>: "hold" while a book's page is hidden under the copy coming
+ * to cover it, "turn" while the copy's title page turns over it.
+ */
+export const PAGE_TURN_ATTRIBUTE = "data-page-turn";
+/** Where a book's page sets its two pages side by side (globals.css). */
+export const TWO_PAGE_QUERY = "(min-width: 64rem)";

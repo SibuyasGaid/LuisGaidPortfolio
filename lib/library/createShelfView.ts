@@ -1,4 +1,4 @@
-import { Matrix4, Quaternion, Vector3 } from "three";
+import { Box3, Matrix4, Quaternion, Vector3, type Mesh } from "three";
 import type { BookId } from "@/content/portfolio";
 import { TITLED_SPINE_GLOW, type TitledBook } from "@/lib/library/webgl/buildTitledBooks";
 import type { LibraryScene } from "@/lib/library/webgl/createLibraryScene";
@@ -12,13 +12,15 @@ import {
   SHELF_TAKE_TIMINGS,
 } from "@/lib/motion/config";
 import { gsap } from "@/lib/motion/gsap";
+import type { OpenSpread, ScreenBox } from "@/lib/shelf/openSpread";
 
 // The view of the grand bookcase. The camera rests where the walk ended and
 // drifts a little with the pointer; a book named in the navbar slides forward
 // and lights up; a book chosen is taken off the shelf, turned to show its
-// cover, brought up to the reader and opened, all in the scene; a book left
-// is closed, turned and slid back into its slot. It draws only while it is
-// shown and the page is visible, and only as often as it needs to.
+// cover, brought up to the reader and opened, all in the scene, where the
+// page turn takes over from it; a book left is handed back open, closed,
+// turned and slid back into its slot. It draws only while it is shown and
+// the page is visible, and only as often as it needs to.
 
 export interface ShelfView {
   /**
@@ -36,6 +38,10 @@ export interface ShelfView {
   take(bookId: BookId, onOpen: () => void): Promise<void>;
   /** Shows a book lying open before the reader, as a take leaves it: where putting it back starts. */
   showOpen(bookId: BookId): void;
+  /** Where the open book's two pages lie on screen, or null with no book out. */
+  measureOpen(): OpenSpread | null;
+  /** Hides the open book while the page turn's copy of it stands in, or shows it again; drawn at once. */
+  setOpenBookShown(isShown: boolean): void;
   /** Closes the open book and slides it back into its slot as the camera steps back. */
   putBack(): Promise<void>;
   /** Hurries a book being taken to the moment its page loads, or one being put back into its slot. */
@@ -75,6 +81,31 @@ const LOCAL_X = new Vector3(1, 0, 0);
 const GLIDE_FROM_METRES = 0.5;
 /** Below this, the parallax counts as settled. */
 const SETTLED = 0.0004;
+
+const corner = new Vector3();
+
+/** The box on screen (the canvas fills the window, shown or not) around one face of a box-shaped mesh: the face at the given end of its local x. */
+function projectFace(mesh: Mesh, camera: LibraryScene["camera"], side: "min" | "max"): ScreenBox {
+  if (!mesh.geometry.boundingBox) mesh.geometry.computeBoundingBox();
+  const bounds = mesh.geometry.boundingBox ?? new Box3();
+  const x = side === "min" ? bounds.min.x : bounds.max.x;
+  let left = Infinity;
+  let top = Infinity;
+  let right = -Infinity;
+  let bottom = -Infinity;
+  for (const y of [bounds.min.y, bounds.max.y]) {
+    for (const z of [bounds.min.z, bounds.max.z]) {
+      corner.set(x, y, z).applyMatrix4(mesh.matrixWorld).project(camera);
+      const screenX = ((corner.x + 1) / 2) * window.innerWidth;
+      const screenY = ((1 - corner.y) / 2) * window.innerHeight;
+      left = Math.min(left, screenX);
+      right = Math.max(right, screenX);
+      top = Math.min(top, screenY);
+      bottom = Math.max(bottom, screenY);
+    }
+  }
+  return { left, top, width: right - left, height: bottom - top };
+}
 
 /** How far in front of the camera the book comes, and whether its open spread fits centred there. */
 function measureReading(camera: { fov: number; aspect: number }, book: TitledBook): { distance: number; isSpreadCentred: boolean } {
@@ -256,6 +287,7 @@ export function createShelfView(scene: LibraryScene, options: { readonly isMotio
 
   function resetBooks(): void {
     for (const book of scene.titledBooks) {
+      book.group.visible = true;
       book.group.position.copy(book.restPosition);
       book.group.quaternion.copy(book.restQuaternion);
       book.coverHinge.rotation.y = 0;
@@ -342,6 +374,28 @@ export function createShelfView(scene: LibraryScene, options: { readonly isMotio
       Object.assign(motion.state, { pull: 1, turn: 1, open: 1, camera: 1 });
       take = motion;
       needsDraw = true;
+    },
+    measureOpen() {
+      if (!take) return null;
+      const cover = take.book.coverHinge.children[0];
+      if (!cover || !("geometry" in cover)) return null;
+      poseCamera();
+      placeBooks();
+      camera.updateMatrixWorld();
+      take.book.group.updateMatrixWorld(true);
+      return {
+        // The cover's inside faces its local -x; the title page is the page block's +x face.
+        left: projectFace(cover as Mesh, camera, "min"),
+        right: projectFace(take.book.block, camera, "max"),
+      };
+    },
+    setOpenBookShown(isShown) {
+      if (!take) return;
+      take.book.group.visible = isShown;
+      poseCamera();
+      placeBooks();
+      scene.render(options.isMotionAllowed ? (performance.now() - startedAt) / 1000 : 0, true);
+      needsDraw = false;
     },
     putBack() {
       const motion = take;
