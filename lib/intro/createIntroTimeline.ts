@@ -1,175 +1,108 @@
 import { finishIntro } from "@/lib/intro/introLifecycle";
+import type { LibraryScene } from "@/lib/intro/webgl/createLibraryScene";
 import {
-  AISLE,
-  measureDistanceFromEye,
-  measureFog,
-  measureOffScreenDistance,
-  type PieceEdge,
-  WALK_TRAVEL_VH,
-} from "@/lib/intro/libraryGeometry";
-import {
-  BRIEF_INTRO_TIMINGS,
-  FULL_INTRO_TIMINGS,
-  INTRO_BRIEF_START_PROGRESS,
-  INTRO_CROSSFADE_HOLD_SECONDS,
-  INTRO_CROSSFADE_SECONDS,
   INTRO_EASES,
-  INTRO_GLANCE_DEGREES,
   INTRO_LANDING_START_SCALE,
-  INTRO_STEP_RISE_VH,
-  INTRO_STEP_SECONDS,
+  INTRO_TIMINGS,
   INTRO_WALK_PHASES,
-  type IntroTimings,
+  INTRO_WALK_SECONDS,
 } from "@/lib/motion/config";
 import { gsap } from "@/lib/motion/gsap";
 
 export interface IntroElements {
-  readonly scene: HTMLElement;
-  /** Turns and bobs like a head. */
-  readonly camera: HTMLElement;
-  /** Everything in the library; moving it toward the camera is the walk. */
-  readonly world: HTMLElement;
-  /** Every piece of the aisle, each carrying its depth in data-intro-segment. */
-  readonly segments: readonly HTMLElement[];
-  /** The real page's bookcase and heading, waiting under the scene. */
+  readonly overlay: HTMLElement;
+  /** The lamp-lit dark behind the welcome screen. */
+  readonly backdrop: HTMLElement;
+  readonly welcome: HTMLElement;
+  readonly progressBar: HTMLElement;
+  readonly progressFill: HTMLElement;
+  readonly status: HTMLElement;
+  /** Where the WebGL canvas goes, under a vignette. */
+  readonly canvasHost: HTMLElement;
+  /** The real page's heading and bookcase, waiting under the overlay. */
   readonly stage: HTMLElement;
 }
 
-/** full: the whole walk. brief: low-end devices. crossfade: reduced motion. */
-export type IntroVariant = "full" | "brief" | "crossfade";
+/** The most the walk's clock moves in one frame, however long the frame took. */
+const MAX_FRAME_STEP_SECONDS = 1 / 20;
 
-function convertVhToPx(vh: number): number {
-  return (vh * window.innerHeight) / 100;
+/** A running piece of the intro that can be stopped wherever it has got to. */
+export interface IntroPlayback {
+  kill(): void;
 }
 
-function isPieceEdge(value: string | undefined): value is PieceEdge {
-  return value === "side" || value === "lamp";
-}
-
-// Darkens each piece of the aisle by its distance from the eye as the world
-// moves, so the light falls away down the aisle and comes up as the walk
-// passes, and hides each piece once all of it has left the screen.
-function createDepthUpdater(elements: IntroElements): () => void {
-  const aspectRatio = window.innerWidth / window.innerHeight;
-  const pieces = elements.segments.map((piece) => {
-    const edge = piece.dataset.introEdge;
-    return {
-      piece,
-      shade: piece.querySelector<HTMLElement>(".aisle-shade"),
-      z: Number(piece.dataset.introSegment) || 0,
-      offScreenDistance: isPieceEdge(edge) ? measureOffScreenDistance(edge, aspectRatio) : 0,
-    };
-  });
-  return () => {
-    const travelVh = (Number(gsap.getProperty(elements.world, "z")) / window.innerHeight) * 100;
-    for (const { piece, shade, z, offScreenDistance } of pieces) {
-      const distance = measureDistanceFromEye(z, travelVh);
-      if (shade) shade.style.opacity = String(measureFog(distance));
-      const farEndDistance = distance + AISLE.segmentLength / 2;
-      piece.style.visibility = farEndDistance < offScreenDistance ? "hidden" : "";
-    }
-  };
-}
-
-// Setting off, an even stride, then slowing to a stop. Each phase's speed
-// meets the next one's, so the walk never lurches between them.
-function addFullWalk(timeline: gsap.core.Timeline, world: HTMLElement, timings: IntroTimings): void {
-  const distance = convertVhToPx(WALK_TRAVEL_VH);
-  const setOffTime = timings.walk * INTRO_WALK_PHASES.setOff;
-  const arriveTime = timings.walk * INTRO_WALK_PHASES.arrive;
-  const strideTime = timings.walk - setOffTime - arriveTime;
-  const speed = distance / (setOffTime / 2 + strideTime + arriveTime / 3);
+// As the intro ends, everything over the page dissolves while the real
+// bookcase comes forward into place.
+function addLanding(timeline: gsap.core.Timeline, elements: IntroElements, layers: readonly HTMLElement[], position: number | string): void {
   timeline
-    .fromTo(world, { z: 0 }, { z: (speed * setOffTime) / 2, duration: setOffTime, ease: INTRO_EASES.setOff }, 0)
-    .to(world, { z: `+=${speed * strideTime}`, duration: strideTime, ease: INTRO_EASES.stride })
-    .to(world, { z: distance, duration: arriveTime, ease: INTRO_EASES.arrive });
-}
-
-// A walker's head: it rises and falls with each step and glances toward the
-// shelves before looking ahead again as the room opens up.
-function addHeadMotion(timeline: gsap.core.Timeline, camera: HTMLElement, timings: IntroTimings): void {
-  const stepCount = Math.floor((timings.walk * 0.8) / INTRO_STEP_SECONDS / 2) * 2;
-  timeline
-    .fromTo(
-      camera,
-      { y: 0 },
-      {
-        y: convertVhToPx(INTRO_STEP_RISE_VH),
-        duration: INTRO_STEP_SECONDS,
-        ease: "sine.inOut",
-        repeat: stepCount - 1,
-        yoyo: true,
-      },
-      timings.walk * 0.08,
-    )
-    .fromTo(camera, { rotationY: 0 }, { rotationY: INTRO_GLANCE_DEGREES, duration: timings.walk * 0.45, ease: "sine.inOut" }, 0)
-    .to(camera, { rotationY: 0, duration: timings.walk * 0.5, ease: "sine.inOut" }, timings.walk * 0.45);
-}
-
-// As the walk slows, the room dissolves onto the real bookcase, which carries
-// on coming forward into place.
-function addLanding(timeline: gsap.core.Timeline, elements: IntroElements, timings: IntroTimings): void {
-  timeline
-    .addLabel("landing", timings.walk - timings.landingOverlap)
-    .to(elements.scene, { autoAlpha: 0, duration: timings.sceneFade, ease: INTRO_EASES.fade }, "landing")
+    .addLabel("landing", position)
+    .to(layers, { opacity: 0, duration: INTRO_TIMINGS.landingFade, ease: INTRO_EASES.fade }, "landing")
     .fromTo(
       elements.stage,
       { scale: INTRO_LANDING_START_SCALE, transformOrigin: "50% 65%" },
-      { scale: 1, duration: timings.settle, ease: INTRO_EASES.land, immediateRender: false },
+      { scale: 1, duration: INTRO_TIMINGS.settle, ease: INTRO_EASES.land, immediateRender: false },
       "landing",
     )
     .call(finishIntro);
 }
 
-function createCrossfade(elements: IntroElements): gsap.core.Timeline {
-  return gsap
-    .timeline({ delay: INTRO_CROSSFADE_HOLD_SECONDS })
-    .to(elements.scene, { autoAlpha: 0, duration: INTRO_CROSSFADE_SECONDS, ease: "power1.inOut" })
-    .call(finishIntro);
+/** Without the walk: the welcome screen holds for its moment, then gives way to the site. */
+export function createWelcomeExit(elements: IntroElements, delaySeconds: number): IntroPlayback {
+  const timeline = gsap.timeline({ delay: delaySeconds });
+  timeline.to(elements.welcome, { opacity: 0, y: -10, duration: INTRO_TIMINGS.welcomeExit, ease: INTRO_EASES.fade }, 0);
+  addLanding(timeline, elements, [elements.backdrop], INTRO_TIMINGS.welcomeExit * 0.4);
+  return timeline;
 }
 
-export function createIntroTimeline(elements: IntroElements, variant: IntroVariant): gsap.core.Timeline {
-  if (variant === "crossfade") return createCrossfade(elements);
+// Setting off, an even stride, then slowing to a stop. Each phase's speed
+// meets the next one's, so the walk never lurches between them, and the
+// footsteps swell and fade with the stride.
+function addWalk(timeline: gsap.core.Timeline, walk: { progress: number; stride: number }, start: number): void {
+  const setOffTime = INTRO_WALK_SECONDS * INTRO_WALK_PHASES.setOff;
+  const arriveTime = INTRO_WALK_SECONDS * INTRO_WALK_PHASES.arrive;
+  const strideTime = INTRO_WALK_SECONDS - setOffTime - arriveTime;
+  const speed = 1 / (setOffTime / 2 + strideTime + arriveTime / 3);
+  timeline
+    .to(walk, { progress: (speed * setOffTime) / 2, duration: setOffTime, ease: INTRO_EASES.setOff }, start)
+    .to(walk, { progress: (speed * setOffTime) / 2 + speed * strideTime, duration: strideTime, ease: INTRO_EASES.stride })
+    .to(walk, { progress: 1, duration: arriveTime, ease: INTRO_EASES.arrive })
+    .to(walk, { stride: 1, duration: setOffTime, ease: "power1.out" }, start)
+    .to(walk, { stride: 0, duration: arriveTime, ease: "power2.out" }, start + setOffTime + strideTime);
+}
 
-  const timeline = gsap.timeline({ onUpdate: createDepthUpdater(elements) });
-  if (variant === "full") {
-    addFullWalk(timeline, elements.world, FULL_INTRO_TIMINGS);
-    addHeadMotion(timeline, elements.camera, FULL_INTRO_TIMINGS);
-    addLanding(timeline, elements, FULL_INTRO_TIMINGS);
-  } else {
-    const distance = convertVhToPx(WALK_TRAVEL_VH);
-    timeline.fromTo(
-      elements.world,
-      { z: distance * INTRO_BRIEF_START_PROGRESS },
-      { z: distance, duration: BRIEF_INTRO_TIMINGS.walk, ease: INTRO_EASES.arrive },
-      0,
-    );
-    addLanding(timeline, elements, BRIEF_INTRO_TIMINGS);
+/**
+ * The welcome screen steps aside, the library fades up out of the dark, and
+ * the walk begins. The timeline runs on its own clock, advanced each frame by
+ * at most MAX_FRAME_STEP_SECONDS: if the device stalls, the walk slows for a
+ * moment instead of jumping ahead.
+ */
+export function createWalkTimeline(elements: IntroElements, scene: LibraryScene, delaySeconds: number): IntroPlayback {
+  const walk = { progress: 0, stride: 0 };
+  const walkStart = INTRO_TIMINGS.welcomeExit * 0.5;
+  const timeline = gsap.timeline({ paused: true });
+
+  timeline
+    .to(elements.welcome, { opacity: 0, y: -10, duration: INTRO_TIMINGS.welcomeExit, ease: INTRO_EASES.fade }, 0)
+    .fromTo(elements.canvasHost, { opacity: 0 }, { opacity: 1, duration: INTRO_TIMINGS.sceneFadeIn, ease: "power1.inOut" }, walkStart);
+  addWalk(timeline, walk, walkStart);
+  addLanding(timeline, elements, [elements.canvasHost, elements.backdrop], walkStart + INTRO_WALK_SECONDS - INTRO_TIMINGS.landingOverlap);
+
+  function advance(_time: number, deltaMs: number): void {
+    timeline.time(timeline.time() + Math.min(deltaMs / 1000, MAX_FRAME_STEP_SECONDS));
+    scene.render({ ...walk, elapsed: Math.max(0, timeline.time() - walkStart) });
+    if (timeline.progress() === 1) gsap.ticker.remove(advance);
   }
-  return timeline;
+  const start = gsap.delayedCall(delaySeconds, () => gsap.ticker.add(advance));
+  return {
+    kill() {
+      start.kill();
+      gsap.ticker.remove(advance);
+      timeline.kill();
+    },
+  };
 }
 
 /** Puts the real page back exactly as the CSS lays it out, wherever the intro stopped. */
 export function releaseIntroElements(elements: IntroElements): void {
   gsap.set(elements.stage, { clearProps: "transform,transformOrigin" });
-}
-
-/** Dust drifting through the lamp light; endless, so it is stopped separately when the intro ends. */
-export function createDustDrift(motes: readonly HTMLElement[]): gsap.core.Tween[] {
-  return motes.map((mote, index) =>
-    gsap.fromTo(
-      mote,
-      { opacity: 0, y: 0, x: 0 },
-      {
-        opacity: 0.55 + (index % 3) * 0.12,
-        y: -40 - (index % 4) * 18,
-        x: (index % 2 === 0 ? 1 : -1) * (10 + (index % 5) * 4),
-        duration: 5 + (index % 4),
-        delay: (index % 5) * 0.35,
-        ease: "sine.inOut",
-        repeat: -1,
-        yoyo: true,
-      },
-    ),
-  );
 }

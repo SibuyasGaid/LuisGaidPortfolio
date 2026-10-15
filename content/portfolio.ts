@@ -61,6 +61,19 @@ export interface LibraryCopy {
   readonly navLabel: string;
 }
 
+export interface IntroCopy {
+  readonly welcome: string;
+  readonly progressLabel: string;
+  /** What the welcome screen says while each stage of the library loads. */
+  readonly statuses: {
+    readonly opening: string;
+    readonly lighting: string;
+    readonly shelving: string;
+    readonly ready: string;
+  };
+  readonly skip: string;
+}
+
 export type ProjectCategory = "automation" | "engineering";
 
 export type ProjectBadgeKind = "production" | "competition" | "award" | "research";
@@ -196,6 +209,18 @@ export const LIBRARY: LibraryCopy = {
   eyebrow: "The library of",
   shelfInstruction: "Six of these books are titled. Pick one to take it off the shelf.",
   navLabel: "Library",
+};
+
+export const INTRO: IntroCopy = {
+  welcome: "Welcome to the library of",
+  progressLabel: "Preparing the library",
+  statuses: {
+    opening: "Unlocking the doors",
+    lighting: "Lighting the lamps",
+    shelving: "Shelving the books",
+    ready: "Step inside",
+  },
+  skip: "Skip intro",
 };
 
 // ─── Books ────────────────────────────────────────────────────────────────

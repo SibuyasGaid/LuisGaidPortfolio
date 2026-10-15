@@ -3,9 +3,10 @@
 import dynamic from "next/dynamic";
 import { useEffect, useSyncExternalStore } from "react";
 import { ErrorBoundary } from "@/components/errors/ErrorBoundary";
+import { preloadIntroScene } from "@/lib/intro/chooseIntroVariant";
 import { finishIntro, hasIntroStarted, isIntroPlaying, subscribeToIntroFinish } from "@/lib/intro/introLifecycle";
 
-const IntroTimeline = dynamic(() => import("@/components/intro/runtime/IntroTimeline"), { ssr: false });
+const IntroRuntime = dynamic(() => import("@/components/intro/runtime/IntroRuntime"), { ssr: false });
 
 // While the intro plays, the page beneath it is inert: not focusable and not
 // read out, so keyboard and screen reader users meet the Skip button first.
@@ -26,6 +27,7 @@ export function IntroDirector() {
 
   useEffect(() => {
     if (!isPlaying) return;
+    preloadIntroScene();
     return holdPageBehindIntro();
   }, [isPlaying]);
 
@@ -33,7 +35,7 @@ export function IntroDirector() {
   // Any failure in the animation code ends the intro rather than trapping the page.
   return (
     <ErrorBoundary fallback={null} onError={finishIntro}>
-      <IntroTimeline />
+      <IntroRuntime />
     </ErrorBoundary>
   );
 }

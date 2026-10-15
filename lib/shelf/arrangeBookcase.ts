@@ -1,5 +1,7 @@
+import { BOOK_CLOTH_COLORS } from "@/lib/bookCloths";
 import { BOOKS, type BookId } from "@/content/portfolio";
 import { BOOK_DESIGNS } from "@/lib/bookDesigns";
+import { createSeededRandom, pickBetween, pickFrom, type Random } from "@/lib/random/seededRandom";
 
 // Lays out the home page's bookcase: a long run of untitled books with the six
 // titled ones scattered through it. The arrangement only looks random. It comes
@@ -49,35 +51,11 @@ const STACK_CHANCE = 0.035;
 const LEAN_CHANCE = 0.03;
 const BOOKEND_CHANCE = 0.015;
 
-// Muted leathers and cloths; a few lighter ones keep the run from reading as a wall.
-const FILLER_COLORS = [
-  "#5a1a26", "#3e0b16", "#2c3a2a", "#1f2c3f", "#4a3220", "#6e5124", "#7d6a48",
-  "#23201d", "#5b2d1f", "#2f4045", "#8a7a5a", "#3a2a3e", "#a08c64", "#1a1410",
-] as const;
 const FILLER_PATTERNS: readonly FillerPattern[] = ["banded", "label", "ribbed", "plain", "capped"];
 
-type Random = () => number;
-
-// mulberry32: tiny, fast, and good enough to make a shelf look untidy.
-function createRandom(seed: number): Random {
-  let state = seed >>> 0;
-  return () => {
-    state = (state + 0x6d2b79f5) >>> 0;
-    let mixed = state;
-    mixed = Math.imul(mixed ^ (mixed >>> 15), mixed | 1);
-    mixed ^= mixed + Math.imul(mixed ^ (mixed >>> 7), mixed | 61);
-    return ((mixed ^ (mixed >>> 14)) >>> 0) / 4_294_967_296;
-  };
-}
-
-function pickBetween(random: Random, min: number, max: number): number {
-  return Math.round((min + random() * (max - min)) * 100) / 100;
-}
-
-function pickFrom<Item>(random: Random, items: readonly Item[]): Item {
-  const item = items[Math.floor(random() * items.length)];
-  if (item === undefined) throw new Error("Cannot pick from an empty list");
-  return item;
+/** Rounded so the markup stays short. */
+function pickMeasure(random: Random, min: number, max: number): number {
+  return Math.round(pickBetween(random, min, max) * 100) / 100;
 }
 
 function shuffle<Item>(random: Random, items: readonly Item[]): Item[] {
@@ -110,15 +88,15 @@ function placeTitledBooks(random: Random): Map<number, BookId> {
 }
 
 function createFiller(random: Random, previousColor: string | null, canLean: boolean): FillerBook {
-  let color = pickFrom(random, FILLER_COLORS);
-  while (color === previousColor) color = pickFrom(random, FILLER_COLORS);
+  let color = pickFrom(random, BOOK_CLOTH_COLORS);
+  while (color === previousColor) color = pickFrom(random, BOOK_CLOTH_COLORS);
   return {
     kind: "filler",
-    width: pickBetween(random, 1.5, 3.2),
-    height: pickBetween(random, 0.64, 0.95),
+    width: pickMeasure(random, 1.5, 3.2),
+    height: pickMeasure(random, 0.64, 0.95),
     color,
     pattern: pickFrom(random, FILLER_PATTERNS),
-    lean: canLean && random() < LEAN_CHANCE ? pickBetween(random, 5, 9) : 0,
+    lean: canLean && random() < LEAN_CHANCE ? pickMeasure(random, 5, 9) : 0,
   };
 }
 
@@ -127,15 +105,15 @@ function createStack(random: Random): LyingStack {
   return {
     kind: "stack",
     books: Array.from({ length: count }, () => ({
-      width: pickBetween(random, 5.2, 7.4),
-      thickness: pickBetween(random, 0.9, 1.5),
-      color: pickFrom(random, FILLER_COLORS),
+      width: pickMeasure(random, 5.2, 7.4),
+      thickness: pickMeasure(random, 0.9, 1.5),
+      color: pickFrom(random, BOOK_CLOTH_COLORS),
     })),
   };
 }
 
 export function arrangeBookcase(): readonly ShelfItem[] {
-  const random = createRandom(BOOKCASE_SEED);
+  const random = createSeededRandom(BOOKCASE_SEED);
   const titledPositions = placeTitledBooks(random);
   const items: ShelfItem[] = [];
   let previousColor: string | null = null;

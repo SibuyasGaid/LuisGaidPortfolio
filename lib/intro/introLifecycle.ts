@@ -2,7 +2,7 @@
 // both agree on the attribute, the storage key and the finish event.
 
 /**
- * play: first visit to the library page, the intro pans through the library.
+ * play: first visit to the library page: the welcome screen, then the walk through the library.
  * settle: every other hard load, the shelf settles into place.
  * none: reduced motion, no entrance at all.
  * done: the intro has finished or been skipped.
@@ -15,8 +15,8 @@ const INTRO_RUNNING_ATTRIBUTE = "data-intro-running";
 
 /** If the animation code has not started by then (blocked or slow network), the intro steps aside. */
 const INTRO_START_GRACE_MS = 3500;
-/** Hard ceiling so the overlay can never trap the page. */
-const INTRO_MAX_DURATION_MS = 12000;
+/** Hard ceiling so the overlay can never trap the page: the slowest allowed load plus the walk. */
+const INTRO_MAX_DURATION_MS = 24000;
 
 // Runs in <head> before the first paint, so returning visitors never see the
 // intro flash and skipping works before any React code has loaded.

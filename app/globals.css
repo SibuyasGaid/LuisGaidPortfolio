@@ -13,6 +13,8 @@
   --color-wood-950: #1e130c;
   --color-wood-900: #2b1a12;
   --color-wood-800: #3d2817;
+  /* The unlit library of the intro, matched by the WebGL scene's fog. */
+  --color-library-night: #0b0705;
 
   --color-brass: #b8913a;
   --color-brass-light: #d4b26a;
@@ -1622,12 +1624,10 @@ html.lenis body {
   pointer-events: none;
 }
 
-/* ─── Library intro scene ────────────────────────────────────────────────────
-   A CSS 3D space in vh units: bookcase walls either side of an aisle and
-   lamps over it, then a reading room. Everything is gradients: the first
-   frame paints without waiting on an image. Each surface is painted once; the
-   walk only moves the world. Kept in the global
-   sheet because a route-specific sheet was preloaded, unused, on book pages. */
+/* ─── Library intro ──────────────────────────────────────────────────────────
+   A welcome screen painted with the page, then the WebGL library behind it.
+   Kept in the global sheet because a route-specific sheet was preloaded,
+   unused, on book pages. */
 
 .library-intro {
   display: none;
@@ -1637,276 +1637,158 @@ html.lenis body {
   overflow: hidden;
 }
 
-/* The floor and ceiling are painted flat behind the 3D walls, not built as
-   planes: seen at a grazing angle a plane makes the browser rasterise at an
-   enormous scale and drop other surfaces. Walking straight down the aisle,
-   lines that run along it never move, so painted ones look the same. They
-   converge on the vanishing point at the centre: boards and a burgundy runner
-   below, coffered beams above, both falling into darkness with distance. */
-.intro-scene {
+/* The dark of the library with one lamp lit above the welcome. */
+.intro-backdrop {
   position: absolute;
   inset: 0;
-  overflow: hidden;
-  perspective: 80vh;
-  background-color: #0c0704;
-  background-image:
-    linear-gradient(to bottom, transparent 22%, rgb(12 7 4 / 0.96) 45%, rgb(12 7 4 / 0.96) 55%, transparent 78%),
-    radial-gradient(ellipse 45% 30% at 50% 100%, rgb(255 190 110 / 0.13), transparent),
-    conic-gradient(
-      from 164deg at 50% 0%,
-      transparent 0deg,
-      rgb(212 178 106 / 0.35) 0deg 0.6deg,
-      #4a1420 0.6deg 31.4deg,
-      rgb(212 178 106 / 0.35) 31.4deg 32deg,
-      transparent 32deg
-    ),
-    repeating-conic-gradient(from 90deg at 50% 0%, #1b110a 0deg 7deg, #0e0805 7deg 7.6deg),
-    repeating-conic-gradient(from -90deg at 50% 100%, #0b0604 0deg 9deg, #170e08 9deg 10deg);
-  background-size: 100% 100%, 100% 100%, 100% 50%, 100% 50%, 100% 50%;
-  background-position: 0 0, 0 0, 0 100%, 0 100%, 0 0;
-  background-repeat: no-repeat;
+  background:
+    radial-gradient(ellipse 55% 45% at 50% 34%, rgb(212 178 106 / 0.13), transparent 72%),
+    radial-gradient(ellipse 120% 90% at 50% 40%, transparent 50%, rgb(5 3 2 / 0.85)),
+    var(--color-library-night);
 }
 
-/* The camera turns about the viewer's eye, which sits a perspective's length
-   in front of the screen. */
-.intro-camera {
+.intro-canvas-host {
   position: absolute;
   inset: 0;
-  transform-style: preserve-3d;
-  transform-origin: 50% 50% 80vh;
-}
-
-.aisle-world {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform-style: preserve-3d;
-}
-
-.aisle-world > * {
-  position: absolute;
-  backface-visibility: hidden;
-}
-
-/* A bookcase: six rows of spines, each row shifted so no two match, headroom
-   cut above some books, planks, and lamp light from above. Spine sizes are in
-   em, so a case can be scaled by its font size alone. */
-.aisle-case {
-  --intro-spines: linear-gradient(
-    to right,
-    #5a1a26 0 0.85em,
-    #0e0805 0 0.93em,
-    #6e5124 0 1.55em,
-    #0e0805 0 1.62em,
-    #1f2c3f 0 2.3em,
-    #0e0805 0 2.36em,
-    #3e0b16 0 3.25em,
-    #0e0805 0 3.32em,
-    #7d6a48 0 3.72em,
-    #0e0805 0 3.8em,
-    #23321f 0 4.55em,
-    #0e0805 0 4.62em,
-    #4a3220 0 5.4em
-  );
-  --intro-case-shade: #110a06;
-  --row-height: calc(100% / 6);
-  background-color: var(--intro-case-shade);
-  background-image:
-    radial-gradient(70% 30% at 50% 0%, rgb(255 190 110 / 0.18), transparent),
-    linear-gradient(to bottom, transparent calc(100% - 0.6em), #3d2717 calc(100% - 0.6em), #24170f),
-    linear-gradient(to bottom, var(--intro-case-shade) 0 8%, rgb(0 0 0 / 0.55) 8%, transparent 28%),
-    conic-gradient(from 0deg at 0.7em 24%, transparent 0 270deg, var(--intro-case-shade) 270deg),
-    conic-gradient(from 0deg at 1.1em 14%, transparent 0 270deg, var(--intro-case-shade) 270deg),
-    conic-gradient(from 0deg at 0.5em 32%, transparent 0 270deg, var(--intro-case-shade) 270deg),
-    var(--intro-spines),
-    var(--intro-spines),
-    var(--intro-spines),
-    var(--intro-spines),
-    var(--intro-spines),
-    var(--intro-spines);
-  background-size:
-    100% 100%,
-    100% var(--row-height),
-    100% var(--row-height),
-    1.9em var(--row-height),
-    3.1em var(--row-height),
-    4.7em var(--row-height),
-    5.4em var(--row-height),
-    5.4em var(--row-height),
-    5.4em var(--row-height),
-    5.4em var(--row-height),
-    5.4em var(--row-height),
-    5.4em var(--row-height);
-  background-position:
-    0 0,
-    0 0,
-    0 0,
-    0 0,
-    0.8em 0,
-    2.2em 0,
-    0 0%,
-    2.1em 20%,
-    3.7em 40%,
-    1.2em 60%,
-    4.4em 80%,
-    0.6em 100%;
-  background-repeat:
-    no-repeat,
-    repeat-y,
-    repeat-y,
-    repeat,
-    repeat,
-    repeat,
-    repeat-x,
-    repeat-x,
-    repeat-x,
-    repeat-x,
-    repeat-x,
-    repeat-x;
-  background-origin: content-box;
-  border: solid #2b1a12;
-  border-width: 2.5vh 1.4vh 4vh;
-}
-
-.aisle-wall {
-  width: 32vh;
-  height: 104vh;
-  margin: -52vh 0 0 -16vh;
-  font-size: 2.6vh;
-}
-
-/* Darkened with distance by the timeline: a cheap stand-in for falling light. */
-.aisle-shade {
-  position: absolute;
-  inset: -4vh -1.5vh;
-  display: block;
-  background-color: #070403;
   opacity: 0;
 }
 
-/* A pendant lamp: cord, brass shade, and its glow, facing the camera. */
-.aisle-lamp {
-  width: 10vh;
-  height: 24vh;
-  margin: -24vh 0 0 -5vh;
-  background: linear-gradient(
-      to right,
-      transparent calc(50% - 1px),
-      rgb(212 178 106 / 0.4) calc(50% - 1px) calc(50% + 1px),
-      transparent calc(50% + 1px)
-    )
-    top / 100% calc(100% - 3.5vh) no-repeat;
-}
-
-.aisle-lamp::before {
-  content: "";
-  position: absolute;
-  inset: auto 0 0;
-  height: 3.5vh;
-  background: linear-gradient(to bottom, #d4b26a, #7a5a1c);
-  clip-path: polygon(30% 0, 70% 0, 100% 100%, 0 100%);
-}
-
-.aisle-lamp::after {
-  content: "";
-  position: absolute;
-  top: calc(100% - 1vh);
-  left: 50%;
-  width: 44vh;
-  height: 36vh;
-  margin-left: -22vh;
-  background:
-    radial-gradient(ellipse 2.4vh 0.7vh at 50% 1vh, rgb(255 242 210 / 0.95), transparent),
-    radial-gradient(ellipse 50% 70% at 50% 0%, rgb(255 200 125 / 0.2), rgb(255 190 110 / 0.05) 55%, transparent 75%);
-}
-
-/* The reading room's back wall: panelling, tall moonlit windows, and the
-   bookcase the walk ends at, lit by a lamp above it. */
-.aisle-end-wall {
-  width: 210vh;
-  margin-left: -105vh;
-  background:
-    repeating-linear-gradient(to right, transparent 0 calc(16vh - 2px), rgb(0 0 0 / 0.35) calc(16vh - 2px) 16vh),
-    linear-gradient(to bottom, #120a06, #1d120b 70%, #160d07);
-}
-
-.aisle-end-wall > span {
-  position: absolute;
+.intro-canvas-host > canvas {
   display: block;
-}
-
-.aisle-window {
-  bottom: 24vh;
-  width: 22vh;
-  height: 90vh;
-  border-radius: 50% 50% 0.5vh 0.5vh / 16% 16% 0.5vh 0.5vh;
-  background:
-    linear-gradient(to right, transparent calc(50% - 0.25vh), #120a06 calc(50% - 0.25vh) calc(50% + 0.25vh), transparent calc(50% + 0.25vh)),
-    repeating-linear-gradient(to bottom, transparent 0 calc(16.66% - 0.4vh), #120a06 calc(16.66% - 0.4vh) 16.66%),
-    linear-gradient(to bottom, #55688a, #2b374a 55%, #1c2431);
-  box-shadow:
-    0 0 0 1vh #1e130c,
-    0 0 12vh 4vh rgb(110 140 185 / 0.16);
-}
-
-.aisle-window.is-left {
-  left: 2vh;
-}
-
-.aisle-window.is-right {
-  right: 2vh;
-}
-
-.aisle-end-glow {
-  inset: 30vh 30vh 0;
-  background: radial-gradient(ellipse 50% 45% at 50% 30%, rgb(255 200 125 / 0.2), transparent 70%);
-}
-
-/* Sized and placed so that, where the walk stops, it lies where the home
-   page's bookcase is drawn: across the screen, from a little above the middle. */
-.aisle-end-wall .aisle-end-case {
-  --row-height: 50%;
-  left: 19vh;
-  bottom: 0;
-  width: 172vh;
-  height: 53vh;
-  font-size: 2.4vh;
-  background-position:
-    0 0,
-    0 0,
-    0 0,
-    0 0,
-    0.8em 0,
-    2.2em 0,
-    0 0%,
-    2.1em 100%,
-    3.7em 0%,
-    1.2em 100%,
-    4.4em 0%,
-    0.6em 100%;
-  border-width: 1.6vh 1.6vh 2.4vh;
-  border-radius: 1vh 1vh 0 0;
-  box-shadow: 0 4vh 8vh -2vh rgb(0 0 0 / 0.8);
+  width: 100%;
+  height: 100%;
 }
 
 .intro-vignette {
   position: absolute;
   inset: 0;
+  pointer-events: none;
   background:
-    radial-gradient(ellipse 80% 70% at 50% 45%, transparent 45%, rgb(5 2 1 / 0.55) 80%, rgb(5 2 1 / 0.85)),
-    linear-gradient(to bottom, rgb(5 2 1 / 0.4), transparent 25%, transparent 75%, rgb(5 2 1 / 0.5));
+    radial-gradient(ellipse 85% 75% at 50% 48%, transparent 55%, rgb(5 2 1 / 0.5) 85%, rgb(5 2 1 / 0.8)),
+    linear-gradient(to bottom, rgb(5 2 1 / 0.35), transparent 18%, transparent 82%, rgb(5 2 1 / 0.4));
 }
 
-.intro-dust {
+.intro-welcome {
   position: absolute;
   inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1.5rem;
+  text-align: center;
+  color: var(--color-parchment);
 }
 
-.intro-mote {
+/* Each line rises into place in turn. The name moves but never fades, so it
+   counts as painted from the first frame. */
+.intro-welcome > * {
+  animation: welcome-rise 1s var(--ease-settle) both;
+}
+
+.intro-welcome > :nth-child(2) {
+  animation-delay: 120ms;
+}
+
+.intro-welcome > :nth-child(3) {
+  animation-name: welcome-lift;
+  animation-delay: 200ms;
+}
+
+.intro-welcome > :nth-child(4) {
+  animation-delay: 320ms;
+}
+
+.intro-welcome > :nth-child(n + 5) {
+  animation-delay: 480ms;
+}
+
+.intro-welcome-mark {
+  width: 4.25rem;
+  height: 4.25rem;
+  color: var(--color-brass-light);
+}
+
+.intro-welcome-eyebrow {
+  margin-top: 2rem;
+  color: var(--color-brass-light);
+}
+
+.intro-welcome-name {
+  margin-top: 0.9rem;
+  font-family: var(--font-display);
+  font-size: clamp(2.6rem, 1.7rem + 4vw, 5rem);
+  font-weight: 500;
+  line-height: 0.95;
+  letter-spacing: -0.02em;
+  color: var(--color-parchment-light);
+}
+
+.intro-welcome-headline {
+  margin-top: 0.9rem;
+  font-family: var(--font-display);
+  font-size: clamp(1.1rem, 1rem + 0.5vw, 1.4rem);
+  font-style: italic;
+  color: var(--color-smoke);
+}
+
+.intro-progress {
+  position: relative;
+  width: min(18rem, 70vw);
+  height: 2px;
+  margin-top: 2.75rem;
+  overflow: hidden;
+  background-color: rgb(212 178 106 / 0.18);
+  border-radius: 999px;
+}
+
+/* Until the script reports real stages, the bar breathes to show it is waiting. */
+.intro-progress-fill {
   position: absolute;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgb(255 240 210 / 0.9), transparent 70%);
-  opacity: 0;
+  inset: 0;
+  background: linear-gradient(90deg, #b8913a, #ecd7a2);
+  transform: scaleX(0.05);
+  transform-origin: left;
+  animation: progress-wait 1.8s ease-in-out infinite;
+}
+
+.intro-progress[data-progress-active] .intro-progress-fill {
+  animation: none;
+}
+
+.intro-welcome-status {
+  min-height: 1.5em;
+  margin-top: 1rem;
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-style: italic;
+  color: var(--color-smoke);
+}
+
+@keyframes welcome-rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+}
+
+@keyframes welcome-lift {
+  from {
+    transform: translateY(14px);
+  }
+}
+
+@keyframes progress-wait {
+  50% {
+    transform: scaleX(0.16);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .intro-welcome > *,
+  .intro-progress-fill {
+    animation: none;
+  }
 }
 
 /* ─── Skip control ───────────────────────────────────────────────────────── */
@@ -1958,19 +1840,17 @@ html.lenis body {
 
 /* ─── Intro states ──────────────────────────────────────────────────────────
    The inline boot script sets data-intro on <html> before the first paint. The
-   scene sits on the library page; these rules apply site-wide. */
+   intro sits on the library page; these rules apply site-wide. */
 
 html[data-intro="play"] {
   overflow: hidden;
+  /* The overlay cannot cover the reserved scrollbar gutter, so the gutter
+     takes the library's dark rather than showing a strip of wood beside it. */
+  background-color: var(--color-library-night);
 }
 
 html[data-intro="play"] .library-intro {
   display: block;
-}
-
-/* Only the moving parts are promoted, and only while the intro plays. */
-html[data-intro="play"] :is(.intro-camera, .aisle-world) {
-  will-change: transform;
 }
 
 /* Skipping or finishing fades the overlay out; visibility drops it from the

@@ -57,30 +57,34 @@ export const LOW_END_REVEAL_ANIMATION: RevealAnimation = {
 
 // ─── Library intro ──────────────────────────────────────────────────────────
 
-export interface IntroTimings {
-  /** The walk down the aisle into the reading room. */
-  readonly walk: number;
-  /** How long before the walk ends the landing begins, so the two overlap. */
-  readonly landingOverlap: number;
-  readonly sceneFade: number;
-  readonly settle: number;
-}
+/** The welcome screen shows at least this long, so it reads as a greeting rather than a flash. */
+export const INTRO_WELCOME_MIN_SECONDS = 1.8;
+/** If the library is not ready by then, the welcome screen gives way to the site. */
+export const INTRO_LOAD_TIMEOUT_SECONDS = 10;
 
-/** About 5 seconds end to end. */
-export const FULL_INTRO_TIMINGS: IntroTimings = {
-  walk: 4.4,
-  landingOverlap: 0.9,
-  sceneFade: 1,
-  settle: 1.3,
-};
+/**
+ * Where the progress bar stands at each stage of loading. While the WebGL
+ * code downloads (which reports no progress) the bar creeps toward a cap.
+ */
+export const INTRO_PROGRESS = {
+  started: 0.12,
+  downloadCreep: 0.36,
+  sceneModule: 0.4,
+  sceneSpan: 0.58,
+} as const;
 
-/** Low-end devices join the walk near the end of the aisle: about 2.5 seconds. */
-export const BRIEF_INTRO_TIMINGS: IntroTimings = {
-  walk: 1.8,
-  landingOverlap: 0.5,
-  sceneFade: 0.7,
-  settle: 0.9,
-};
+export const INTRO_WALK_SECONDS = 6.4;
+/** Shares of the walk spent setting off and slowing to a stop; the rest is an even stride. */
+export const INTRO_WALK_PHASES = { setOff: 0.18, arrive: 0.4 } as const;
+
+export const INTRO_TIMINGS = {
+  welcomeExit: 0.7,
+  sceneFadeIn: 1.3,
+  /** How long before the walk stops the library starts dissolving onto the real bookcase. */
+  landingOverlap: 1,
+  landingFade: 1.1,
+  settle: 1.4,
+} as const;
 
 export const INTRO_EASES = {
   setOff: "power1.in",
@@ -90,21 +94,10 @@ export const INTRO_EASES = {
   fade: "power2.inOut",
 } as const;
 
-/** Shares of the walk spent setting off and slowing to a stop; the rest is an even stride. */
-export const INTRO_WALK_PHASES = { setOff: 0.2, arrive: 0.36 } as const;
-/** The brief walk starts this far along the full one, so both end on the same frame. */
-export const INTRO_BRIEF_START_PROGRESS = 0.55;
-/** Footsteps: a small rise and fall of the camera, one per step. */
-export const INTRO_STEP_SECONDS = 0.34;
-export const INTRO_STEP_RISE_VH = 0.28;
-/** The head turns a little toward the shelves mid-walk, then looks ahead again. */
-export const INTRO_GLANCE_DEGREES = 2.2;
-/** The real bookcase comes forward from this scale as the scene dissolves onto it. */
+/** The real bookcase comes forward from this scale as the library dissolves onto it. */
 export const INTRO_LANDING_START_SCALE = 1.06;
-export const INTRO_DUST_START_DELAY_SECONDS = 0.3;
-/** Reduced motion: hold the still library briefly, then crossfade to the shelf. */
-export const INTRO_CROSSFADE_HOLD_SECONDS = 0.9;
-export const INTRO_CROSSFADE_SECONDS = 0.6;
+/** The canvas is released after the overlay has finished fading out. */
+export const INTRO_DISPOSE_DELAY_MS = 700;
 
 // ─── Taking a book off the shelf ────────────────────────────────────────────
 
