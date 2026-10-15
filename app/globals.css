@@ -533,3 +533,421 @@ html.lenis body {
 .lenis.lenis-smooth iframe {
   pointer-events: none;
 }
+
+/* ─── Library intro scene ────────────────────────────────────────────────────
+   Everything is gradients and flat colour: the scene paints its first frame
+   without waiting on any image, and nothing in it becomes a late "largest
+   paint" when it animates into view. Kept in the global sheet because a
+   route-specific sheet was preloaded, unused, on every chapter page. */
+
+.library-intro {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  overflow: hidden;
+  perspective: 2000px;
+}
+
+.intro-scene {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: #120b07;
+}
+
+.intro-camera {
+  position: absolute;
+  inset: 0;
+}
+
+/* Panelled back wall, wider than the screen so the slower parallax never shows an edge. */
+.intro-wall {
+  position: absolute;
+  inset: -5% -60% -5% -10%;
+  background:
+    repeating-linear-gradient(90deg, rgb(0 0 0 / 0.28) 0 2px, transparent 2px 22vh),
+    linear-gradient(to bottom, #1c110b, #150d08 60%, #0f0905);
+}
+
+.intro-shelf {
+  position: absolute;
+  inset: 0;
+}
+
+/* The bookcase's crown and left upright. */
+.intro-shelf::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 4vh;
+  background: linear-gradient(90deg, #120b07, #2b1a12 60%, #1e130c);
+  box-shadow: 1vh 0 2vh rgb(0 0 0 / 0.5);
+}
+
+.intro-shelf-row {
+  position: absolute;
+  left: 0;
+  display: flex;
+  align-items: flex-end;
+  gap: 0.25vh;
+  height: 25vh;
+  padding-left: 6vh;
+}
+
+.intro-shelf-row[data-row="0"] {
+  top: 4vh;
+}
+
+.intro-shelf-row[data-row="1"] {
+  top: 37vh;
+}
+
+.intro-shelf-row[data-row="2"] {
+  top: 70vh;
+}
+
+/* The plank each row stands on, lit along its front edge. */
+.intro-shelf-row::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: -40vh;
+  bottom: -2.4vh;
+  height: 2.4vh;
+  background:
+    linear-gradient(to bottom, rgb(212 178 106 / 0.18), transparent 18%),
+    linear-gradient(to bottom, #4a3220, #2e1d12 55%, #1a100a);
+  box-shadow: 0 2.5vh 3vh -1vh rgb(0 0 0 / 0.7);
+}
+
+.intro-spine {
+  --spine-color: #3d2817;
+  flex: none;
+  border-radius: 0.25vh 0.25vh 0.1vh 0.1vh;
+  background-color: var(--spine-color);
+  background-image:
+    linear-gradient(
+      90deg,
+      rgb(0 0 0 / 0.62),
+      rgb(0 0 0 / 0.18) 20%,
+      rgb(255 255 255 / 0.08) 44%,
+      rgb(0 0 0 / 0.12) 66%,
+      rgb(0 0 0 / 0.66)
+    );
+}
+
+.intro-spine[data-gilt] {
+  background-image:
+    linear-gradient(
+      90deg,
+      rgb(0 0 0 / 0.62),
+      rgb(0 0 0 / 0.18) 20%,
+      rgb(255 255 255 / 0.08) 44%,
+      rgb(0 0 0 / 0.12) 66%,
+      rgb(0 0 0 / 0.66)
+    ),
+    linear-gradient(
+      to bottom,
+      transparent 9%,
+      rgb(184 145 58 / 0.7) 9% 9.8%,
+      transparent 9.8% 12%,
+      rgb(184 145 58 / 0.5) 12% 12.6%,
+      transparent 12.6% 86%,
+      rgb(184 145 58 / 0.6) 86% 86.8%,
+      transparent 86.8%
+    );
+}
+
+.intro-spine[data-tone="burgundy"] { --spine-color: #511825; }
+.intro-spine[data-tone="burgundy-deep"] { --spine-color: #3a0b15; }
+.intro-spine[data-tone="burgundy-light"] { --spine-color: #63202d; }
+.intro-spine[data-tone="walnut"] { --spine-color: #322114; }
+.intro-spine[data-tone="umber"] { --spine-color: #22150e; }
+.intro-spine[data-tone="ink"] { --spine-color: #1f1712; }
+.intro-spine[data-tone="ochre"] { --spine-color: #574217; }
+.intro-spine[data-tone="cream"] { --spine-color: #84775c; }
+
+/* The PORTFOLIO spine: taller, richer, and banded in brass. */
+.intro-hero-spine {
+  position: relative;
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 5.4vh;
+  height: 94%;
+  border-radius: 0.35vh 0.35vh 0.15vh 0.15vh;
+  background:
+    linear-gradient(
+      to bottom,
+      transparent 7%,
+      #d4b26a 7% 7.8%,
+      transparent 7.8% 9.6%,
+      #d4b26a 9.6% 10.2%,
+      transparent 10.2% 89.8%,
+      #d4b26a 89.8% 90.4%,
+      transparent 90.4% 92.2%,
+      #d4b26a 92.2% 93%,
+      transparent 93%
+    ),
+    linear-gradient(90deg, rgb(0 0 0 / 0.5), rgb(255 255 255 / 0.14) 40%, rgb(0 0 0 / 0.08) 65%, rgb(0 0 0 / 0.55)),
+    #7a2234;
+  box-shadow: 0 0 4vh rgb(212 178 106 / 0.18);
+}
+
+.intro-hero-spine-title {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  font-family: var(--font-sans);
+  font-size: 1.15vh;
+  font-weight: 600;
+  letter-spacing: 0.42em;
+  text-transform: uppercase;
+  color: #e3c98e;
+}
+
+/* A bookcase upright close to the camera: it moves fastest and sells the depth. */
+.intro-foreground {
+  position: absolute;
+  top: -5%;
+  bottom: -5%;
+  left: 12vw;
+  width: 9vh;
+  background: linear-gradient(90deg, transparent, #0b0604 22%, #170e08 50%, #0b0604 78%, transparent);
+}
+
+.intro-glow {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 36% 48% at 50% 46%, rgb(212 178 106 / 0.3), transparent 70%);
+  opacity: 0.55;
+}
+
+.intro-dim {
+  position: absolute;
+  inset: 0;
+  background: #0b0604;
+  opacity: 0;
+}
+
+.intro-vignette {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 70% 62% at 50% 46%, transparent 30%, rgb(5 2 1 / 0.55) 70%, rgb(5 2 1 / 0.92) 100%),
+    linear-gradient(to bottom, rgb(5 2 1 / 0.35), transparent 30%, transparent 70%, rgb(5 2 1 / 0.45));
+}
+
+.intro-dust {
+  position: absolute;
+  inset: 0;
+}
+
+.intro-mote {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgb(255 240 210 / 0.9), transparent 70%);
+  opacity: 0;
+}
+
+/* ─── The book off the shelf ─────────────────────────────────────────────── */
+
+.intro-volume {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: min(60vw, 42vh);
+  aspect-ratio: 0.72;
+  border-radius: 0.4rem 0.7rem 0.7rem 0.4rem;
+  background: linear-gradient(160deg, #5a1424, #3a0a15 70%);
+  transform-style: preserve-3d;
+  visibility: hidden;
+  box-shadow:
+    3px 0 0 #d9cdb2,
+    5px 1px 0 #c4b593,
+    0 40px 90px -30px rgb(0 0 0 / 0.9);
+}
+
+.intro-volume-page {
+  position: absolute;
+  inset: 3.5%;
+  border-radius: 0.3rem;
+  background-color: #efe6d2;
+}
+
+.intro-volume-page-right {
+  left: 0;
+  background-image:
+    linear-gradient(to right, rgb(42 31 26 / 0.2), rgb(42 31 26 / 0.05) 6%, rgb(255 253 246 / 0.35) 14%, transparent 34%),
+    radial-gradient(ellipse 90% 50% at 65% 6%, rgb(255 253 246 / 0.55), transparent 72%);
+  border-radius: 0 0.3rem 0.3rem 0;
+}
+
+.intro-volume-page-left {
+  right: 0;
+  background-image:
+    linear-gradient(to left, rgb(42 31 26 / 0.18), rgb(42 31 26 / 0.05) 6%, rgb(255 253 246 / 0.35) 14%, transparent 34%),
+    radial-gradient(ellipse 90% 50% at 35% 8%, rgb(255 253 246 / 0.6), transparent 72%);
+  border-radius: 0.3rem 0 0 0.3rem;
+}
+
+.intro-cover {
+  position: absolute;
+  inset: 0;
+  transform-origin: left center;
+  transform-style: preserve-3d;
+}
+
+.intro-cover-front,
+.intro-cover-back {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  border-radius: 0.4rem 0.7rem 0.7rem 0.4rem;
+}
+
+.intro-cover-front {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4%;
+  padding: 14% 12%;
+  text-align: center;
+  color: #d4b26a;
+  background:
+    linear-gradient(90deg, rgb(0 0 0 / 0.45), transparent 7%, rgb(255 255 255 / 0.06) 8.5%, transparent 10%),
+    radial-gradient(120% 80% at 25% 0%, rgb(140 42 60 / 0.95), transparent 62%),
+    linear-gradient(160deg, #5a1424, #36091a 72%);
+}
+
+/* A double brass rule inset around the cover. */
+.intro-cover-front::before,
+.intro-cover-front::after {
+  content: "";
+  position: absolute;
+  border: 1px solid rgb(212 178 106 / 0.55);
+  border-radius: 0.45rem;
+  pointer-events: none;
+}
+
+.intro-cover-front::before {
+  inset: 6% 6% 6% 11%;
+}
+
+.intro-cover-front::after {
+  inset: 7.6% 7.6% 7.6% 12.6%;
+  opacity: 0.45;
+}
+
+.intro-cover-monogram {
+  width: 24%;
+  height: auto;
+}
+
+.intro-cover-title {
+  margin-top: 6%;
+  font-family: var(--font-display);
+  font-size: min(5.3vw, 3.7vh);
+  font-weight: 500;
+  line-height: 1.1;
+  color: #e3c98e;
+}
+
+.intro-cover-subtitle {
+  font-family: var(--font-sans);
+  font-size: min(1.4vw, 1vh);
+  font-weight: 600;
+  letter-spacing: 0.42em;
+  text-transform: uppercase;
+  color: rgb(212 178 106 / 0.8);
+}
+
+.intro-cover-back {
+  transform: rotateY(180deg);
+  background: linear-gradient(200deg, #5a1424, #3a0a15 70%);
+}
+
+/* ─── Skip control ───────────────────────────────────────────────────────── */
+
+.intro-skip {
+  --focus-ring: var(--color-brass-light);
+  position: absolute;
+  top: 1.25rem;
+  right: 1.25rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-height: 2.75rem;
+  padding: 0.55rem 1.1rem;
+  border: 1px solid rgb(212 178 106 / 0.4);
+  border-radius: 999px;
+  background: rgb(18 11 7 / 0.7);
+  color: rgb(239 230 210 / 0.92);
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: border-color 250ms var(--ease-settle), color 250ms var(--ease-settle);
+}
+
+.intro-skip:hover {
+  border-color: rgb(212 178 106 / 0.8);
+  color: #fff;
+}
+
+.intro-skip-key {
+  display: none;
+  padding: 0.1rem 0.4rem;
+  border: 1px solid rgb(239 230 210 / 0.25);
+  border-radius: 0.3rem;
+  font-family: var(--font-sans);
+  font-size: 0.7rem;
+  color: rgb(239 230 210 / 0.6);
+}
+
+@media (min-width: 40rem) {
+  .intro-skip {
+    top: 1.75rem;
+    right: 2rem;
+  }
+
+  .intro-skip-key {
+    display: inline-block;
+  }
+}
+
+/* ─── Intro states ──────────────────────────────────────────────────────────
+   The inline boot script sets data-intro on <html> before the first paint. The
+   scene's own styles load with the contents page; these rules apply site-wide. */
+
+html[data-intro="play"] {
+  overflow: hidden;
+}
+
+html[data-intro="play"] .library-intro {
+  display: block;
+}
+
+/* Skipping or finishing fades the overlay out; visibility drops it from the
+   accessibility tree and from painting once the fade is done. */
+html[data-intro="done"] .library-intro {
+  display: block;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition:
+    opacity 450ms ease,
+    visibility 0s linear 450ms;
+}
+
+/* Returning visitors and deep links: the book lands with a short settle.
+   Transform only, so the largest paint and layout are untouched. */
+@keyframes book-settle {
+  from {
+    transform: translateY(18px) scale(0.985);
+  }
+}
+
+html[data-intro="settle"] .book {
+  animation: book-settle 600ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}

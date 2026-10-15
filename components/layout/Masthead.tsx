@@ -4,7 +4,7 @@ import { PROFILE } from "@/content/portfolio";
 
 export function Masthead() {
   return (
-    <header className="fixed inset-x-3 top-3 z-40 sm:inset-x-6 sm:top-4">
+    <header data-inert-during-intro className="fixed inset-x-3 top-3 z-40 sm:inset-x-6 sm:top-4">
       <div className="relative mx-auto flex h-14 max-w-[86rem] items-center justify-between gap-4 overflow-hidden rounded-full border border-brass/15 bg-wood-950/95 pl-2 pr-2 shadow-[0_18px_40px_-20px_rgb(0_0_0/0.8)] sm:pl-3">
         <Link
           href="/"

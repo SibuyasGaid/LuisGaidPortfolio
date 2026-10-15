@@ -6,7 +6,9 @@ import { Masthead } from "@/components/layout/Masthead";
 import { SkipLink } from "@/components/layout/SkipLink";
 import { SmoothScrollLayer } from "@/components/motion/SmoothScrollLayer";
 import { DevPerformanceReadout } from "@/components/dev/DevPerformanceReadout";
+import { IntroStateKeeper } from "@/components/intro/IntroStateKeeper";
 import { SITE } from "@/content/portfolio";
+import { INTRO_BOOT_SCRIPT } from "@/lib/intro/introLifecycle";
 import { getSiteUrl } from "@/lib/siteUrl";
 import "./globals.css";
 
@@ -55,18 +57,20 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   preload("/textures/paper.webp", { as: "image", fetchPriority: "high" });
 
   return (
-    <html
-      lang="en"
-      className={`${cormorantGaramond.variable} ${inter.variable}`}
-    >
+    // The boot script sets data-intro on <html> before hydration, hence suppressHydrationWarning.
+    <html lang="en" className={`${cormorantGaramond.variable} ${inter.variable}`} suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: INTRO_BOOT_SCRIPT }} />
+      </head>
       <body>
         <SkipLink />
         <Masthead />
-        <main id="main" tabIndex={-1} className="relative z-[1] pt-[calc(var(--spacing-masthead)+2rem)] outline-none sm:pt-[calc(var(--spacing-masthead)+3rem)]">
+        <main id="main" tabIndex={-1} className="relative pt-[calc(var(--spacing-masthead)+2rem)] outline-none sm:pt-[calc(var(--spacing-masthead)+3rem)]">
           {children}
         </main>
         <Colophon />
         <SmoothScrollLayer />
+        <IntroStateKeeper />
         <DevPerformanceReadout />
       </body>
     </html>

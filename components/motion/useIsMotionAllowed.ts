@@ -1,8 +1,7 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
-
-const REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
+import { REDUCED_MOTION_QUERY } from "@/lib/motion/config";
 
 function subscribeToMotionPreference(onChange: () => void): () => void {
   const query = window.matchMedia(REDUCED_MOTION_QUERY);
