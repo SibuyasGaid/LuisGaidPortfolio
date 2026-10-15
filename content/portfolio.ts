@@ -241,7 +241,7 @@ export const BOOKS: readonly Book[] = [
     navLabel: "About",
     subtitle: "The author",
     introduction:
-      "I'm Charles Luis Gaid. I build the systems that sit behind a growing business: automations that take repetitive work off your team, voice and SMS agents that answer and follow up, CRM setups that keep leads moving, and the web apps that tie it all together.",
+      "I'm Charles Luis Gaid. I build custom software that takes a business's everyday problems off its hands. Sometimes that means connecting the tools you already use so they finally work together. Sometimes it means building a new one, because nothing out there fits.",
   },
   {
     id: "work",
@@ -296,14 +296,16 @@ export const BOOKS: readonly Book[] = [
 ];
 
 export const ABOUT_PARAGRAPHS: readonly string[] = [
-  "Since late 2024 I've shipped production work for medical platforms, real estate agencies, e-commerce brands, and content creators across Australia and the US. I own the whole job: scoping, architecture, the build, testing, and support after launch.",
+  "Most of the businesses I work with aren't short on software. They're short on software that fits. Leads sit in one app, orders in another, and someone loses half their week copying between them. I start by finding where the work actually gets stuck, then fix the cause instead of adding one more tool on top.",
+  "If your tools are fine and just don't talk to each other, I connect them, with automations, integrations, and AI where it genuinely saves time. If the tool itself is the problem, I build you a new one: internal dashboards, client-facing apps, whatever your team will actually want to use, shaped around how you already work.",
+  "Since late 2024 I've done this for medical platforms, real estate agencies, e-commerce brands, and content creators across Australia and the US. I own the whole job: scoping, architecture, the build, testing, and support after launch.",
   "My background is Computer Engineering. MammoScan, an AI breast cancer screening project built on thermal imaging and computer vision, was named Champion of the DOST Scholar's Technopreneurship Training Program (STTP) in 2025. I bring the same rigor to a client's lead pipeline that I brought to medical screening.",
 ];
 
 export const ABOUT_FACTS: readonly Fact[] = [
   { label: "Clients", value: PROFILE.clientRegions },
   { label: "Time zones", value: "US, AU, and APAC" },
-  { label: "Focus", value: "Automation, voice agents, CRM systems, web apps" },
+  { label: "What I build", value: "Custom software: connections between the tools you use, and new tools where they fall short" },
   { label: "Education", value: "BS Computer Engineering, CIT-U, 2026" },
 ];
 
