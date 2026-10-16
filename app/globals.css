@@ -666,6 +666,12 @@
 
   /* ─── Book furniture ────────────────────────────────────────────────────── */
 
+  /* An illustration printed under a book's opening lines, as wide as them. */
+  .opener-plate {
+    max-width: 34rem;
+    margin-top: 3rem;
+  }
+
   /* The field guide's boxed notes under each entry. */
   .field-notes {
     padding: 1.15rem 1.25rem 1.3rem;

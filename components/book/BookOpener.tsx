@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { BrassRule } from "@/components/ornaments/BrassRule";
 import type { Book } from "@/content/portfolio";
 import type { BookFormat } from "@/lib/bookDesigns";
@@ -6,14 +7,19 @@ interface BookOpenerProps {
   readonly book: Book;
   readonly titleId: string;
   readonly format: BookFormat;
+  /** An illustration printed under the opening lines, such as the author's portrait. */
+  readonly plate?: ReactNode;
 }
 
 // The opening of a book. On a spread it fills the left page and stays in view
-// while the right page scrolls; on a folio it runs across the top of the page.
-export function BookOpener({ book, titleId, format }: BookOpenerProps) {
+// while the right page scrolls (unless it carries a plate, which would make it
+// taller than the screen: then it stays put, as a printed page does); on a
+// folio it runs across the top of the page.
+export function BookOpener({ book, titleId, format, plate }: BookOpenerProps) {
   const isSpread = format === "spread";
+  const isSticky = isSpread && !plate;
   return (
-    <header className={isSpread ? "relative lg:sticky lg:top-[calc(var(--spacing-masthead)+3rem)]" : "relative mb-16 lg:mb-20"}>
+    <header className={isSticky ? "relative lg:sticky lg:top-[calc(var(--spacing-masthead)+3rem)]" : isSpread ? "relative" : "relative mb-16 lg:mb-20"}>
       {/* Anchored by its left edge: numerals change width when the display font
           arrives, and a right-anchored box would visibly shift. */}
       <span
@@ -39,6 +45,7 @@ export function BookOpener({ book, titleId, format }: BookOpenerProps) {
         </div>
         <p className="lede drop-cap max-w-[34rem]">{book.introduction}</p>
       </div>
+      {plate}
       {isSpread ? null : <BrassRule className="mt-12 max-w-[9rem]" />}
     </header>
   );
