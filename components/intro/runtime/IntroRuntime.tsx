@@ -30,10 +30,11 @@ function queryIntroElements(): IntroElements | null {
   const progressBar = find("[data-intro-progress]");
   const progressFill = find("[data-intro-progress-fill]");
   const status = find("[data-intro-status]");
+  const controls = find("[data-intro-controls]");
   const skip = find("[data-skip-intro]");
   const poster = find("[data-shelf-poster]");
-  if (!overlay || !backdrop || !welcome || !progressBar || !progressFill || !status || !skip || !poster) return null;
-  return { overlay, backdrop, welcome, progressBar, progressFill, status, skip, poster, chrome: queryIntroChrome() };
+  if (!overlay || !backdrop || !welcome || !progressBar || !progressFill || !status || !controls || !skip || !poster) return null;
+  return { overlay, backdrop, welcome, progressBar, progressFill, status, controls, skip, poster, chrome: queryIntroChrome() };
 }
 
 // Loaded on a first visit once the page itself has hydrated, and again for

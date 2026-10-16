@@ -8,8 +8,10 @@ import {
   INTRO_TIMINGS,
   INTRO_WALK_PHASES,
   INTRO_WALK_SECONDS,
+  WALK_STEP_FREQUENCY_HZ,
 } from "@/lib/motion/config";
 import { gsap } from "@/lib/motion/gsap";
+import { playCue } from "@/lib/sound/sound";
 
 export interface IntroElements {
   readonly overlay: HTMLElement;
@@ -19,6 +21,8 @@ export interface IntroElements {
   readonly progressBar: HTMLElement;
   readonly progressFill: HTMLElement;
   readonly status: HTMLElement;
+  /** The sound and skip buttons, in the corner. */
+  readonly controls: HTMLElement;
   readonly skip: HTMLElement;
   /** The poster of the grand bookcase under the overlay, which settles into place where the library does not run. */
   readonly poster: HTMLElement;
@@ -31,6 +35,10 @@ export type IntroLanding = "scene" | "flat";
 
 /** The most the walk's clock moves in one frame, however long the frame took. */
 const MAX_FRAME_STEP_SECONDS = 1 / 20;
+/** Below this share of a full stride (setting off, slowing to a stop) a step is too light to hear. */
+const MIN_AUDIBLE_STRIDE = 0.12;
+/** Footsteps fall a little to one side, then the other. */
+const FOOTSTEP_PAN = 0.25;
 
 /** A running piece of the intro that can be stopped wherever it has got to. */
 export interface IntroPlayback {
@@ -48,8 +56,8 @@ function addLanding(
   landing: IntroLanding,
 ): void {
   timeline.addLabel("landing", position);
-  // The skip button goes first, so it never sits over the navbar rising beneath it.
-  timeline.to([elements.skip, ...layers], { opacity: 0, duration: INTRO_TIMINGS.landingFade, ease: INTRO_EASES.fade }, "landing");
+  // The buttons go first, so they never sit over the navbar rising beneath them.
+  timeline.to([elements.controls, ...layers], { opacity: 0, duration: INTRO_TIMINGS.landingFade, ease: INTRO_EASES.fade }, "landing");
   if (landing === "flat") {
     timeline.fromTo(
       elements.poster,
@@ -116,6 +124,19 @@ function addWalk(timeline: gsap.core.Timeline, walk: { progress: number; stride:
 }
 
 /**
+ * Plays a footstep each time the walk lands one (the moment the eye bobs
+ * lowest, in walkCamera), as loud as the stride is full. Returns the steps
+ * taken so far.
+ */
+function playFootsteps(elapsed: number, stride: number, stepsTaken: number): number {
+  const steps = Math.floor(elapsed * WALK_STEP_FREQUENCY_HZ);
+  if (steps > stepsTaken && stride > MIN_AUDIBLE_STRIDE) {
+    playCue("footstep", { gain: stride, pan: steps % 2 === 0 ? -FOOTSTEP_PAN : FOOTSTEP_PAN });
+  }
+  return steps;
+}
+
+/**
  * The welcome screen steps aside, the library fades up out of the dark, and
  * the walk begins, ending where the home page frames the grand bookcase. The
  * timeline runs on its own clock, advanced each frame by at most
@@ -136,21 +157,28 @@ export function createWalkTimeline(
   const timeline = gsap.timeline({ paused: true });
   let welcomeExit = 0;
   if (options.isRewind) {
-    timeline.to(walk, { progress: 0, duration: INTRO_REWIND.flyBack, ease: "power2.inOut" }, 0);
+    timeline
+      .call(playCue, ["rewind", { duration: INTRO_REWIND.flyBack }], 0)
+      .to(walk, { progress: 0, duration: INTRO_REWIND.flyBack, ease: "power2.inOut" }, 0);
     addWelcomeReturn(timeline, elements, INTRO_REWIND.flyBack - INTRO_REWIND.cardIn * 0.7);
     welcomeExit = INTRO_REWIND.flyBack + INTRO_REWIND.cardIn * 0.8 + INTRO_REWIND.hold;
   }
   const walkStart = welcomeExit + INTRO_TIMINGS.welcomeExit * 0.5;
 
+  // The library's door opens as the welcome card gives way.
   timeline
+    .call(playCue, ["doorOpen"], welcomeExit)
     .to(elements.welcome, { opacity: 0, y: -10, duration: INTRO_TIMINGS.welcomeExit, ease: INTRO_EASES.fade }, welcomeExit)
     .to(elements.backdrop, { opacity: 0, duration: INTRO_TIMINGS.sceneFadeIn, ease: "power1.inOut" }, walkStart);
   addWalk(timeline, walk, walkStart);
   addLanding(timeline, elements, [], walkStart + INTRO_WALK_SECONDS - INTRO_TIMINGS.landingOverlap, "scene");
 
+  let stepsTaken = 0;
   function advance(_time: number, deltaMs: number): void {
     timeline.time(timeline.time() + Math.min(deltaMs / 1000, MAX_FRAME_STEP_SECONDS));
-    scene.renderWalk({ ...walk, elapsed: Math.max(0, timeline.time() - walkStart) });
+    const elapsed = Math.max(0, timeline.time() - walkStart);
+    scene.renderWalk({ ...walk, elapsed });
+    stepsTaken = playFootsteps(elapsed, walk.stride, stepsTaken);
     if (timeline.progress() === 1) gsap.ticker.remove(advance);
   }
   // The walk's first frame is drawn before the backdrop lifts, so nothing old shows through.

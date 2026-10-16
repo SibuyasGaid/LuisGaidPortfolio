@@ -14,6 +14,7 @@ import { waitForPathname } from "@/lib/navigation/waitForPathname";
 import { reportError } from "@/lib/reportError";
 import type { TransitReturn } from "@/lib/shelf/bookTransit";
 import type { ShelfLayer } from "@/lib/shelf/openSpread";
+import { playCue } from "@/lib/sound/sound";
 
 // The site's librarian: every move between the shelf and the books goes
 // through here. From the shelf, a chosen book is taken off it and opened; the
@@ -343,7 +344,10 @@ export function createLibrarian(options: { readonly navigate: (href: string) => 
       if (isMoving || options.getPathname() !== "/" || bookId === previewedBook) return;
       previewedBook = bookId;
       showCaption(bookId);
-      if (bookId) void loadMoves();
+      if (bookId) {
+        void loadMoves();
+        playCue("bookPreview");
+      }
       const library = findScene();
       if (library) library.view.preview(bookId);
       else markPreviewedHotspot(bookId);

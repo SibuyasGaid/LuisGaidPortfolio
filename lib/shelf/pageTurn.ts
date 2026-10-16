@@ -12,6 +12,7 @@ import { waitForPathname } from "@/lib/navigation/waitForPathname";
 import { encloseBoxes, type OpenSpread, type ScreenBox, type ShelfLayer } from "@/lib/shelf/openSpread";
 import { printPageCopy } from "@/lib/shelf/printPageCopy";
 import { fitTitlePage, renderTitlePageText } from "@/lib/shelf/titlePage";
+import { playCue } from "@/lib/sound/sound";
 
 // Between the shelf and a book's page. Once a book off the shelf lies open
 // (in the live scene, or as the CSS book over the poster), a flat copy of it
@@ -385,6 +386,7 @@ export function turnIntoPage(options: {
     await player.play(
       gsap
         .timeline()
+        .call(playCue, ["zoomIn", { duration: PAGE_TURN_TIMINGS.zoom }], 0)
         .to(zoom, { progress: 1, duration: PAGE_TURN_TIMINGS.zoom, ease: PAGE_TURN_EASES.zoom, onUpdate: place }, 0)
         .fromTo(copy.root, { opacity: 0 }, { opacity: 1, duration: PAGE_TURN_TIMINGS.handoff, ease: "none", clearProps: "opacity" }, 0)
         .call(options.onCovered, [], PAGE_TURN_TIMINGS.handoff)
@@ -399,7 +401,10 @@ export function turnIntoPage(options: {
     const turn = { angle: 0 };
     const step = () => turnLeaf(copy, layout, turn.angle);
     step();
-    const timeline = gsap.timeline().to(turn, { angle: 180, duration: PAGE_TURN_TIMINGS.turn, ease: PAGE_TURN_EASES.turn, onUpdate: step });
+    const timeline = gsap
+      .timeline()
+      .call(playCue, ["pageTurn", { duration: PAGE_TURN_TIMINGS.turn }], 0)
+      .to(turn, { angle: 180, duration: PAGE_TURN_TIMINGS.turn, ease: PAGE_TURN_EASES.turn, onUpdate: step });
     if (copy.hasPrintedBack) {
       // Turned over, it lies as the book's left page, which it is a copy of, and gives way to it.
       timeline.set(copy.endpaper, { visibility: "hidden" }).add(crossOverPrint(copy, "out"));
@@ -461,7 +466,9 @@ export function turnBackFromPage(options: {
       copy.endpaper.style.visibility = "hidden";
       timeline.add(crossOverPrint(copy, "in")).set(copy.endpaper, { visibility: "visible" });
     }
-    timeline.to(turn, { angle: 0, duration: PAGE_TURN_TIMINGS.turn, ease: PAGE_TURN_EASES.turn, onUpdate: step });
+    timeline
+      .call(playCue, ["pageReturn", { duration: PAGE_TURN_TIMINGS.turn }])
+      .to(turn, { angle: 0, duration: PAGE_TURN_TIMINGS.turn, ease: PAGE_TURN_EASES.turn, onUpdate: step });
     await player.play(timeline);
 
     // The copy covers the page: the page goes, and the shelf comes up behind it, out of sight for now.
@@ -479,7 +486,10 @@ export function turnBackFromPage(options: {
       if (spread) placeCopy(copy, layout, describeSpread(spread), zoom.progress);
     };
     const { zoom: zoomDuration, handoff } = PAGE_TURN_TIMINGS;
-    const stepBack = gsap.timeline().add(zoomShelf(shelf, "out"), 0);
+    const stepBack = gsap
+      .timeline()
+      .call(playCue, ["zoomOut", { duration: zoomDuration }], 0)
+      .add(zoomShelf(shelf, "out"), 0);
     if (spread) stepBack.to(zoom, { progress: 0, duration: zoomDuration, ease: PAGE_TURN_EASES.zoom, onUpdate: place }, 0);
     stepBack
       .call(options.onUncovered, [], spread ? zoomDuration - handoff : 0)

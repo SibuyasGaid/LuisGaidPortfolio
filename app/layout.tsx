@@ -9,6 +9,7 @@ import { DevPerformanceReadout } from "@/components/dev/DevPerformanceReadout";
 import { IntroStateKeeper } from "@/components/intro/IntroStateKeeper";
 import { ShelfPoster } from "@/components/library/ShelfPoster";
 import { ShelfTransitions } from "@/components/library/ShelfTransitions";
+import { SoundRuntime } from "@/components/sound/SoundRuntime";
 import { SITE } from "@/content/portfolio";
 import { INTRO_BOOT_SCRIPT } from "@/lib/intro/introLifecycle";
 import { SHELF_BOOT_SCRIPT } from "@/lib/library/shelfAttributes";
@@ -86,6 +87,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <ShelfTransitions />
         <SmoothScrollLayer />
         <IntroStateKeeper />
+        <SoundRuntime />
         <DevPerformanceReadout />
       </body>
     </html>

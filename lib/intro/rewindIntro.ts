@@ -19,7 +19,7 @@ export function rewindIntro(): void {
     onComplete: () => {
       // The overlay shows the moment the intro is playing; its card and backdrop start unseen, for the rewind to bring back.
       gsap.set(document.querySelectorAll("[data-intro-welcome], [data-intro-backdrop]"), { opacity: 0 });
-      gsap.set(document.querySelector("[data-skip-intro]"), { clearProps: "opacity" });
+      gsap.set(document.querySelector("[data-intro-controls]"), { clearProps: "opacity" });
       getLoadedLibrary()?.view.stop();
       const unsubscribe = subscribeToIntroFinish(() => {
         unsubscribe();
