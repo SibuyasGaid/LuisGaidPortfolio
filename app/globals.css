@@ -664,6 +664,161 @@
     transform: translateX(-4px);
   }
 
+  /* ─── Project details ───────────────────────────────────────────────────── */
+
+  /* A project's title is the button that opens its details. Its ::after
+     stretches over the whole card or archive entry, so a click anywhere on it
+     opens them too, and its focus ring goes round the whole thing. */
+  .project-open {
+    text-align: start;
+    cursor: pointer;
+    transition: color 200ms var(--ease-settle);
+  }
+
+  .project-open::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 1rem;
+  }
+
+  .project-open:focus-visible {
+    outline: none;
+  }
+
+  .project-open:focus-visible::after {
+    outline: 2px solid var(--focus-ring, var(--color-brass-light));
+    outline-offset: 4px;
+  }
+
+  @media (hover: hover) {
+    .project-open:hover {
+      color: var(--book-accent);
+    }
+  }
+
+  .project-open-hint {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: var(--book-accent);
+  }
+
+  .project-entry:has(.project-open:is(:hover, :focus-visible)) .nudge-arrow {
+    transform: translateX(4px);
+  }
+
+  /* The details open over the page as a sheet of the book's own paper, headed
+     like a plate. Closed, a dialog is display: none; the transitions on
+     display and overlay keep it shown (and on top) while it fades out. */
+  .project-dialog {
+    --focus-ring: var(--color-brass-ink);
+    width: min(100% - 1.5rem, 46rem);
+    max-width: none;
+    max-height: min(100svh - 1.5rem, 56rem);
+    margin: auto;
+    padding: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    scrollbar-color: rgb(42 31 26 / 0.3) transparent;
+    color: var(--color-ink);
+    background-color: var(--book-paper);
+    background-image: url("/textures/paper-grain.webp");
+    background-blend-mode: multiply;
+    border: 0;
+    border-radius: 1rem;
+    box-shadow:
+      0 1px 0 var(--color-parchment-edge),
+      0 40px 90px -30px rgb(0 0 0 / 0.85);
+    opacity: 0;
+    transform: translateY(1.5rem) scale(0.98);
+    transition:
+      opacity 250ms var(--ease-settle),
+      transform 450ms var(--ease-settle),
+      overlay 450ms allow-discrete,
+      display 450ms allow-discrete;
+  }
+
+  .project-dialog[open] {
+    opacity: 1;
+    transform: none;
+  }
+
+  @starting-style {
+    .project-dialog[open] {
+      opacity: 0;
+      transform: translateY(1.5rem) scale(0.98);
+    }
+  }
+
+  .project-dialog::backdrop {
+    background-color: rgb(14 7 4 / 0.62);
+    opacity: 0;
+    transition:
+      opacity 300ms var(--ease-settle),
+      overlay 300ms allow-discrete,
+      display 300ms allow-discrete;
+  }
+
+  .project-dialog[open]::backdrop {
+    opacity: 1;
+  }
+
+  @starting-style {
+    .project-dialog[open]::backdrop {
+      opacity: 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .project-dialog,
+    .project-dialog[open] {
+      transform: none;
+    }
+
+    @starting-style {
+      .project-dialog[open] {
+        transform: none;
+      }
+    }
+  }
+
+  /* Dark glass, so it reads over the plate heading and the paper below it alike;
+     the focus ring sits inside it for the same reason. */
+  .project-dialog-close {
+    display: grid;
+    place-items: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    margin: 1.1rem 1.1rem 0 0;
+    font-size: 1.6rem;
+    line-height: 1;
+    color: var(--color-parchment-light);
+    background-color: rgb(30 10 12 / 0.6);
+    border: 1px solid rgb(212 178 106 / 0.35);
+    border-radius: 999px;
+    cursor: pointer;
+    transition: background-color 200ms var(--ease-settle);
+  }
+
+  .project-dialog-close:hover {
+    background-color: rgb(30 10 12 / 0.85);
+  }
+
+  .project-dialog-close:focus-visible {
+    outline: 2px solid var(--color-parchment-light);
+    outline-offset: -5px;
+  }
+
+  /* The page behind holds still while the details are open. */
+  html:has(.project-dialog[open]) {
+    overflow: hidden;
+  }
+
   /* ─── Book furniture ────────────────────────────────────────────────────── */
 
   /* An illustration printed under a book's opening lines, as wide as them. */

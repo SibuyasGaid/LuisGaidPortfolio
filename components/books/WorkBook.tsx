@@ -1,10 +1,12 @@
 import { ArchiveEntry } from "@/components/books/ArchiveEntry";
 import { ProjectCard } from "@/components/books/ProjectCard";
+import { ProjectDialogFallback } from "@/components/books/ProjectDialogFallback";
 import { PROJECT_CATEGORY_LABELS } from "@/content/portfolio";
 import { ARCHIVE_SHELVES, FEATURED_PROJECTS } from "@/lib/projects";
 
 // The monograph: full-width plates that alternate sides, then the archive in
-// two columns, a section for each kind of work.
+// two columns, a section for each kind of work. Every project opens a dialog
+// with its full details.
 export function WorkBook() {
   return (
     <div className="space-y-24">
@@ -42,6 +44,7 @@ export function WorkBook() {
           ))}
         </div>
       </section>
+      <ProjectDialogFallback />
     </div>
   );
 }

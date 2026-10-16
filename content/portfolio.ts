@@ -108,6 +108,8 @@ export interface Project {
   readonly badge: ProjectBadge | null;
   readonly problem: string | null;
   readonly solution: string;
+  /** What it does, point by point, listed in the project's details. */
+  readonly features: readonly string[];
   readonly stack: readonly string[];
   /** Shown as a book plate on featured cards; an engraved placeholder stands in until it is added. */
   readonly illustration: ProjectIllustration | null;
@@ -333,6 +335,14 @@ export const PROJECTS = [
       "A book launch meant pitching 80+ podcasts, influencers, and media outlets at once, with follow-ups that were easy to lose in an inbox.",
     solution:
       "Purpose-built CRM for a book launch's publicity: contacts, outreach campaigns, and influencer relationships in one structured place, tracking 80+ contacts across podcasts, influencers, and media. Behind it, 7 Make webhook endpoints handle Gmail reply detection, Sendr video triggers, automated follow-up scheduling, and per-contact automation toggles.",
+    features: [
+      "One home for 80+ podcast, influencer, and media contacts",
+      "Outreach campaigns tracked alongside every relationship",
+      "Gmail reply detection that marks who has written back",
+      "Sendr videos and Bit.ly tracking links built into the outreach",
+      "Automated follow-up scheduling, switchable for each contact",
+      "7 Make webhook endpoints running the automation behind the dashboard",
+    ],
     stack: ["React", "Supabase", "Make", "Gmail API", "Sendr", "Bit.ly"],
     illustration: null,
     link: null,
@@ -348,6 +358,14 @@ export const PROJECTS = [
       "Finding paid keynote opportunities meant trawling event listings by hand and writing a fresh pitch for each one.",
     solution:
       "Lead discovery and opportunity tracking for keynote speakers. An automated pipeline scrapes speaking events via Apify, scores relevance, and generates personalized AI pitch decks; CSV analysis and application tracking turn the results into an organized pipeline, with filtering and “Opens for Application” date handling.",
+    features: [
+      "Automated scraping of speaking events with Apify",
+      "Relevance scoring for every event found",
+      "Personalized AI pitch decks for each opportunity",
+      "CSV analysis for imported event lists",
+      "Application tracking that turns prospects into an organized pipeline",
+      "Filters, plus handling for “Opens for Application” dates",
+    ],
     stack: ["Apify", "OpenAI", "Make", "Supabase"],
     illustration: null,
     link: null,
@@ -362,6 +380,12 @@ export const PROJECTS = [
     problem: null,
     solution:
       "AI-assisted research for a health and wellness podcast: finds guests and episode topics by analyzing online content and how guests perform across platforms, scoring credibility from social proof, media mentions, and audience fit. Supabase edge functions and Make handle the scoring and prioritization.",
+    features: [
+      "Finds guests and episode topics for a health and wellness podcast",
+      "Analyzes each guest's online content and how they perform across platforms",
+      "Credibility scores from social proof, media mentions, and audience fit",
+      "Scoring and prioritization run on Supabase edge functions and Make",
+    ],
     stack: ["Supabase", "Make", "OpenAI", "SerpAPI"],
     illustration: null,
     link: null,
@@ -377,6 +401,13 @@ export const PROJECTS = [
       "Email, calendar, and task admin kept pulling attention away from real work, and it needed handling from anywhere, including hands-free.",
     solution:
       "Dual-interface AI assistant with voice via Vapi and text via Telegram. Handles email management, calendar scheduling, and task automation. Designed for hands-free operation across devices.",
+    features: [
+      "Voice conversations through Vapi, for hands-free use",
+      "Text chat through Telegram",
+      "Email management, by voice or text",
+      "Calendar scheduling",
+      "Task automation running on n8n",
+    ],
     stack: ["Vapi", "Telegram API", "OpenAI", "n8n"],
     illustration: null,
     link: null,
@@ -392,6 +423,13 @@ export const PROJECTS = [
       "Finding sponsors meant researching which software companies were actively advertising, tracking down the right contact, and writing to each one by hand.",
     solution:
       "End-to-end pipeline that pulls active software advertisers from Meta Ad Library, filters by web traffic, finds contact emails via Hunter.io, generates personalized pitches with OpenAI, and sends via Resend. Fully automated on a configurable schedule.",
+    features: [
+      "Pulls software companies actively advertising on Meta Ad Library",
+      "Filters prospects by web traffic",
+      "Finds the right contact email through Hunter.io",
+      "Writes a personalized pitch for each company with OpenAI",
+      "Sends through Resend on a configurable schedule",
+    ],
     stack: ["Meta Ad Library", "Hunter.io", "OpenAI", "Resend"],
     illustration: null,
     link: null,
@@ -406,6 +444,11 @@ export const PROJECTS = [
     problem: null,
     solution:
       "Automated pipeline connecting Meta Lead Ads to the Beehiiv newsletter platform. New lead form submissions are instantly synced as subscribers with proper tagging for segmentation.",
+    features: [
+      "Picks up every new Meta Lead Ads form submission",
+      "Adds each lead to Beehiiv as a subscriber straight away",
+      "Tags new subscribers for segmentation",
+    ],
     stack: ["Meta Ads", "Make", "Beehiiv API"],
     illustration: null,
     link: null,
@@ -420,6 +463,12 @@ export const PROJECTS = [
     problem: null,
     solution:
       "Automated content review workflow for a medical content creator. Pulls new uploads, runs AI analysis via Perplexity and Gemini, and generates review summaries with platform-specific optimization suggestions.",
+    features: [
+      "Picks up new YouTube and Instagram uploads automatically",
+      "AI analysis of each upload with Perplexity and Gemini",
+      "A review summary for every piece of content",
+      "Optimization suggestions specific to each platform",
+    ],
     stack: ["Make", "Perplexity", "Gemini", "YouTube API"],
     illustration: null,
     link: null,
@@ -434,6 +483,12 @@ export const PROJECTS = [
     problem: null,
     solution:
       "Streamlit application for multi-platform social media posting across Instagram, LinkedIn, Facebook, and Twitter. Platform-specific formatting, scheduling, and API integrations with GetLate and Substack.",
+    features: [
+      "Posts to Instagram, LinkedIn, Facebook, and Twitter from one app",
+      "Formats each post for the platform it goes to",
+      "Scheduling for posts ahead of time",
+      "Integrations with GetLate and Substack",
+    ],
     stack: ["Streamlit", "Python", "GetLate", "Substack API"],
     illustration: null,
     link: null,
@@ -448,6 +503,12 @@ export const PROJECTS = [
     problem: null,
     solution:
       "Subscription management automation handling subscriber events with tier-based logic, automated content delivery, and welcome sequences triggered by webhook events.",
+    features: [
+      "Runs on Supercast webhook events as they happen",
+      "Tier-based logic for each subscription level",
+      "Delivers each subscriber's content automatically",
+      "Welcome sequences for new subscribers",
+    ],
     stack: ["Make", "Supercast", "Webhooks"],
     illustration: null,
     link: null,
@@ -462,6 +523,12 @@ export const PROJECTS = [
     problem: null,
     solution:
       "Personalized SMS outreach system triggered by CRM events. Enriches contact data, generates context-aware messages via AI, and tracks response rates for optimization.",
+    features: [
+      "Triggered by events in the CRM",
+      "Enriches contact data before writing",
+      "Context-aware messages written by AI",
+      "Response-rate tracking to tune the outreach",
+    ],
     stack: ["n8n", "OpenAI", "CRM", "SMS API"],
     illustration: null,
     link: null,
@@ -477,6 +544,12 @@ export const PROJECTS = [
       "Customer lists were exported and uploaded to Meta as CSVs by hand, so lookalike audiences went stale between uploads.",
     solution:
       "Automated Custom Audience sync between CRM customer lists and Meta Business Platform. Eliminates manual CSV uploads by auto-updating source audiences, enabling Lookalike Audiences to refresh continuously.",
+    features: [
+      "Syncs CRM customer lists to Meta Custom Audiences automatically",
+      "No more exporting and uploading CSVs by hand",
+      "Source audiences stay current, so Lookalike Audiences keep refreshing",
+      "Runs on n8n with the Meta Marketing API",
+    ],
     stack: ["Meta Marketing API", "n8n", "CRM"],
     illustration: null,
     link: null,
@@ -491,6 +564,12 @@ export const PROJECTS = [
     problem: null,
     solution:
       "One operations dashboard for activity across Stripe, Beehiiv, and shipping: sales, newsletter enrollments, and fulfillment side by side, so operators can spot what's happening and follow each connected process from purchase to delivery.",
+    features: [
+      "Stripe sales, Beehiiv enrollments, and shipping on one dashboard",
+      "Follow each connected process from purchase to delivery",
+      "Activity kept in sync across platforms with webhooks",
+      "Spot what's happening without opening three different tools",
+    ],
     stack: ["React", "TypeScript", "Stripe API", "Beehiiv API", "Webhooks"],
     illustration: null,
     link: null,
@@ -505,6 +584,12 @@ export const PROJECTS = [
     problem: null,
     solution:
       "A studio for creating, organizing, and refining AI prompt templates together with the structured output each one should produce, so content workflows can be rerun and give consistent results.",
+    features: [
+      "Create and organize AI prompt templates in one studio",
+      "Each template keeps the structured output it should produce",
+      "Refine templates as your content needs change",
+      "Reusable prompts for repeatable content workflows",
+    ],
     stack: ["React", "TypeScript", "Tailwind CSS"],
     illustration: null,
     link: null,
@@ -519,6 +604,12 @@ export const PROJECTS = [
     problem: null,
     solution:
       "Create, schedule, and publish social posts and videos across multiple networks from one place, built for creators and teams running a steady multi-channel publishing pipeline.",
+    features: [
+      "Create social posts and videos in one place",
+      "Schedule posts ahead of time",
+      "Publish across multiple networks",
+      "Planning and distribution in a single workflow",
+    ],
     stack: ["React", "TypeScript", "Tailwind CSS"],
     illustration: null,
     link: null,
@@ -533,6 +624,11 @@ export const PROJECTS = [
     problem: null,
     solution:
       "Analytics dashboard that brings views, followers, and content performance from several social platforms into one consolidated view, so it's easy to compare channels and see what's working.",
+    features: [
+      "Metrics from several social platforms on one dashboard",
+      "Views, followers, and content performance",
+      "Compare channels side by side",
+    ],
     stack: ["React", "TypeScript", "Tailwind CSS"],
     illustration: null,
     link: null,
@@ -547,6 +643,11 @@ export const PROJECTS = [
     problem: null,
     solution:
       "A simple form for everything a Make webhook needs to create a podcast page in WordPress, turning a raw automation payload into a publishing workflow anyone on the team can fill in.",
+    features: [
+      "A form for every detail the publishing automation needs",
+      "Sends the details to a Make webhook that builds the podcast page in WordPress",
+      "Lets anyone on the team publish without touching the automation",
+    ],
     stack: ["React", "TypeScript", "Make", "WordPress", "Webhooks"],
     illustration: null,
     link: null,
@@ -561,6 +662,12 @@ export const PROJECTS = [
     problem: null,
     solution:
       "Two prototypes bringing an existing Streamlit and Python image-processing tool into the browser: working out what the original code does, then shaping it into a web interface that's easier to pick up.",
+    features: [
+      "Started from an existing Streamlit and Python image-processing tool",
+      "Works out what the original code does before rebuilding it",
+      "Two browser prototypes of the same tool",
+      "A web interface that's easier to pick up than the original",
+    ],
     stack: ["Python", "Streamlit", "React", "TypeScript"],
     illustration: null,
     link: null,
@@ -575,6 +682,12 @@ export const PROJECTS = [
     problem: null,
     solution:
       "Request and status tracking for project work: what's outstanding, what's been done, and what still needs attention, visible at a glance to everyone on the project.",
+    features: [
+      "Every outstanding request in one list",
+      "A clear status on each request",
+      "Completed work kept on record",
+      "Highlights what still needs attention",
+    ],
     stack: ["React", "TypeScript", "Tailwind CSS"],
     illustration: null,
     link: null,
@@ -589,6 +702,12 @@ export const PROJECTS = [
     problem: null,
     solution:
       "Contract generation and management for service agreements: upload templates, edit agreements, collect e-signatures, and handle invoicing, all the steps of agreement admin in one tool.",
+    features: [
+      "Upload your own contract templates",
+      "Edit agreements in the app",
+      "Collect e-signatures",
+      "Invoicing alongside the agreement",
+    ],
     stack: ["React", "TypeScript", "Tailwind CSS"],
     illustration: null,
     link: null,
@@ -603,6 +722,11 @@ export const PROJECTS = [
     problem: null,
     solution:
       "Contract management site with separate experiences for clients and administrators: a client-facing area for their agreements, and an admin view for managing them.",
+    features: [
+      "A client-facing area for each client's agreements",
+      "A separate admin view for managing contracts",
+      "Role-separated access, with prototype-level sign-in for now",
+    ],
     stack: ["React", "TypeScript", "Tailwind CSS"],
     illustration: null,
     link: null,
@@ -617,6 +741,12 @@ export const PROJECTS = [
     problem: null,
     solution:
       "Keyword research for medical and health content: connects keyword research services and uses search volume and related keywords to surface topics with real search potential.",
+    features: [
+      "Connects to keyword research services",
+      "Search volume for each keyword",
+      "Related keyword suggestions",
+      "Surfaces medical and health topics worth writing about",
+    ],
     stack: ["React", "TypeScript", "Keyword research APIs"],
     illustration: null,
     link: null,
@@ -631,6 +761,12 @@ export const PROJECTS = [
     problem: null,
     solution:
       "AI-powered early screening method for breast cancer using thermographic imaging and computer vision. Champion of the DOST Scholar's Technopreneurship Training Program (STTP) competition.",
+    features: [
+      "Early breast cancer screening from thermographic images",
+      "No contact and no radiation, unlike a mammogram",
+      "Computer vision with a CNN classifier",
+      "Champion of the DOST STTP competition in 2025",
+    ],
     stack: ["Thermography", "Computer Vision", "CNN"],
     illustration: null,
     link: null,
@@ -646,6 +782,13 @@ export const PROJECTS = [
       "Diabetic nerve damage in the feet is often caught late, when it is harder to treat.",
     solution:
       "Early screening system for Diabetic Peripheral Neuropathy using AI analysis of thermographic scans of the plantar surface. CNN classification model running on ESP32-S3 with AWS IoT Core integration and a PyQt5 desktop interface.",
+    features: [
+      "Screens for diabetic peripheral neuropathy from thermal scans of the feet",
+      "CNN classifier running on an ESP32-S3",
+      "AWS IoT Core integration",
+      "PyQt5 desktop interface",
+      "My BS Computer Engineering thesis",
+    ],
     stack: ["ESP32-S3", "TensorFlow/CNN", "AWS IoT", "PyQt5", "OpenCV"],
     illustration: null,
     link: null,
@@ -660,6 +803,13 @@ export const PROJECTS = [
     problem: null,
     solution:
       "AI-powered platform using Sentinel-2 satellite imagery to map, measure, and monetize seagrass carbon stocks across Southeast Asia. Built for the AI ASEAN READY Youth Challenge 2026. Later reframed as a fisher-first community empowerment tool.",
+    features: [
+      "Maps seagrass meadows from Sentinel-2 satellite imagery",
+      "Estimates the blue carbon they store",
+      "Built on Google Earth Engine and deep learning",
+      "Later reframed as a fisher-first community tool",
+      "Entry to the AI ASEAN READY Youth Challenge 2026",
+    ],
     stack: ["Sentinel-2", "Google Earth Engine", "Deep Learning", "Blue Carbon"],
     illustration: null,
     link: null,
@@ -674,6 +824,12 @@ export const PROJECTS = [
     problem: null,
     solution:
       "Machine learning pipeline for translating Akkadian cuneiform script using ByT5 transformer models. Built for the Deep Past Challenge on Kaggle as part of CPE432 coursework.",
+    features: [
+      "Translates Akkadian cuneiform with ByT5 transformer models",
+      "Byte-level models, suited to an ancient script",
+      "Entry to the Deep Past Challenge on Kaggle",
+      "Part of my CPE432 coursework",
+    ],
     stack: ["ByT5", "Hugging Face", "Kaggle", "NLP"],
     illustration: null,
     link: null,
