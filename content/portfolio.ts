@@ -79,9 +79,9 @@ export interface IntroCopy {
   readonly rewind: string;
 }
 
-export type ProjectCategory = "automation" | "engineering";
+export type ProjectCategory = "automation" | "creator-tools" | "operations" | "engineering";
 
-export type ProjectBadgeKind = "production" | "competition" | "award" | "research";
+export type ProjectBadgeKind = "production" | "prototype" | "competition" | "award" | "research";
 
 export interface ProjectBadge {
   readonly kind: ProjectBadgeKind;
@@ -313,38 +313,41 @@ export const ABOUT_FACTS: readonly Fact[] = [
 
 export const PROJECT_CATEGORY_LABELS: Record<ProjectCategory, string> = {
   automation: "AI Automation",
+  "creator-tools": "Content & Creator Tools",
+  operations: "Business Operations",
   engineering: "Engineering / Research",
 };
 
 const PRODUCTION_BADGE: ProjectBadge = { kind: "production", label: "Production" };
+const PROTOTYPE_BADGE: ProjectBadge = { kind: "prototype", label: "Prototype" };
 const COMPETITION_BADGE: ProjectBadge = { kind: "competition", label: "Competition" };
 
 export const PROJECTS = [
   {
     id: "book-launch-pr-dashboard",
-    title: "Book Launch PR Dashboard",
-    subtitle: "Multi-Track Media Outreach",
-    category: "automation",
+    title: "Launch Companion",
+    subtitle: "Book Launch PR CRM",
+    category: "creator-tools",
     badge: PRODUCTION_BADGE,
     problem:
       "A book launch meant pitching 80+ podcasts, influencers, and media outlets at once, with follow-ups that were easy to lose in an inbox.",
     solution:
-      "Multi-track PR outreach system managing 80+ contacts across podcasts, influencers, and media. 7 Make webhook endpoints with Gmail reply detection, Sendr video triggers, automated follow-up scheduling, and per-contact automation toggles.",
-    stack: ["Make", "Supabase", "Gmail API", "Sendr", "Bit.ly"],
+      "Purpose-built CRM for a book launch's publicity: contacts, outreach campaigns, and influencer relationships in one structured place, tracking 80+ contacts across podcasts, influencers, and media. Behind it, 7 Make webhook endpoints handle Gmail reply detection, Sendr video triggers, automated follow-up scheduling, and per-contact automation toggles.",
+    stack: ["React", "Supabase", "Make", "Gmail API", "Sendr", "Bit.ly"],
     illustration: null,
     link: null,
     isFeatured: true,
   },
   {
     id: "speakradar",
-    title: "SpeakRadar",
+    title: "Speak Radar",
     subtitle: "Keynote Speaking Opportunity Finder",
-    category: "automation",
+    category: "creator-tools",
     badge: PRODUCTION_BADGE,
     problem:
-      "Finding keynote opportunities meant trawling event listings by hand and writing a fresh pitch for each one.",
+      "Finding paid keynote opportunities meant trawling event listings by hand and writing a fresh pitch for each one.",
     solution:
-      "Automated pipeline that scrapes speaking events via Apify, scores relevance, and generates personalized AI pitch decks. Surfaces opportunities in a custom dashboard with filtering, application tracking, and “Opens for Application” date handling.",
+      "Lead discovery and opportunity tracking for keynote speakers. An automated pipeline scrapes speaking events via Apify, scores relevance, and generates personalized AI pitch decks; CSV analysis and application tracking turn the results into an organized pipeline, with filtering and “Opens for Application” date handling.",
     stack: ["Apify", "OpenAI", "Make", "Supabase"],
     illustration: null,
     link: null,
@@ -353,12 +356,12 @@ export const PROJECTS = [
   {
     id: "guest-radar",
     title: "Guest Radar",
-    subtitle: "Podcast Guest Credibility Scorer",
-    category: "automation",
+    subtitle: "Podcast Guest and Topic Research",
+    category: "creator-tools",
     badge: PRODUCTION_BADGE,
     problem: null,
     solution:
-      "Research pipeline that scores podcast guest credibility by aggregating social proof, media mentions, and audience fit. Built with Supabase edge functions and Make for real-time scoring and prioritization.",
+      "AI-assisted research for a health and wellness podcast: finds guests and episode topics by analyzing online content and how guests perform across platforms, scoring credibility from social proof, media mentions, and audience fit. Supabase edge functions and Make handle the scoring and prioritization.",
     stack: ["Supabase", "Make", "OpenAI", "SerpAPI"],
     illustration: null,
     link: null,
@@ -478,6 +481,146 @@ export const PROJECTS = [
     illustration: null,
     link: null,
     isFeatured: true,
+  },
+  {
+    id: "workflow-watcher",
+    title: "Workflow Watcher",
+    subtitle: "Cross-Platform Operations Dashboard",
+    category: "creator-tools",
+    badge: null,
+    problem: null,
+    solution:
+      "One operations dashboard for activity across Stripe, Beehiiv, and shipping: sales, newsletter enrollments, and fulfillment side by side, so operators can spot what's happening and follow each connected process from purchase to delivery.",
+    stack: ["React", "TypeScript", "Stripe API", "Beehiiv API", "Webhooks"],
+    illustration: null,
+    link: null,
+    isFeatured: false,
+  },
+  {
+    id: "prompt-builder-studio",
+    title: "Prompt Builder Studio",
+    subtitle: "Reusable Prompt Templates",
+    category: "creator-tools",
+    badge: null,
+    problem: null,
+    solution:
+      "A studio for creating, organizing, and refining AI prompt templates together with the structured output each one should produce, so content workflows can be rerun and give consistent results.",
+    stack: ["React", "TypeScript", "Tailwind CSS"],
+    illustration: null,
+    link: null,
+    isFeatured: false,
+  },
+  {
+    id: "content-creator-studio",
+    title: "Content Creator Studio",
+    subtitle: "Multi-Network Publishing Hub",
+    category: "creator-tools",
+    badge: null,
+    problem: null,
+    solution:
+      "Create, schedule, and publish social posts and videos across multiple networks from one place, built for creators and teams running a steady multi-channel publishing pipeline.",
+    stack: ["React", "TypeScript", "Tailwind CSS"],
+    illustration: null,
+    link: null,
+    isFeatured: false,
+  },
+  {
+    id: "social-spark-analytics",
+    title: "Social Spark Analytics",
+    subtitle: "Cross-Platform Social Reporting",
+    category: "creator-tools",
+    badge: null,
+    problem: null,
+    solution:
+      "Analytics dashboard that brings views, followers, and content performance from several social platforms into one consolidated view, so it's easy to compare channels and see what's working.",
+    stack: ["React", "TypeScript", "Tailwind CSS"],
+    illustration: null,
+    link: null,
+    isFeatured: false,
+  },
+  {
+    id: "podcast-publisher-ui",
+    title: "Podcast Publisher UI",
+    subtitle: "Front End for a WordPress Publishing Automation",
+    category: "creator-tools",
+    badge: null,
+    problem: null,
+    solution:
+      "A simple form for everything a Make webhook needs to create a podcast page in WordPress, turning a raw automation payload into a publishing workflow anyone on the team can fill in.",
+    stack: ["React", "TypeScript", "Make", "WordPress", "Webhooks"],
+    illustration: null,
+    link: null,
+    isFeatured: false,
+  },
+  {
+    id: "content-creator-suite",
+    title: "Content Creator Suite",
+    subtitle: "A Python Creative Tool, Rebuilt for the Browser",
+    category: "creator-tools",
+    badge: PROTOTYPE_BADGE,
+    problem: null,
+    solution:
+      "Two prototypes bringing an existing Streamlit and Python image-processing tool into the browser: working out what the original code does, then shaping it into a web interface that's easier to pick up.",
+    stack: ["Python", "Streamlit", "React", "TypeScript"],
+    illustration: null,
+    link: null,
+    isFeatured: false,
+  },
+  {
+    id: "request-tracker",
+    title: "Request Tracker",
+    subtitle: "Project Requests and Status",
+    category: "operations",
+    badge: null,
+    problem: null,
+    solution:
+      "Request and status tracking for project work: what's outstanding, what's been done, and what still needs attention, visible at a glance to everyone on the project.",
+    stack: ["React", "TypeScript", "Tailwind CSS"],
+    illustration: null,
+    link: null,
+    isFeatured: false,
+  },
+  {
+    id: "contract-creator-pro",
+    title: "Contract Creator Pro",
+    subtitle: "Service Agreements, Start to Finish",
+    category: "operations",
+    badge: null,
+    problem: null,
+    solution:
+      "Contract generation and management for service agreements: upload templates, edit agreements, collect e-signatures, and handle invoicing, all the steps of agreement admin in one tool.",
+    stack: ["React", "TypeScript", "Tailwind CSS"],
+    illustration: null,
+    link: null,
+    isFeatured: false,
+  },
+  {
+    id: "contract-hub",
+    title: "Contract Hub",
+    subtitle: "Client and Admin Contract Portal",
+    category: "operations",
+    badge: PROTOTYPE_BADGE,
+    problem: null,
+    solution:
+      "Contract management site with separate experiences for clients and administrators: a client-facing area for their agreements, and an admin view for managing them.",
+    stack: ["React", "TypeScript", "Tailwind CSS"],
+    illustration: null,
+    link: null,
+    isFeatured: false,
+  },
+  {
+    id: "medical-keyword-finder",
+    title: "Medical Keyword Finder",
+    subtitle: "SEO Research for Health Content",
+    category: "operations",
+    badge: null,
+    problem: null,
+    solution:
+      "Keyword research for medical and health content: connects keyword research services and uses search volume and related keywords to surface topics with real search potential.",
+    stack: ["React", "TypeScript", "Keyword research APIs"],
+    illustration: null,
+    link: null,
+    isFeatured: false,
   },
   {
     id: "mammoscan",

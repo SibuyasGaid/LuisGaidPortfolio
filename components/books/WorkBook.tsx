@@ -1,8 +1,10 @@
 import { ArchiveEntry } from "@/components/books/ArchiveEntry";
 import { ProjectCard } from "@/components/books/ProjectCard";
-import { ARCHIVED_PROJECTS, FEATURED_PROJECTS } from "@/lib/projects";
+import { PROJECT_CATEGORY_LABELS } from "@/content/portfolio";
+import { ARCHIVE_SHELVES, FEATURED_PROJECTS } from "@/lib/projects";
 
-// The monograph: full-width plates that alternate sides, then a two-column archive.
+// The monograph: full-width plates that alternate sides, then the archive in
+// two columns, a section for each kind of work.
 export function WorkBook() {
   return (
     <div className="space-y-24">
@@ -23,13 +25,22 @@ export function WorkBook() {
         <h2 id="work-archive-title" className="section-label">
           From the archive
         </h2>
-        <ul className="mt-4 grid gap-x-14 border-t border-ink/10 lg:grid-cols-2">
-          {ARCHIVED_PROJECTS.map((project) => (
-            <li key={project.id} className="border-b border-ink/10">
-              <ArchiveEntry project={project} />
-            </li>
+        <div className="mt-6 space-y-14">
+          {ARCHIVE_SHELVES.map(({ category, projects }) => (
+            <section key={category} aria-labelledby={`work-archive-${category}`}>
+              <h3 id={`work-archive-${category}`} className="font-display text-[1.6rem] font-medium italic text-ink-soft">
+                {PROJECT_CATEGORY_LABELS[category]}
+              </h3>
+              <ul className="mt-3 grid gap-x-14 border-t border-ink/10 lg:grid-cols-2">
+                {projects.map((project) => (
+                  <li key={project.id} className="border-b border-ink/10">
+                    <ArchiveEntry project={project} />
+                  </li>
+                ))}
+              </ul>
+            </section>
           ))}
-        </ul>
+        </div>
       </section>
     </div>
   );
