@@ -1,5 +1,6 @@
 import { Vector3, type PerspectiveCamera } from "three";
 import { AISLE, CAMERA_PATH, type ShelfPose } from "@/lib/library/webgl/libraryLayout";
+import { WALK_STEP_FREQUENCY_HZ } from "@/lib/motion/config";
 
 /** Where the walk is at one moment. */
 export interface WalkState {
@@ -11,7 +12,6 @@ export interface WalkState {
   readonly elapsed: number;
 }
 
-const STEP_FREQUENCY_HZ = 1.8;
 /** How far the eye rises with each step, and sways from foot to foot, in metres. */
 const STEP_RISE = 0.022;
 const STEP_SWAY = 0.011;
@@ -43,7 +43,7 @@ export function poseCamera(camera: PerspectiveCamera, state: WalkState, shelf: S
   const turnStart = -AISLE.length + TURN_LEAD;
   const turn = smoothstep((turnStart - z) / (turnStart - stopZ));
 
-  const phase = state.elapsed * STEP_FREQUENCY_HZ * Math.PI * 2;
+  const phase = state.elapsed * WALK_STEP_FREQUENCY_HZ * Math.PI * 2;
   const rise = ((1 - Math.cos(phase)) / 2) * STEP_RISE * state.stride;
   const sway = Math.sin(phase / 2) * STEP_SWAY * state.stride;
   const eyeHeight = CAMERA_PATH.eyeHeight + (shelf.position.y - CAMERA_PATH.eyeHeight) * turn;

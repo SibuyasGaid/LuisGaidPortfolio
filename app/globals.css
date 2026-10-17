@@ -664,6 +664,84 @@
     transform: translateX(-4px);
   }
 
+  /* ─── Sound ─────────────────────────────────────────────────────────────── */
+
+  /* The navbar's sound button. */
+  .sound-toggle {
+    --focus-ring: var(--color-brass-light);
+    display: inline-grid;
+    flex-shrink: 0;
+    place-items: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    color: var(--color-smoke);
+    border: 1px solid rgb(212 178 106 / 0.3);
+    border-radius: 999px;
+    cursor: pointer;
+    transition: color 300ms var(--ease-settle), border-color 300ms var(--ease-settle);
+  }
+
+  .sound-toggle:hover,
+  .sound-toggle[aria-pressed="true"] {
+    color: var(--color-brass-light);
+  }
+
+  .sound-toggle:hover {
+    border-color: rgb(212 178 106 / 0.6);
+  }
+
+  /* Four bars that dance while sound plays and lie flat while it is off. */
+  .sound-bars {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    height: 0.875rem;
+  }
+
+  .sound-bars > span {
+    width: 2px;
+    height: 100%;
+    background-color: currentColor;
+    border-radius: 1px;
+    transform: scaleY(0.2);
+    transition: transform 400ms var(--ease-settle);
+  }
+
+  [aria-pressed="true"] > .sound-bars > span {
+    animation: sound-bar 900ms ease-in-out infinite alternate;
+  }
+
+  [aria-pressed="true"] > .sound-bars > span:nth-child(2) {
+    animation-duration: 700ms;
+    animation-delay: -300ms;
+  }
+
+  [aria-pressed="true"] > .sound-bars > span:nth-child(3) {
+    animation-duration: 1100ms;
+    animation-delay: -600ms;
+  }
+
+  [aria-pressed="true"] > .sound-bars > span:nth-child(4) {
+    animation-duration: 800ms;
+    animation-delay: -150ms;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    [aria-pressed="true"] > .sound-bars > span {
+      animation: none;
+      transform: scaleY(0.8);
+    }
+
+    [aria-pressed="true"] > .sound-bars > span:nth-child(odd) {
+      transform: scaleY(0.5);
+    }
+  }
+
+  /* No JavaScript, no sound, so no button for it. */
+  html:not([data-intro]) [data-sound-toggle] {
+    display: none;
+  }
+
   /* ─── Project details ───────────────────────────────────────────────────── */
 
   /* A project's title is the button that opens its details. Its ::after
@@ -957,6 +1035,23 @@
 
   .site-menu-button::-webkit-details-marker {
     display: none;
+  }
+
+  /* On the narrowest phones the navbar's buttons draw in a little, so the sound button fits beside the logo. */
+  @media (max-width: 22.4rem) {
+    .sound-toggle {
+      width: 2.125rem;
+      height: 2.125rem;
+    }
+
+    .site-nav-cta {
+      padding-inline: 0.75rem;
+    }
+
+    .site-menu-button {
+      gap: 0.45rem;
+      padding-inline: 0.7rem;
+    }
   }
 
   /* Two bars that cross into a close mark when the menu is open. */
@@ -1983,13 +2078,30 @@ html[data-intro="play"] :is([data-masthead], .library-scene-shade, .library-hero
   }
 }
 
+@keyframes sound-bar {
+  from {
+    transform: scaleY(0.3);
+  }
+
+  to {
+    transform: scaleY(1);
+  }
+}
+
 /* ─── Skip control ───────────────────────────────────────────────────────── */
 
-.intro-skip {
-  --focus-ring: var(--color-brass-light);
+/* The sound and skip buttons, together in the top corner. */
+.intro-controls {
   position: absolute;
   top: 1.25rem;
   right: 1.25rem;
+  display: flex;
+  gap: 0.6rem;
+}
+
+.intro-skip,
+.intro-sound {
+  --focus-ring: var(--color-brass-light);
   display: inline-flex;
   align-items: center;
   gap: 0.6rem;
@@ -2001,10 +2113,12 @@ html[data-intro="play"] :is([data-masthead], .library-scene-shade, .library-hero
   color: rgb(239 230 210 / 0.92);
   font-size: 0.875rem;
   font-weight: 500;
+  cursor: pointer;
   transition: border-color 250ms var(--ease-settle), color 250ms var(--ease-settle);
 }
 
-.intro-skip:hover {
+.intro-skip:hover,
+.intro-sound:hover {
   border-color: rgb(212 178 106 / 0.8);
   color: #fff;
 }
@@ -2020,7 +2134,7 @@ html[data-intro="play"] :is([data-masthead], .library-scene-shade, .library-hero
 }
 
 @media (min-width: 40rem) {
-  .intro-skip {
+  .intro-controls {
     top: 1.75rem;
     right: 2rem;
   }

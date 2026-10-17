@@ -76,6 +76,8 @@ export const INTRO_PROGRESS = {
 export const INTRO_WALK_SECONDS = 6.4;
 /** Shares of the walk spent setting off and slowing to a stop; the rest is an even stride. */
 export const INTRO_WALK_PHASES = { setOff: 0.18, arrive: 0.4 } as const;
+/** Steps a second down the aisle: the eye bobs, and a footstep lands, at this pace. */
+export const WALK_STEP_FREQUENCY_HZ = 1.8;
 
 export const INTRO_TIMINGS = {
   welcomeExit: 0.7,

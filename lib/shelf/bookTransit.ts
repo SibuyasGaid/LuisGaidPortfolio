@@ -14,6 +14,7 @@ import {
 import { gsap } from "@/lib/motion/gsap";
 import type { OpenSpread, ScreenBox, ShelfLayer } from "@/lib/shelf/openSpread";
 import { fitTitlePage, renderTitlePageText } from "@/lib/shelf/titlePage";
+import { playCue } from "@/lib/sound/sound";
 
 // A titled book as a solid object drawn in CSS 3D: a spine, covers, page
 // edges and a hinged front cover. Where the WebGL library does not run, this
@@ -259,6 +260,7 @@ export function takeBookOff(options: { readonly bookId: BookId; readonly slot: D
   const timeline = gsap.timeline();
   timeline
     .addLabel("pull")
+    .call(playCue, ["bookSlide", { duration: timings.pull }], "pull")
     .to(parts.gap, { opacity: 1, duration: 0.12, ease: "none" }, "pull")
     .to(
       parts.book,
@@ -274,6 +276,7 @@ export function takeBookOff(options: { readonly bookId: BookId; readonly slot: D
     // Turning away from the lamp darkens the spine; the cover comes out of the
     // shelf's shadow into the light, catching a glint as it passes the lamp.
     .addLabel("turn", `pull+=${timings.pull - 0.05}`)
+    .call(playCue, ["bookTurn", { duration: timings.turn }], "turn")
     .to(
       parts.book,
       {
@@ -296,6 +299,7 @@ export function takeBookOff(options: { readonly bookId: BookId; readonly slot: D
     .fromTo(parts.sheen, { opacity: 0 }, { opacity: 0.45, duration: timings.turn * 0.5, ease: "sine.in" }, "turn+=0.15")
     .to(parts.sheen, { opacity: 0, duration: timings.turn * 0.45, ease: "sine.out" }, `turn+=${0.15 + timings.turn * 0.5}`)
     .addLabel("open", `turn+=${timings.turn - 0.08}`)
+    .call(playCue, ["coverOpen", { duration: timings.open }], "open")
     .to(parts.cover, { rotationY: BOOK_TRANSIT_OPEN_DEGREES, duration: timings.open, ease: BOOK_TRANSIT_EASES.open }, "open")
     .fromTo(parts.insideShade, { opacity: 0.45 }, { opacity: 0, duration: timings.open, ease: "power1.out" }, "open")
     .call(open, [], `open+=${timings.open * 0.35}`);
@@ -347,9 +351,11 @@ export function openBookToReturn(options: { readonly bookId: BookId; readonly sl
       const timeline = gsap.timeline();
       timeline
         .addLabel("close")
+        .call(playCue, ["coverClose", { duration: timings.open * 0.85 }], "close")
         .to(parts.cover, { rotationY: 0, duration: timings.open * 0.85, ease: BOOK_TRANSIT_EASES.open }, "close")
         .to(parts.insideShade, { opacity: 0.45, duration: timings.open * 0.85, ease: "power1.in" }, "close")
         .addLabel("turn", `close+=${timings.open * 0.75}`)
+        .call(playCue, ["bookTurn", { duration: timings.turn }], "turn")
         .to(
           parts.book,
           {
@@ -369,6 +375,7 @@ export function openBookToReturn(options: { readonly bookId: BookId; readonly sl
         .to(parts.hiddenFaces, { opacity: 0, duration: timings.turn * 0.25, ease: "power1.in" }, `turn+=${timings.turn * 0.7}`)
         .fromTo(parts.spineShade, { opacity: 0.6 }, { opacity: 0, duration: timings.turn, ease: "power1.out" }, "turn")
         .addLabel("push", `turn+=${timings.turn}`)
+        .call(playCue, ["bookHome", { duration: timings.pull }], "push")
         .to(
           parts.book,
           { y: 0, z: (geometry.width / 2) * (1 - geometry.startScale), rotationX: 0, duration: timings.pull, ease: "power2.inOut" },

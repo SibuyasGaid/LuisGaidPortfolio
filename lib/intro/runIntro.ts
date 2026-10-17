@@ -36,7 +36,7 @@ function runRewind(elements: IntroElements): RunningIntro {
   const variant = chooseIntroVariant();
   const library = getLoadedLibrary();
   // Whatever the last run left on the overlay goes; the card and backdrop start unseen.
-  gsap.set([elements.welcome, elements.backdrop, elements.skip, elements.progressFill], { clearProps: "all" });
+  gsap.set([elements.welcome, elements.backdrop, elements.controls, elements.progressFill], { clearProps: "all" });
   gsap.set([elements.welcome, elements.backdrop], { opacity: 0 });
   createWelcomeProgress(elements.progressBar, elements.progressFill, elements.status).advance(1, INTRO.statuses.ready);
   let playback: IntroPlayback;

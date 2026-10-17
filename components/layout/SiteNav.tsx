@@ -3,6 +3,7 @@
 import { usePathname } from "next/navigation";
 import { useEffect, useRef } from "react";
 import { ShelfLink } from "@/components/library/ShelfLink";
+import { SoundToggle } from "@/components/sound/SoundToggle";
 import { BOOKS, LIBRARY, type BookId } from "@/content/portfolio";
 import { getBook, getBookHref } from "@/lib/books";
 
@@ -80,6 +81,7 @@ export function SiteNav() {
           </li>
         ))}
       </ul>
+      <SoundToggle className="sound-toggle" />
       <ShelfLink href={CONTACT_ITEM.href} bookId={CONTACT_ITEM.bookId} aria-current={currentFor(CONTACT_ITEM.href)} className="site-nav-cta">
         {CONTACT_ITEM.label}
       </ShelfLink>

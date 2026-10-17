@@ -1,5 +1,6 @@
 import { IntroDirector } from "@/components/intro/IntroDirector";
 import { Monogram } from "@/components/ornaments/Monogram";
+import { SoundToggle } from "@/components/sound/SoundToggle";
 import { INTRO, PROFILE } from "@/content/portfolio";
 
 // The first visit's opening. The welcome screen is server-rendered, so it is
@@ -31,10 +32,14 @@ export function LibraryIntro() {
           {INTRO.statuses.opening}
         </p>
       </div>
-      <button type="button" data-skip-intro className="intro-skip">
-        {INTRO.skip}
-        <kbd className="intro-skip-key">Esc</kbd>
-      </button>
+      <div className="intro-controls" data-intro-controls>
+        {/* The page behind is out of reach while the intro plays, so sound can be turned on here too. */}
+        <SoundToggle className="intro-sound" isLabelShown />
+        <button type="button" data-skip-intro className="intro-skip">
+          {INTRO.skip}
+          <kbd className="intro-skip-key">Esc</kbd>
+        </button>
+      </div>
       <IntroDirector />
     </div>
   );

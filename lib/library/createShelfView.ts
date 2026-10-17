@@ -13,6 +13,7 @@ import {
 } from "@/lib/motion/config";
 import { gsap } from "@/lib/motion/gsap";
 import type { OpenSpread, ScreenBox } from "@/lib/shelf/openSpread";
+import { playCue } from "@/lib/sound/sound";
 
 // The view of the grand bookcase. The camera rests where the walk ended and
 // drifts a little with the pointer; a book named in the navbar slides forward
@@ -262,6 +263,9 @@ export function createShelfView(scene: LibraryScene, options: { readonly isMotio
     motion.direction = "out";
     motion.timeline = gsap
       .timeline({ onComplete: done })
+      .call(playCue, ["bookSlide", { duration: timings.pull }], 0)
+      .call(playCue, ["bookTurn", { duration: timings.turn }], timings.turnAt)
+      .call(playCue, ["coverOpen", { duration: timings.open }], timings.openAt)
       .to(state, { pull: 1, duration: timings.pull, ease: "power2.out" }, 0)
       .to(state, { camera: 1, duration: timings.approach, ease: "power2.inOut" }, 0)
       .to(state, { turn: 1, duration: timings.turn, ease: "power3.inOut" }, timings.turnAt)
@@ -279,6 +283,9 @@ export function createShelfView(scene: LibraryScene, options: { readonly isMotio
     motion.direction = "back";
     motion.timeline = gsap
       .timeline({ onComplete: done })
+      .call(playCue, ["coverClose", { duration: timings.open }], 0)
+      .call(playCue, ["bookTurn", { duration: timings.turn }], turnAt)
+      .call(playCue, ["bookHome", { duration: timings.pull }], pushAt)
       .to(state, { open: 0, duration: timings.open, ease: "power2.inOut" }, 0)
       .to(state, { turn: 0, duration: timings.turn, ease: "power3.inOut" }, turnAt)
       .to(state, { pull: 0, duration: timings.pull, ease: "power2.inOut" }, pushAt)

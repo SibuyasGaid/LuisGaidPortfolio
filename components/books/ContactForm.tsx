@@ -9,6 +9,7 @@ import {
   type ContactFieldErrors,
   type ContactResponse,
 } from "@/lib/contact/contactMessage";
+import { playCue } from "@/lib/sound/sound";
 
 type FormStatus = "idle" | "sending" | "sent" | "network-error" | "failed" | "unavailable";
 
@@ -94,6 +95,7 @@ export function ContactForm() {
     if (result.status === "sent") {
       setSenderName(validation.message.name);
       form.reset();
+      playCue("letterSent");
     }
     setStatus(result.status);
   }
