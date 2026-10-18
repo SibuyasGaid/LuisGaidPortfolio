@@ -120,6 +120,12 @@ export interface Project {
   readonly isFeatured: boolean;
 }
 
+/** A short aside at the top of the Work book about what it can and can't show. */
+export interface WorkNote {
+  readonly title: string;
+  readonly paragraphs: readonly string[];
+}
+
 export interface Service {
   readonly id: string;
   readonly title: string;
@@ -320,6 +326,17 @@ export const PROJECT_CATEGORY_LABELS: Record<ProjectCategory, string> = {
   "creator-tools": "Content & Creator Tools",
   operations: "Business Operations",
   engineering: "Engineering / Research",
+};
+
+/** Client projects under NDA, which the Work book counts but can't describe. */
+export const NDA_PROJECT_COUNT = 63;
+
+export const WORK_NOTE: WorkNote = {
+  title: "A note on what's here",
+  paragraphs: [
+    `These are the projects I can show. There are ${NDA_PROJECT_COUNT} more I can't, since they're under NDA.`,
+    "Client projects without a link were built for that client alone, so I can share what they do but not the build or dashboard itself.",
+  ],
 };
 
 const PRODUCTION_BADGE: ProjectBadge = { kind: "production", label: "Production" };
