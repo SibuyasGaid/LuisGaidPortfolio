@@ -18,19 +18,35 @@ export function LibraryIntro() {
         <p className="intro-welcome-eyebrow eyebrow">{INTRO.welcome}</p>
         <p className="intro-welcome-name">{PROFILE.fullName}</p>
         <p className="intro-welcome-headline">{PROFILE.headline}</p>
-        <div
-          className="intro-progress"
-          data-intro-progress
-          role="progressbar"
-          aria-label={INTRO.progressLabel}
-          aria-valuemin={0}
-          aria-valuemax={100}
-        >
-          <span className="intro-progress-fill" data-intro-progress-fill />
+        {/* The loading bar and its status, and in the same place once the library is ready, the way in. */}
+        <div className="intro-gate">
+          <div className="intro-loading">
+            <div
+              className="intro-progress"
+              data-intro-progress
+              role="progressbar"
+              aria-label={INTRO.progressLabel}
+              aria-valuemin={0}
+              aria-valuemax={100}
+            >
+              <span className="intro-progress-fill" data-intro-progress-fill />
+            </div>
+            <p className="intro-welcome-status" data-intro-status aria-live="polite">
+              {INTRO.statuses.opening}
+            </p>
+          </div>
+          <div className="intro-entry">
+            <button type="button" data-intro-enter className="intro-enter">
+              {INTRO.enter}
+              <span aria-hidden="true" className="nudge-arrow">
+                →
+              </span>
+            </button>
+            <button type="button" data-intro-enter-silently data-sound-choice className="intro-enter-silently">
+              {INTRO.enterSilently}
+            </button>
+          </div>
         </div>
-        <p className="intro-welcome-status" data-intro-status aria-live="polite">
-          {INTRO.statuses.opening}
-        </p>
       </div>
       <div className="intro-controls" data-intro-controls>
         {/* The page behind is out of reach while the intro plays, so sound can be turned on here too. */}

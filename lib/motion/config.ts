@@ -59,8 +59,12 @@ export const LOW_END_REVEAL_ANIMATION: RevealAnimation = {
 
 /** The welcome screen shows at least this long, so it reads as a greeting rather than a flash. */
 export const INTRO_WELCOME_MIN_SECONDS = 1.8;
-/** If the library is not ready by then, the welcome screen gives way to the site. */
+/** If the library is not ready by then, the welcome screen offers the way in anyway, and the library fades up when it is. */
 export const INTRO_LOAD_TIMEOUT_SECONDS = 10;
+/** A beat between the visitor's click and the welcome card stepping aside, while the sound wakes. */
+export const INTRO_ENTRY_PAUSE_SECONDS = 0.15;
+/** From the click in, the intro should be long over by now; if it is not, something failed and it ends. */
+export const INTRO_AFTER_ENTRY_MAX_SECONDS = 20;
 
 /**
  * Where the progress bar stands at each stage of loading. While the WebGL

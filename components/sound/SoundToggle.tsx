@@ -26,6 +26,7 @@ export function SoundToggle({ className, isLabelShown = false }: SoundToggleProp
     <button
       type="button"
       data-sound-toggle
+      data-sound-choice
       data-sound-state={state}
       aria-pressed={state !== "off"}
       title={TITLES[state]}

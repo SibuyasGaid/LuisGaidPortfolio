@@ -2195,11 +2195,101 @@ html[data-intro="play"] :is([data-masthead], .library-scene-shade, .library-hero
   color: var(--color-smoke);
 }
 
+/* The card's foot: the loading bar and its status, and then, stacked in the
+   same place so nothing moves, the way in. */
+.intro-gate {
+  display: grid;
+  justify-items: center;
+  margin-top: 2.75rem;
+}
+
+.intro-gate > * {
+  grid-area: 1 / 1;
+}
+
+.intro-loading {
+  display: grid;
+  justify-items: center;
+  align-content: start;
+  transition:
+    opacity 400ms ease,
+    visibility 0s linear 400ms;
+}
+
+.intro-entry {
+  display: grid;
+  justify-items: center;
+  gap: 0.6rem;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(10px);
+  transition:
+    opacity 600ms var(--ease-settle),
+    transform 600ms var(--ease-settle),
+    visibility 0s linear 600ms;
+}
+
+html[data-intro-prompt] .intro-loading {
+  opacity: 0;
+  visibility: hidden;
+}
+
+html[data-intro-prompt] .intro-entry {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  transition-delay: 0s;
+}
+
+html[data-intro-prompt="entered"] .intro-entry {
+  pointer-events: none;
+}
+
+.intro-enter {
+  --focus-ring: var(--color-parchment-light);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-height: 3.1rem;
+  padding: 0.8rem 1.9rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--color-wood-950);
+  background-color: var(--color-brass-light);
+  border-radius: 999px;
+  box-shadow:
+    0 0 0 1px rgb(236 215 162 / 0.5),
+    0 14px 34px -14px rgb(212 178 106 / 0.75);
+  cursor: pointer;
+  transition: background-color 250ms var(--ease-settle);
+}
+
+.intro-enter:hover {
+  background-color: var(--color-parchment);
+}
+
+.intro-enter-silently {
+  --focus-ring: var(--color-brass-light);
+  min-height: 2.75rem;
+  padding-inline: 0.75rem;
+  font-size: 0.8125rem;
+  color: var(--color-smoke);
+  text-decoration-line: underline;
+  text-decoration-color: rgb(168 154 134 / 0.4);
+  text-underline-offset: 0.25em;
+  cursor: pointer;
+  transition: color 250ms var(--ease-settle);
+}
+
+.intro-enter-silently:hover {
+  color: var(--color-parchment);
+}
+
 .intro-progress {
   position: relative;
   width: min(18rem, 70vw);
   height: 2px;
-  margin-top: 2.75rem;
   overflow: hidden;
   background-color: rgb(212 178 106 / 0.18);
   border-radius: 999px;

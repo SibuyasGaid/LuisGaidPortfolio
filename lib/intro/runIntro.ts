@@ -9,12 +9,19 @@ import {
   type IntroLanding,
   type IntroPlayback,
 } from "@/lib/intro/createIntroTimeline";
-import { markIntroRunning } from "@/lib/intro/introLifecycle";
+import { promptEntry, type EntryPrompt } from "@/lib/intro/entryPrompt";
+import { finishIntro, INTRO_PROMPT_ATTRIBUTE, markIntroRunning } from "@/lib/intro/introLifecycle";
 import { applyShelfView, fallBackToFlatShelf } from "@/lib/library/chooseShelfView";
-import { getLoadedLibrary, loadLibrary, releaseLibrary } from "@/lib/library/libraryStage";
+import { getLoadedLibrary, loadLibrary, releaseLibrary, type Library } from "@/lib/library/libraryStage";
 import type { RenderQuality } from "@/lib/library/webgl/createLibraryScene";
 import { createWelcomeProgress } from "@/lib/intro/welcomeProgress";
-import { INTRO_LOAD_TIMEOUT_SECONDS, INTRO_PROGRESS, INTRO_WELCOME_MIN_SECONDS } from "@/lib/motion/config";
+import {
+  INTRO_AFTER_ENTRY_MAX_SECONDS,
+  INTRO_ENTRY_PAUSE_SECONDS,
+  INTRO_LOAD_TIMEOUT_SECONDS,
+  INTRO_PROGRESS,
+  INTRO_WELCOME_MIN_SECONDS,
+} from "@/lib/motion/config";
 import { gsap } from "@/lib/motion/gsap";
 import { reportError } from "@/lib/reportError";
 
@@ -33,6 +40,8 @@ function measureRemainingWelcome(): number {
  * where there is no walk the card returns and gives way to the shelf.
  */
 function runRewind(elements: IntroElements): RunningIntro {
+  // A rewind was asked for with a click, so it plays straight through, with no way in to offer.
+  document.documentElement.removeAttribute(INTRO_PROMPT_ATTRIBUTE);
   const variant = chooseIntroVariant();
   const library = getLoadedLibrary();
   // Whatever the last run left on the overlay goes; the card and backdrop start unseen.
@@ -52,60 +61,73 @@ function runRewind(elements: IntroElements): RunningIntro {
 }
 
 // The welcome screen shows from the first paint. Behind it, the WebGL library
-// downloads and builds in stages that the progress bar reports; once it is
-// ready (and the welcome has had its moment) the walk begins, and the library
-// stays on as the home page. Anything that goes wrong hands over to the
-// poster; taking too long hands over to the home page, where the library
-// fades up whenever it is ready.
+// downloads and builds in stages that the progress bar reports. Once it is
+// ready (and the welcome has had its moment), or once loading has taken too
+// long, or failed, the card offers the way in, and the intro waits for the
+// visitor's click: it is what lets the sound play with the walk. Then the
+// walk begins, and the library stays on as the home page. Where the library
+// failed, the poster of it is the shelf; where it was still loading, it fades
+// up whenever it is ready.
 export function runIntro(elements: IntroElements, options: { readonly isRewind?: boolean } = {}): RunningIntro {
   if (options.isRewind) return runRewind(elements);
   markIntroRunning();
   const progress = createWelcomeProgress(elements.progressBar, elements.progressFill, elements.status);
   const variant = chooseIntroVariant();
+  let library: Library | null = null;
+  let landing: IntroLanding = variant.kind === "welcome" ? "flat" : "scene";
+  let prompt: EntryPrompt | null = null;
   let playback: IntroPlayback | null = null;
   let isStopped = false;
   let timeout = 0;
+  let ceiling = 0;
 
-  function enter(landing: IntroLanding): void {
+  // Decided at the click, from whatever is ready by then.
+  function begin(): void {
     if (isStopped || playback) return;
-    progress.advance(1, INTRO.statuses.ready);
-    playback = createWelcomeExit(elements, measureRemainingWelcome(), landing);
+    if (library && variant.kind === "walk") {
+      playback = createWalkTimeline(elements, library.scene, INTRO_ENTRY_PAUSE_SECONDS);
+    } else {
+      library?.scene.renderWalk({ progress: 1, stride: 0, elapsed: 0 });
+      playback = createWelcomeExit(elements, INTRO_ENTRY_PAUSE_SECONDS, landing);
+    }
+    ceiling = window.setTimeout(finishIntro, INTRO_AFTER_ENTRY_MAX_SECONDS * 1000);
   }
 
-  async function loadScene(quality: RenderQuality, isWalking: boolean): Promise<void> {
+  function offerEntry(): void {
+    if (isStopped || prompt) return;
+    window.clearTimeout(timeout);
+    progress.advance(1, INTRO.statuses.ready);
+    prompt = promptEntry(elements, measureRemainingWelcome(), begin);
+  }
+
+  async function loadScene(quality: RenderQuality): Promise<void> {
     try {
-      const library = await loadLibrary(quality, (share) => {
+      library = await loadLibrary(quality, (share) => {
+        if (prompt) return;
         const status = share < 0.45 ? INTRO.statuses.lighting : INTRO.statuses.shelving;
         progress.advance(INTRO_PROGRESS.sceneModule + share * INTRO_PROGRESS.sceneSpan, status);
       });
-      // Stopped, or timed out, while loading: the home page has taken over.
-      if (isStopped || playback) return;
-      window.clearTimeout(timeout);
-      progress.advance(1, INTRO.statuses.ready);
-      if (isWalking) {
-        playback = createWalkTimeline(elements, library.scene, measureRemainingWelcome());
-      } else {
-        library.scene.renderWalk({ progress: 1, stride: 0, elapsed: 0 });
-        playback = createWelcomeExit(elements, measureRemainingWelcome(), "scene");
-      }
+      if (isStopped) return;
+      offerEntry();
     } catch (error) {
       reportError(error, "library intro");
-      window.clearTimeout(timeout);
+      library = null;
+      landing = "flat";
       releaseLibrary();
       fallBackToFlatShelf();
-      enter("flat");
+      offerEntry();
     }
   }
 
   if (variant.kind === "welcome") {
     applyShelfView("flat");
     progress.advance(INTRO_PROGRESS.sceneModule, INTRO.statuses.opening);
-    enter("flat");
+    offerEntry();
   } else {
     applyShelfView("scene");
     progress.advance(INTRO_PROGRESS.started, INTRO.statuses.opening, INTRO_PROGRESS.downloadCreep);
-    timeout = window.setTimeout(() => enter("scene"), INTRO_LOAD_TIMEOUT_SECONDS * 1000);
-    void loadScene(variant.quality, variant.kind === "walk");
+    timeout = window.setTimeout(offerEntry, INTRO_LOAD_TIMEOUT_SECONDS * 1000);
+    void loadScene(variant.quality);
   }
 
   return {
@@ -113,6 +135,8 @@ export function runIntro(elements: IntroElements, options: { readonly isRewind?:
       if (isStopped) return;
       isStopped = true;
       window.clearTimeout(timeout);
+      window.clearTimeout(ceiling);
+      prompt?.cancel();
       playback?.kill();
       releaseIntroElements(elements);
     },

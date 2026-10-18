@@ -74,6 +74,9 @@ export interface IntroCopy {
     readonly shelving: string;
     readonly ready: string;
   };
+  /** Once the library is ready, the way in: the click that lets sound play. */
+  readonly enter: string;
+  readonly enterSilently: string;
   readonly skip: string;
   /** The landing page's button that plays the intro again. */
   readonly rewind: string;
@@ -238,6 +241,8 @@ export const INTRO: IntroCopy = {
     shelving: "Shelving the books",
     ready: "Step inside",
   },
+  enter: "Enter the library",
+  enterSilently: "Enter without sound",
   skip: "Skip intro",
   rewind: "Rewind intro",
 };
