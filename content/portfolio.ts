@@ -129,6 +129,8 @@ export interface WorkNote {
 export interface Service {
   readonly id: string;
   readonly title: string;
+  /** Core services lead the Services book, each set out on its own card. */
+  readonly isCore: boolean;
   readonly summary: string;
   readonly deliverables: readonly string[];
   readonly tools: readonly string[];
@@ -271,7 +273,7 @@ export const BOOKS: readonly Book[] = [
     navLabel: "Services",
     subtitle: "What I build for clients",
     introduction:
-      "Most clients come to me with one slow, manual process. These are the four ways I usually fix it.",
+      "Most clients come to me because the software they have doesn't fit how they work. Usually the fix is custom software built around them, with AI inside it where it earns its keep. Here is everything I do, starting there.",
   },
   {
     id: "stack",
@@ -927,8 +929,43 @@ export type ProjectId = (typeof PROJECTS)[number]["id"];
 
 export const SERVICES: readonly Service[] = [
   {
+    id: "custom-software",
+    title: "Custom software and web apps",
+    isCore: true,
+    summary:
+      "When the software you can buy doesn't fit how your business runs, I build the one that does: dashboards, portals and full platforms shaped around your process, so your team stops working around its tools.",
+    deliverables: [
+      "Internal tools and dashboards your non-technical staff can run on their own",
+      "Client portals and customer-facing web apps in Next.js and React",
+      "Full platforms with accounts, roles, approval steps and admin views",
+      "Databases, sign-in and edge functions on Supabase",
+      "A proper app in place of the spreadsheets and copy-pasting your team has outgrown",
+      "Python and Streamlit tools for internal teams",
+      "Launch, hosting and support once it ships",
+    ],
+    tools: ["Next.js", "React", "TypeScript", "Tailwind CSS", "Supabase", "PostgreSQL", "Python", "Vercel"],
+    proofProjectIds: ["marketing-platform", "book-launch-pr-dashboard", "speakradar", "workflow-watcher"],
+  },
+  {
+    id: "ai-integration",
+    title: "AI integration",
+    isCore: true,
+    summary:
+      "AI built into the tools and processes you already run, not bolted on beside them. I connect models from Anthropic, OpenAI and Google to your data and your apps, for the jobs where they save real time: writing, scoring, sorting, searching and generating.",
+    deliverables: [
+      "AI features inside your own apps and dashboards",
+      "Content generated in your brand's voice: copy, images and avatar video",
+      "Leads, documents and content scored, sorted and summarized",
+      "Assistants and search grounded in your own documents and data",
+      "Human approval steps, and cost tracking on every AI call",
+    ],
+    tools: ["Anthropic API", "OpenAI API", "Gemini API", "LangChain", "Pinecone", "HeyGen", "Vapi"],
+    proofProjectIds: ["marketing-platform", "guest-radar", "content-review-automation", "aiva"],
+  },
+  {
     id: "ai-automation",
     title: "AI automation",
+    isCore: false,
     summary:
       "I find the manual work your team repeats every week and build the workflows that do it for them: follow-ups, data entry, research, reporting, and the hand-offs between tools that don't talk to each other.",
     deliverables: [
@@ -938,15 +975,12 @@ export const SERVICES: readonly Service[] = [
       "Post-launch support while your team settles in",
     ],
     tools: ["n8n", "Make", "Zapier", "Supabase", "OpenAI API", "Anthropic API", "Gemini API"],
-    proofProjectIds: [
-      "book-launch-pr-dashboard",
-      "sponsorship-lead-gen",
-      "content-review-automation",
-    ],
+    proofProjectIds: ["sponsorship-lead-gen", "supercast-subscriber-system", "iridel"],
   },
   {
     id: "voice-agents",
     title: "Voice and messaging agents",
+    isCore: false,
     summary:
       "Agents that pick up calls, handle routine questions, book time on your calendar, and follow up by text when your CRM flags a lead.",
     deliverables: [
@@ -961,6 +995,7 @@ export const SERVICES: readonly Service[] = [
   {
     id: "crm-systems",
     title: "CRM and GoHighLevel systems",
+    isCore: false,
     summary:
       "Pipelines and automations inside GoHighLevel or the CRM you already run, so leads get followed up on time and your ad audiences stay in sync with your real customer list.",
     deliverables: [
@@ -974,24 +1009,6 @@ export const SERVICES: readonly Service[] = [
       "ai-cold-sms-agent",
       "meta-ads-lookalike-sync",
       "meta-lead-ads-to-beehiiv",
-    ],
-  },
-  {
-    id: "web-apps",
-    title: "Fullstack web apps",
-    summary:
-      "Dashboards, internal tools, and client-facing apps built with Next.js, React, and Supabase. Designed for the people who use them every day, including the non-technical ones.",
-    deliverables: [
-      "Internal dashboards your non-technical staff can run on their own",
-      "Client-facing apps in Next.js and React",
-      "Supabase databases and edge functions",
-      "Python and Streamlit tools for internal teams",
-    ],
-    tools: ["Next.js", "React", "TypeScript", "Tailwind CSS", "Supabase", "Python", "Vercel"],
-    proofProjectIds: [
-      "marketing-platform",
-      "book-launch-pr-dashboard",
-      "speakradar",
     ],
   },
 ];

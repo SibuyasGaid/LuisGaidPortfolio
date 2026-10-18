@@ -949,6 +949,19 @@
     margin-top: 3rem;
   }
 
+  /* A core service in the field guide: an entry on a card of its own, edged
+     along the top in the book's accent. */
+  .service-core {
+    padding: 2rem 1.4rem 1.6rem;
+    border-top: 3px solid var(--book-accent);
+  }
+
+  @media (min-width: 40rem) {
+    .service-core {
+      padding: 2.4rem 2.2rem 2rem;
+    }
+  }
+
   /* The field guide's boxed notes under each entry. */
   .field-notes {
     padding: 1.15rem 1.25rem 1.3rem;
