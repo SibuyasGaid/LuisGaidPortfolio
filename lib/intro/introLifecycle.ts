@@ -13,10 +13,16 @@ export const INTRO_STORAGE_KEY = "library:visited";
 export const INTRO_FINISHED_EVENT = "library:intro-finished";
 export const INTRO_STARTED_EVENT = "library:intro-started";
 const INTRO_RUNNING_ATTRIBUTE = "data-intro-running";
+/**
+ * Set on <html> once the welcome card offers the way in ("open"), and kept
+ * after the visitor takes it ("entered"). From then the intro waits on the
+ * visitor, not on loading, so the hard ceiling below stands down.
+ */
+export const INTRO_PROMPT_ATTRIBUTE = "data-intro-prompt";
 
 /** If the animation code has not started by then (blocked or slow network), the intro steps aside. */
 const INTRO_START_GRACE_MS = 3500;
-/** Hard ceiling so the overlay can never trap the page: the slowest allowed load plus the walk. */
+/** Hard ceiling so a stalled load can never trap the page: the slowest allowed load plus the walk. */
 const INTRO_MAX_DURATION_MS = 24000;
 
 // Runs in <head> before the first paint, so returning visitors never see the
@@ -32,7 +38,7 @@ function finish(){if(root.getAttribute("data-intro")!=="play")return;root.setAtt
 document.addEventListener("click",function(event){var target=event.target;if(target&&target.closest&&target.closest("[data-skip-intro]"))finish()});
 document.addEventListener("keydown",function(event){if(event.key==="Escape")finish()});
 setTimeout(function(){if(!root.hasAttribute("${INTRO_RUNNING_ATTRIBUTE}"))finish()},${INTRO_START_GRACE_MS});
-setTimeout(finish,${INTRO_MAX_DURATION_MS});
+setTimeout(function(){if(!root.hasAttribute("${INTRO_PROMPT_ATTRIBUTE}"))finish()},${INTRO_MAX_DURATION_MS});
 })();`;
 
 export function isIntroPlaying(): boolean {

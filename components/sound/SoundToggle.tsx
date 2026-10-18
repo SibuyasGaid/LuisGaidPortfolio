@@ -1,7 +1,7 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
-import { isSoundAudible, subscribeToSound, toggleSound } from "@/lib/sound/sound";
+import { getSoundState, subscribeToSound, toggleSound, type SoundState } from "@/lib/sound/sound";
 
 interface SoundToggleProps {
   readonly className: string;
@@ -9,17 +9,27 @@ interface SoundToggleProps {
   readonly isLabelShown?: boolean;
 }
 
-// Sound on or off. The bars dance while sound is playing and lie flat while
-// it is off, or still waiting for the visitor's first click. Without
-// JavaScript there is no sound, so the CSS hides it.
+const TITLES: Record<SoundState, string> = {
+  playing: "Turn sound off",
+  waiting: "Sound is on: it starts with your first click",
+  off: "Turn sound on",
+};
+
+// Sound on or off. The bars dance while sound plays, stand still and glow
+// softly while it is on but waiting for the visitor's first click (browsers
+// play nothing before one), and lie flat while it is off. Without JavaScript
+// there is no sound, so the CSS hides it.
 export function SoundToggle({ className, isLabelShown = false }: SoundToggleProps) {
-  const isAudible = useSyncExternalStore(subscribeToSound, isSoundAudible, () => false);
+  // Sound is on unless a visitor turns it off, so the page is drawn that way before it knows.
+  const state = useSyncExternalStore(subscribeToSound, getSoundState, () => "waiting" as const);
   return (
     <button
       type="button"
       data-sound-toggle
-      aria-pressed={isAudible}
-      title={isAudible ? "Turn sound off" : "Turn sound on"}
+      data-sound-choice
+      data-sound-state={state}
+      aria-pressed={state !== "off"}
+      title={TITLES[state]}
       onClick={toggleSound}
       className={className}
     >

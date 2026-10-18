@@ -23,6 +23,9 @@ export interface IntroElements {
   readonly status: HTMLElement;
   /** The sound and skip buttons, in the corner. */
   readonly controls: HTMLElement;
+  /** The way in, offered once the library is ready. */
+  readonly enter: HTMLElement;
+  readonly enterSilently: HTMLElement;
   readonly skip: HTMLElement;
   /** The poster of the grand bookcase under the overlay, which settles into place where the library does not run. */
   readonly poster: HTMLElement;
@@ -76,6 +79,8 @@ function addLanding(
 }
 
 function addWelcomeExit(timeline: gsap.core.Timeline, elements: IntroElements, position: number, landing: IntroLanding): void {
+  // The library's door opens as the welcome card gives way.
+  timeline.call(playCue, ["doorOpen"], position);
   timeline.to(elements.welcome, { opacity: 0, y: -10, duration: INTRO_TIMINGS.welcomeExit, ease: INTRO_EASES.fade }, position);
   addLanding(timeline, elements, [elements.backdrop], position + INTRO_TIMINGS.welcomeExit * 0.4, landing);
 }

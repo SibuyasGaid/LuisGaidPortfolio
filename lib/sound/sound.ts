@@ -10,6 +10,13 @@ import { reportError } from "@/lib/reportError";
 
 type SoundPreference = "on" | "off";
 
+/**
+ * playing: on, and audible.
+ * waiting: on, and waiting for the visitor's first click or key press (browsers allow no sound before one).
+ * off: turned off.
+ */
+export type SoundState = "playing" | "waiting" | "off";
+
 const STORAGE_KEY = "library:sound";
 /** Sound plays from the visitor's first click unless they have turned it off. */
 const IS_SOUND_ON_BY_DEFAULT = true;
@@ -96,8 +103,8 @@ function startEngine(audio: AudioContext): void {
 }
 
 function handleGesture(event: Event): void {
-  // The sound button decides for itself, or its own press would count as turning sound on.
-  if (event.target instanceof Element && event.target.closest("[data-sound-toggle]")) return;
+  // The sound button (and the intro's "Enter without sound") decide for themselves, or their own press would count as turning sound on.
+  if (event.target instanceof Element && event.target.closest("[data-sound-choice]")) return;
   if (readPreference() === "off") {
     stopWaitingForGesture();
     return;
@@ -167,7 +174,7 @@ function preloadEngine(): void {
 function playControlTap(event: MouseEvent): void {
   if (!(event.target instanceof Element)) return;
   const control = event.target.closest(CONTROLS);
-  if (!control || control.closest("[data-sound-toggle]")) return;
+  if (!control || control.closest("[data-sound-choice]")) return;
   const command = control.getAttribute("command");
   // A dialog closing makes its own sound, however it was closed.
   if (command === "close") return;
@@ -188,6 +195,11 @@ export function isSoundAudible(): boolean {
   return readPreference() === "on" && isRunning();
 }
 
+export function getSoundState(): SoundState {
+  if (readPreference() === "off") return "off";
+  return isRunning() ? "playing" : "waiting";
+}
+
 /** Plays a cue now (or after options.delay), if sound is on. Safe to call from anywhere, any time. */
 export function playCue(cue: SoundCue, options?: CueOptions): void {
   if (readPreference() === "off" || !context) return;
@@ -198,23 +210,35 @@ export function playCue(cue: SoundCue, options?: CueOptions): void {
   else queuedCues.push({ cue, options, askedAt: now });
 }
 
-/** The sound button: off if it is playing, otherwise on (waking the audio, since this is a click). */
-export function toggleSound(): void {
+/** Turns sound off, and remembers it: whatever is playing fades out, and the audio is suspended. */
+export function turnSoundOff(): void {
   window.clearTimeout(suspendTimer);
-  if (isSoundAudible()) {
-    savePreference("off");
-    stopWaitingForGesture();
-    engine?.setOn(false);
-    suspendTimer = window.setTimeout(() => {
-      if (readPreference() === "off") void context?.suspend();
-    }, SUSPEND_AFTER_FADE_MS);
-  } else {
-    savePreference("on");
-    wakeAudio();
-    engine?.setOn(true);
-    playCue("chime");
-  }
+  savePreference("off");
+  stopWaitingForGesture();
+  engine?.setOn(false);
+  suspendTimer = window.setTimeout(() => {
+    if (readPreference() === "off") void context?.suspend();
+  }, SUSPEND_AFTER_FADE_MS);
   notifyListeners();
+}
+
+/** The sound button: off if it is playing, otherwise on (and, since this is a click, it starts playing). */
+export function toggleSound(): void {
+  if (isSoundAudible()) {
+    turnSoundOff();
+    return;
+  }
+  window.clearTimeout(suspendTimer);
+  savePreference("on");
+  wakeAudio();
+  engine?.setOn(true);
+  playCue("chime");
+  notifyListeners();
+}
+
+/** Loads the sound engine now, ahead of a click that is about to come, so the first sounds play on time. */
+export function prepareSound(): void {
+  if ("AudioContext" in window && readPreference() === "on") void loadEngineModule();
 }
 
 /** Listens for the first click (with sound on), button presses, dialogs, and the tab being hidden. */

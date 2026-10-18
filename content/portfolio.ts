@@ -74,6 +74,9 @@ export interface IntroCopy {
     readonly shelving: string;
     readonly ready: string;
   };
+  /** Once the library is ready, the way in: the click that lets sound play. */
+  readonly enter: string;
+  readonly enterSilently: string;
   readonly skip: string;
   /** The landing page's button that plays the intro again. */
   readonly rewind: string;
@@ -238,6 +241,8 @@ export const INTRO: IntroCopy = {
     shelving: "Shelving the books",
     ready: "Step inside",
   },
+  enter: "Enter the library",
+  enterSilently: "Enter without sound",
   skip: "Skip intro",
   rewind: "Rewind intro",
 };
@@ -380,14 +385,27 @@ export const PROJECTS = [
   {
     id: "rena-malik-affiliates",
     title: "Rena Malik Affiliate Platform",
-    subtitle: "Affiliate Program Portal",
-    category: "operations",
+    subtitle: "Book Launch Affiliate Portal",
+    category: "creator-tools",
     badge: PRODUCTION_BADGE,
-    problem: null,
-    solution: "The platform behind Dr. Rena Malik's affiliate program, running on its own domain at affiliates.renamalikmd.com.",
-    features: [],
+    problem:
+      "The launch of Dr. Rena Malik's book, The Hard Truth, was promoted by a crowd of affiliates, and every one of them needed a tracked link, a fair score and everything they'd need to post.",
+    solution:
+      "The affiliate portal for the launch. Each affiliate gets their own tracked link, sees where they stand on a live leaderboard, climbs a ladder of rewards, and finds the offer, assets and posting guides in one place.",
+    features: [
+      "A personal tracked link for every affiliate, copied in one click",
+      "A live leaderboard ranked on points: 7 for each book sold, 1 for each masterclass registration",
+      "Registrations counted on their own too, for the launch contest that goes to whoever brings the most people",
+      "Each affiliate's standing: referrals, points, rank, books sold and orders",
+      "A reward ladder showing how many points to the next prize",
+      "Announcements, marketing assets, the offer, posting guides, the launch timeline and FAQs in one portal",
+    ],
     stack: [],
-    illustration: null,
+    illustration: {
+      src: "/projects/rena-malik-affiliates.webp",
+      alt: "The affiliate portal's leaderboard: an affiliate's referrals, points and rank, and how far they are up the reward ladder.",
+      focus: "left top",
+    },
     link: { kind: "website", href: "https://affiliates.renamalikmd.com/" },
     isFeatured: true,
   },
@@ -409,7 +427,7 @@ export const PROJECTS = [
     stack: ["n8n"],
     illustration: null,
     link: { kind: "website", href: "https://iridel.com/" },
-    isFeatured: true,
+    isFeatured: false,
   },
   {
     id: "book-launch-pr-dashboard",
@@ -418,11 +436,14 @@ export const PROJECTS = [
     category: "creator-tools",
     badge: PRODUCTION_BADGE,
     problem:
-      "A book launch meant pitching 80+ podcasts, influencers, and media outlets at once, with follow-ups that were easy to lose in an inbox.",
+      "A book launch meant pitching nearly 200 podcasts, influencers, and media outlets at once, with follow-ups that were easy to lose in an inbox.",
     solution:
-      "Purpose-built CRM for a book launch's publicity: contacts, outreach campaigns, and influencer relationships in one structured place, tracking 80+ contacts across podcasts, influencers, and media. Behind it, 7 Make webhook endpoints handle Gmail reply detection, Sendr video triggers, automated follow-up scheduling, and per-contact automation toggles.",
+      "Purpose-built CRM for a book launch's publicity: contacts, outreach campaigns, and influencer relationships in one structured place, tracking 190 contacts across podcasts, influencers, and media. Behind it, 7 Make webhook endpoints handle Gmail reply detection, Sendr video triggers, automated follow-up scheduling, and per-contact automation toggles.",
     features: [
-      "One home for 80+ podcast, influencer, and media contacts",
+      "One home for 190 podcast, influencer, and media contacts, imported from CSV or added by hand",
+      "A dashboard of contacts, follow-ups needed, completed reach and what's scheduled this week",
+      "An outreach tally: emails sent, mailing addresses collected, and who hasn't replied, with a reminder to all of them in one click",
+      "Filters by type, stage and audience size, and any list exported",
       "Outreach campaigns tracked alongside every relationship",
       "Gmail reply detection that marks who has written back",
       "Sendr videos and Bit.ly tracking links built into the outreach",
@@ -430,7 +451,11 @@ export const PROJECTS = [
       "7 Make webhook endpoints running the automation behind the dashboard",
     ],
     stack: ["React", "Supabase", "Make", "Gmail API", "Sendr", "Bit.ly"],
-    illustration: null,
+    illustration: {
+      src: "/projects/book-launch-pr-dashboard.webp",
+      alt: "Launch Companion's dashboard: contact totals, the influencer outreach tally, and the contact table with each one's stage (names hidden).",
+      focus: "left top",
+    },
     link: null,
     isFeatured: true,
   },
@@ -451,9 +476,15 @@ export const PROJECTS = [
       "CSV analysis for imported event lists",
       "Application tracking that turns prospects into an organized pipeline",
       "Filters, plus handling for “Opens for Application” dates",
+      "A dashboard of new, in-review and in-progress opportunities, with speaking fees and days left",
+      "Emails for high-priority finds and coming deadlines, plus a weekly digest",
     ],
     stack: ["Apify", "OpenAI", "Make", "Supabase"],
-    illustration: null,
+    illustration: {
+      src: "/projects/speakradar.webp",
+      alt: "Speak Radar's dashboard: new opportunities, high-priority events scored for fit with their fees, recent activity and upcoming deadlines.",
+      focus: "left top",
+    },
     link: null,
     isFeatured: true,
   },
@@ -497,7 +528,7 @@ export const PROJECTS = [
     stack: ["Vapi", "Telegram API", "OpenAI", "n8n"],
     illustration: null,
     link: null,
-    isFeatured: true,
+    isFeatured: false,
   },
   {
     id: "sponsorship-lead-gen",
@@ -519,7 +550,7 @@ export const PROJECTS = [
     stack: ["Meta Ad Library", "Hunter.io", "OpenAI", "Resend"],
     illustration: null,
     link: null,
-    isFeatured: true,
+    isFeatured: false,
   },
   {
     id: "meta-lead-ads-to-beehiiv",
@@ -639,7 +670,7 @@ export const PROJECTS = [
     stack: ["Meta Marketing API", "n8n", "CRM"],
     illustration: null,
     link: null,
-    isFeatured: true,
+    isFeatured: false,
   },
   {
     id: "workflow-watcher",
@@ -856,7 +887,7 @@ export const PROJECTS = [
     stack: ["Thermography", "Computer Vision", "CNN"],
     illustration: null,
     link: null,
-    isFeatured: true,
+    isFeatured: false,
   },
   {
     id: "dpn-thermal-screener",
