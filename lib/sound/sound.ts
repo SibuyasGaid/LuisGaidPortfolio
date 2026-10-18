@@ -10,6 +10,13 @@ import { reportError } from "@/lib/reportError";
 
 type SoundPreference = "on" | "off";
 
+/**
+ * playing: on, and audible.
+ * waiting: on, and waiting for the visitor's first click or key press (browsers allow no sound before one).
+ * off: turned off.
+ */
+export type SoundState = "playing" | "waiting" | "off";
+
 const STORAGE_KEY = "library:sound";
 /** Sound plays from the visitor's first click unless they have turned it off. */
 const IS_SOUND_ON_BY_DEFAULT = true;
@@ -188,6 +195,11 @@ export function isSoundAudible(): boolean {
   return readPreference() === "on" && isRunning();
 }
 
+export function getSoundState(): SoundState {
+  if (readPreference() === "off") return "off";
+  return isRunning() ? "playing" : "waiting";
+}
+
 /** Plays a cue now (or after options.delay), if sound is on. Safe to call from anywhere, any time. */
 export function playCue(cue: SoundCue, options?: CueOptions): void {
   if (readPreference() === "off" || !context) return;
@@ -198,7 +210,7 @@ export function playCue(cue: SoundCue, options?: CueOptions): void {
   else queuedCues.push({ cue, options, askedAt: now });
 }
 
-/** The sound button: off if it is playing, otherwise on (waking the audio, since this is a click). */
+/** The sound button: off if it is playing, otherwise on (and, since this is a click, it starts playing). */
 export function toggleSound(): void {
   window.clearTimeout(suspendTimer);
   if (isSoundAudible()) {

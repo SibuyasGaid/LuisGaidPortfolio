@@ -690,7 +690,8 @@
     border-color: rgb(212 178 106 / 0.6);
   }
 
-  /* Four bars that dance while sound plays and lie flat while it is off. */
+  /* Four bars: dancing while sound plays, standing still and glowing softly
+     while it is on but waits for a first click, and lying flat while it is off. */
   .sound-bars {
     display: inline-flex;
     align-items: center;
@@ -707,32 +708,56 @@
     transition: transform 400ms var(--ease-settle);
   }
 
-  [aria-pressed="true"] > .sound-bars > span {
+  [data-sound-state="waiting"] > .sound-bars {
+    animation: sound-wait 1.6s ease-in-out infinite alternate;
+  }
+
+  [data-sound-state="waiting"] > .sound-bars > span {
+    transform: scaleY(0.55);
+  }
+
+  [data-sound-state="waiting"] > .sound-bars > span:nth-child(2) {
+    transform: scaleY(0.9);
+  }
+
+  [data-sound-state="waiting"] > .sound-bars > span:nth-child(3) {
+    transform: scaleY(0.7);
+  }
+
+  [data-sound-state="waiting"] > .sound-bars > span:nth-child(4) {
+    transform: scaleY(0.4);
+  }
+
+  [data-sound-state="playing"] > .sound-bars > span {
     animation: sound-bar 900ms ease-in-out infinite alternate;
   }
 
-  [aria-pressed="true"] > .sound-bars > span:nth-child(2) {
+  [data-sound-state="playing"] > .sound-bars > span:nth-child(2) {
     animation-duration: 700ms;
     animation-delay: -300ms;
   }
 
-  [aria-pressed="true"] > .sound-bars > span:nth-child(3) {
+  [data-sound-state="playing"] > .sound-bars > span:nth-child(3) {
     animation-duration: 1100ms;
     animation-delay: -600ms;
   }
 
-  [aria-pressed="true"] > .sound-bars > span:nth-child(4) {
+  [data-sound-state="playing"] > .sound-bars > span:nth-child(4) {
     animation-duration: 800ms;
     animation-delay: -150ms;
   }
 
   @media (prefers-reduced-motion: reduce) {
-    [aria-pressed="true"] > .sound-bars > span {
+    [data-sound-state] > .sound-bars,
+    [data-sound-state] > .sound-bars > span {
       animation: none;
+    }
+
+    [data-sound-state="playing"] > .sound-bars > span {
       transform: scaleY(0.8);
     }
 
-    [aria-pressed="true"] > .sound-bars > span:nth-child(odd) {
+    [data-sound-state="playing"] > .sound-bars > span:nth-child(odd) {
       transform: scaleY(0.5);
     }
   }
@@ -2226,6 +2251,16 @@ html[data-intro="play"] :is([data-masthead], .library-scene-shade, .library-hero
   .intro-welcome > *,
   .intro-progress-fill {
     animation: none;
+  }
+}
+
+@keyframes sound-wait {
+  from {
+    opacity: 0.55;
+  }
+
+  to {
+    opacity: 1;
   }
 }
 
