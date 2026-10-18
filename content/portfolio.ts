@@ -431,11 +431,14 @@ export const PROJECTS = [
     category: "creator-tools",
     badge: PRODUCTION_BADGE,
     problem:
-      "A book launch meant pitching 80+ podcasts, influencers, and media outlets at once, with follow-ups that were easy to lose in an inbox.",
+      "A book launch meant pitching nearly 200 podcasts, influencers, and media outlets at once, with follow-ups that were easy to lose in an inbox.",
     solution:
-      "Purpose-built CRM for a book launch's publicity: contacts, outreach campaigns, and influencer relationships in one structured place, tracking 80+ contacts across podcasts, influencers, and media. Behind it, 7 Make webhook endpoints handle Gmail reply detection, Sendr video triggers, automated follow-up scheduling, and per-contact automation toggles.",
+      "Purpose-built CRM for a book launch's publicity: contacts, outreach campaigns, and influencer relationships in one structured place, tracking 190 contacts across podcasts, influencers, and media. Behind it, 7 Make webhook endpoints handle Gmail reply detection, Sendr video triggers, automated follow-up scheduling, and per-contact automation toggles.",
     features: [
-      "One home for 80+ podcast, influencer, and media contacts",
+      "One home for 190 podcast, influencer, and media contacts, imported from CSV or added by hand",
+      "A dashboard of contacts, follow-ups needed, completed reach and what's scheduled this week",
+      "An outreach tally: emails sent, mailing addresses collected, and who hasn't replied, with a reminder to all of them in one click",
+      "Filters by type, stage and audience size, and any list exported",
       "Outreach campaigns tracked alongside every relationship",
       "Gmail reply detection that marks who has written back",
       "Sendr videos and Bit.ly tracking links built into the outreach",
@@ -443,7 +446,11 @@ export const PROJECTS = [
       "7 Make webhook endpoints running the automation behind the dashboard",
     ],
     stack: ["React", "Supabase", "Make", "Gmail API", "Sendr", "Bit.ly"],
-    illustration: null,
+    illustration: {
+      src: "/projects/book-launch-pr-dashboard.webp",
+      alt: "Launch Companion's dashboard: contact totals, the influencer outreach tally, and the contact table with each one's stage (names hidden).",
+      focus: "left top",
+    },
     link: null,
     isFeatured: true,
   },

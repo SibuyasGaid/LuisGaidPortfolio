@@ -21,7 +21,13 @@ export function ProjectPlate({ project, plateNumber }: ProjectPlateProps) {
     <div className="plate-surface relative aspect-[16/10] overflow-hidden lg:aspect-auto lg:h-full lg:min-h-[26rem]">
       <EngravedRosette plateNumber={plateNumber} />
       {project.illustration ? <PlateIllustration illustration={project.illustration} /> : null}
-      <span aria-hidden="true" className="eyebrow absolute bottom-4 left-5 text-brass-light/90">
+      {/* Over a picture (often a light one) the plate's number sits on a dark label of its own. */}
+      <span
+        aria-hidden="true"
+        className={`eyebrow absolute text-brass-light/90 ${
+          project.illustration ? "bottom-3.5 left-3.5 rounded-full bg-[rgb(26_8_12/0.78)] px-3 py-1.5" : "bottom-4 left-5"
+        }`}
+      >
         Plate {toRomanNumeral(plateNumber)}
       </span>
       {project.link ? (
