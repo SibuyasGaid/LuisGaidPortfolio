@@ -17,7 +17,9 @@ export function PlateIllustration({ illustration }: PlateIllustrationProps) {
       src={illustration.src}
       alt={illustration.alt}
       fill
-      sizes="(min-width: 64rem) 36rem, 100vw"
+      // Wide screens crop the 16:10 picture to a taller plate, so it shows about half as wide again as the plate.
+      sizes="(min-width: 64rem) 56rem, 100vw"
+      style={illustration.focus ? { objectPosition: illustration.focus } : undefined}
       onError={() => setHasFailedToLoad(true)}
       className="object-cover transition-transform duration-700 ease-settle group-hover:scale-[1.03]"
     />

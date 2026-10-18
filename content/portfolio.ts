@@ -81,7 +81,7 @@ export interface IntroCopy {
 
 export type ProjectCategory = "automation" | "creator-tools" | "operations" | "engineering";
 
-export type ProjectBadgeKind = "production" | "prototype" | "competition" | "award" | "research";
+export type ProjectBadgeKind = "production" | "demo" | "prototype" | "team" | "competition" | "award" | "research";
 
 export interface ProjectBadge {
   readonly kind: ProjectBadgeKind;
@@ -94,10 +94,12 @@ export interface ProjectLink {
   readonly href: string;
 }
 
-/** Shown cropped to the plate's 16:10 frame. */
+/** Shown cropped to the plate's frame: 16:10 on small screens, taller beside the text on wide ones. */
 export interface ProjectIllustration {
   readonly src: string;
   readonly alt: string;
+  /** Which part of the picture the crop keeps (a CSS object-position); the middle if not given. */
+  readonly focus?: string;
 }
 
 export interface Project {
@@ -321,10 +323,75 @@ export const PROJECT_CATEGORY_LABELS: Record<ProjectCategory, string> = {
 };
 
 const PRODUCTION_BADGE: ProjectBadge = { kind: "production", label: "Production" };
+const LIVE_DEMO_BADGE: ProjectBadge = { kind: "demo", label: "Live demo" };
 const PROTOTYPE_BADGE: ProjectBadge = { kind: "prototype", label: "Prototype" };
+const TEAM_BADGE: ProjectBadge = { kind: "team", label: "Team project" };
 const COMPETITION_BADGE: ProjectBadge = { kind: "competition", label: "Competition" };
 
 export const PROJECTS = [
+  {
+    id: "marketing-platform",
+    title: "Marketing Platform",
+    subtitle: "AI Content Studio for Brands",
+    category: "creator-tools",
+    badge: LIVE_DEMO_BADGE,
+    problem:
+      "Keeping several brands posting every week takes on-brand graphics, clips and videos, plus someone to sign off on each piece before it goes out.",
+    solution:
+      "One studio for a brand's whole content pipeline. It generates on-brand graphics and carousels, turns long recordings into ranked, ready-to-post clips, writes a week of posts in one run, and renders avatar videos that speak a script. Everything waits in an approval queue until someone signs it off, and every AI call's cost is tracked.",
+    features: [
+      "Brand images and carousels from each account's presets, with faces matched to reference photos",
+      "A week of Instagram and LinkedIn posts generated in one run",
+      "Recordings transcribed once, with the best segments ranked for clipping",
+      "Avatar videos that speak a script, in 9:16 for Reels, Shorts and Facebook",
+      "An approval queue: nothing publishes until it's approved, or sent back for edits",
+      "Each account's voice and visual identity steer everything made for it",
+      "A competitor watchlist checked every Monday, with a digest for admins",
+      "AI spend tracked by provider, task and run, with API alerts",
+    ],
+    stack: ["Next.js", "Anthropic API", "Gemini API", "HeyGen", "Vercel"],
+    illustration: {
+      src: "/projects/marketing-platform.webp",
+      alt: "The platform's approval queue: a week of scheduled posts, each waiting to be approved or sent back for edits.",
+      focus: "left top",
+    },
+    link: { kind: "website", href: "https://marketing-platform-ashy.vercel.app/" },
+    isFeatured: true,
+  },
+  {
+    id: "rena-malik-affiliates",
+    title: "Rena Malik Affiliate Platform",
+    subtitle: "Affiliate Program Portal",
+    category: "operations",
+    badge: PRODUCTION_BADGE,
+    problem: null,
+    solution: "The platform behind Dr. Rena Malik's affiliate program, running on its own domain at affiliates.renamalikmd.com.",
+    features: [],
+    stack: [],
+    illustration: null,
+    link: { kind: "website", href: "https://affiliates.renamalikmd.com/" },
+    isFeatured: true,
+  },
+  {
+    id: "iridel",
+    title: "Iridel",
+    subtitle: "Agency Website and Client Projects",
+    category: "automation",
+    badge: TEAM_BADGE,
+    problem: null,
+    solution:
+      "Worked with the team at Iridel, Inc. on iridel.com, and contributed to the agency's client projects: custom n8n automation workflows and AI frameworks, built into the client-facing apps their developers shipped.",
+    features: [
+      "Helped the Iridel team build iridel.com",
+      "Custom n8n automation workflows for the agency's clients",
+      "AI frameworks for client projects",
+      "Automations integrated into client-facing apps alongside the development team",
+    ],
+    stack: ["n8n"],
+    illustration: null,
+    link: { kind: "website", href: "https://iridel.com/" },
+    isFeatured: true,
+  },
   {
     id: "book-launch-pr-dashboard",
     title: "Launch Companion",
@@ -905,9 +972,9 @@ export const SERVICES: readonly Service[] = [
     ],
     tools: ["Next.js", "React", "TypeScript", "Tailwind CSS", "Supabase", "Python", "Vercel"],
     proofProjectIds: [
+      "marketing-platform",
       "book-launch-pr-dashboard",
       "speakradar",
-      "multi-platform-posting",
     ],
   },
 ];

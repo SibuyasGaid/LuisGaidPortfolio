@@ -115,8 +115,12 @@ export const SHELF_IDLE_AFTER_MS = 3000;
 /** And after this long it settles: nothing is drawn until the pointer moves or a book is named. */
 export const SHELF_REST_AFTER_MS = 15_000;
 
-/** A book named in the navbar slides out of the shelf (metres), tipped by its top edge (radians), and its spine lights up. */
-export const SHELF_PREVIEW = { distance: 0.07, tipRadians: 0.13, glow: 0.95, seconds: 0.35 } as const;
+/**
+ * A book named in the navbar, or pointed at, slides well out of the shelf
+ * (metres), tipped by its top edge (radians), and its spine lights up; the
+ * hotspot over it dims the rest of the shelf and labels it (globals.css).
+ */
+export const SHELF_PREVIEW = { distance: 0.13, tipRadians: 0.19, glow: 1.25, seconds: 0.35 } as const;
 
 /** Taking a book off the grand bookcase, in seconds from the moment it is chosen. */
 export const SHELF_TAKE_TIMINGS = {

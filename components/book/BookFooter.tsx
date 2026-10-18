@@ -26,6 +26,12 @@ export function BookFooter({ bookId }: BookFooterProps) {
           )}
         </li>
       </ul>
+      {/* Between the first and last books, the shelf is a step of its own. */}
+      {previous && next ? (
+        <p className="mt-10 text-center">
+          <FooterLink href="/" bookId={null} label="Or go" title="Back to the shelf" direction="back" />
+        </p>
+      ) : null}
     </nav>
   );
 }

@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { BackToShelf } from "@/components/book/BackToShelf";
 import { BookCover } from "@/components/book/BookCover";
 import { BookFooter } from "@/components/book/BookFooter";
 import { BookOpener } from "@/components/book/BookOpener";
@@ -28,6 +29,7 @@ export function BookPage({ bookId, children, plate }: BookPageProps) {
   return (
     <RevealScope>
       <article aria-labelledby={titleId} data-book={bookId}>
+        <BackToShelf />
         {format === "spread" ? (
           <OpenBook
             format="spread"

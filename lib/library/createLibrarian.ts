@@ -348,9 +348,9 @@ export function createLibrarian(options: { readonly navigate: (href: string) => 
         void loadMoves();
         playCue("bookPreview");
       }
-      const library = findScene();
-      if (library) library.view.preview(bookId);
-      else markPreviewedHotspot(bookId);
+      // The hotspot labels the book and dims the shelf around it either way; the live scene also slides it out.
+      markPreviewedHotspot(bookId);
+      findScene()?.view.preview(bookId);
     },
     move(move) {
       // With reduced motion, links simply go where they lead.

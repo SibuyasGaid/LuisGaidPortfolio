@@ -55,13 +55,15 @@ export function ProjectCard({ project, plateNumber, isPlateOnRight }: ProjectCar
               </div>
             </dl>
 
-            <ul aria-label="Built with" className="mt-6 flex flex-wrap gap-1.5">
-              {project.stack.map((tool) => (
-                <li key={tool} className="stack-chip">
-                  {tool}
-                </li>
-              ))}
-            </ul>
+            {project.stack.length > 0 ? (
+              <ul aria-label="Built with" className="mt-6 flex flex-wrap gap-1.5">
+                {project.stack.map((tool) => (
+                  <li key={tool} className="stack-chip">
+                    {tool}
+                  </li>
+                ))}
+              </ul>
+            ) : null}
 
             {/* The title is the button; this only shows the whole card opens. */}
             <p aria-hidden="true" className="project-open-hint mt-7">
