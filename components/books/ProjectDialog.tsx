@@ -53,21 +53,29 @@ export function ProjectDialog({ project }: ProjectDialogProps) {
           </div>
         </dl>
 
-        <h3 className="section-label mt-8">Features</h3>
-        <ul className="diamond-list mt-3 space-y-2 leading-relaxed text-ink">
-          {project.features.map((feature) => (
-            <li key={feature}>{feature}</li>
-          ))}
-        </ul>
+        {project.features.length > 0 ? (
+          <>
+            <h3 className="section-label mt-8">Features</h3>
+            <ul className="diamond-list mt-3 space-y-2 leading-relaxed text-ink">
+              {project.features.map((feature) => (
+                <li key={feature}>{feature}</li>
+              ))}
+            </ul>
+          </>
+        ) : null}
 
-        <h3 className="section-label mt-8">Built with</h3>
-        <ul className="mt-3 flex flex-wrap gap-1.5">
-          {project.stack.map((tool) => (
-            <li key={tool} className="stack-chip">
-              {tool}
-            </li>
-          ))}
-        </ul>
+        {project.stack.length > 0 ? (
+          <>
+            <h3 className="section-label mt-8">Built with</h3>
+            <ul className="mt-3 flex flex-wrap gap-1.5">
+              {project.stack.map((tool) => (
+                <li key={tool} className="stack-chip">
+                  {tool}
+                </li>
+              ))}
+            </ul>
+          </>
+        ) : null}
 
         {project.link ? (
           <a href={project.link.href} target="_blank" rel="noreferrer" className="button-primary mt-9">

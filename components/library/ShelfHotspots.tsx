@@ -6,7 +6,8 @@ import { getSpineRects, type ReferenceRect } from "@/lib/library/shelfFraming";
 
 // A link over each titled book on the shelf, placed from the same framing as
 // the poster and the live scene, so a book can be chosen where it stands.
-// They are plain links: without JavaScript they open their books.
+// They are plain links: without JavaScript they open their books. Named (by
+// pointer, keyboard or the navbar), a book is labelled with a tag above it.
 
 function toPlacement(prefix: "l" | "p", rect: ReferenceRect): Record<string, string> {
   return {
@@ -32,6 +33,15 @@ export function ShelfHotspots() {
           >
             <span className="sr-only">
               Volume {book.numeral}: {book.title}, {book.subtitle}
+            </span>
+            <span aria-hidden="true" className="shelf-hotspot-tag">
+              <span className="eyebrow text-brass-ink">
+                Vol. {book.numeral} · {book.kind}
+              </span>
+              <span className="shelf-hotspot-title">{book.title}</span>
+              <span className="shelf-hotspot-action">
+                Open <span className="nudge-arrow">→</span>
+              </span>
             </span>
           </a>
         ))}

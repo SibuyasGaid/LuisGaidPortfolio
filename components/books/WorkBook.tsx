@@ -1,7 +1,7 @@
 import { ArchiveEntry } from "@/components/books/ArchiveEntry";
 import { ProjectCard } from "@/components/books/ProjectCard";
 import { ProjectDialogFallback } from "@/components/books/ProjectDialogFallback";
-import { PROJECT_CATEGORY_LABELS } from "@/content/portfolio";
+import { PROJECT_CATEGORY_LABELS, WORK_NOTE } from "@/content/portfolio";
 import { ARCHIVE_SHELVES, FEATURED_PROJECTS } from "@/lib/projects";
 
 // The monograph: full-width plates that alternate sides, then the archive in
@@ -11,6 +11,17 @@ export function WorkBook() {
   return (
     <div className="space-y-24">
       <section aria-labelledby="work-featured-title">
+        {/* Why the book holds fewer projects than I've built, and why most have no link. */}
+        <aside aria-labelledby="work-note-title" className="field-notes mb-14 max-w-[46rem]">
+          <h2 id="work-note-title" className="eyebrow text-[color:var(--book-accent)]">
+            {WORK_NOTE.title}
+          </h2>
+          <div className="mt-2.5 space-y-2 text-[0.97rem] leading-relaxed text-ink">
+            {WORK_NOTE.paragraphs.map((paragraph) => (
+              <p key={paragraph}>{paragraph}</p>
+            ))}
+          </div>
+        </aside>
         <h2 id="work-featured-title" className="section-label">
           Featured plates
         </h2>

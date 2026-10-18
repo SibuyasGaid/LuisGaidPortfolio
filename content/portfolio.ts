@@ -81,7 +81,7 @@ export interface IntroCopy {
 
 export type ProjectCategory = "automation" | "creator-tools" | "operations" | "engineering";
 
-export type ProjectBadgeKind = "production" | "prototype" | "competition" | "award" | "research";
+export type ProjectBadgeKind = "production" | "demo" | "prototype" | "team" | "competition" | "award" | "research";
 
 export interface ProjectBadge {
   readonly kind: ProjectBadgeKind;
@@ -94,10 +94,12 @@ export interface ProjectLink {
   readonly href: string;
 }
 
-/** Shown cropped to the plate's 16:10 frame. */
+/** Shown cropped to the plate's frame: 16:10 on small screens, taller beside the text on wide ones. */
 export interface ProjectIllustration {
   readonly src: string;
   readonly alt: string;
+  /** Which part of the picture the crop keeps (a CSS object-position); the middle if not given. */
+  readonly focus?: string;
 }
 
 export interface Project {
@@ -118,9 +120,17 @@ export interface Project {
   readonly isFeatured: boolean;
 }
 
+/** A short aside at the top of the Work book about what it can and can't show. */
+export interface WorkNote {
+  readonly title: string;
+  readonly paragraphs: readonly string[];
+}
+
 export interface Service {
   readonly id: string;
   readonly title: string;
+  /** Core services lead the Services book, each set out on its own card. */
+  readonly isCore: boolean;
   readonly summary: string;
   readonly deliverables: readonly string[];
   readonly tools: readonly string[];
@@ -263,7 +273,7 @@ export const BOOKS: readonly Book[] = [
     navLabel: "Services",
     subtitle: "What I build for clients",
     introduction:
-      "Most clients come to me with one slow, manual process. These are the four ways I usually fix it.",
+      "Most clients come to me because the software they have doesn't fit how they work. Usually the fix is custom software built around them, with AI inside it where it earns its keep. Here is everything I do, starting there.",
   },
   {
     id: "stack",
@@ -320,11 +330,87 @@ export const PROJECT_CATEGORY_LABELS: Record<ProjectCategory, string> = {
   engineering: "Engineering / Research",
 };
 
+/** Client projects under NDA, which the Work book counts but can't describe. */
+export const NDA_PROJECT_COUNT = 63;
+
+export const WORK_NOTE: WorkNote = {
+  title: "A note on what's here",
+  paragraphs: [
+    `These are the projects I can show. There are ${NDA_PROJECT_COUNT} more I can't, since they're under NDA.`,
+    "Client projects without a link were built for that client alone, so I can share what they do but not the build or dashboard itself.",
+  ],
+};
+
 const PRODUCTION_BADGE: ProjectBadge = { kind: "production", label: "Production" };
+const LIVE_DEMO_BADGE: ProjectBadge = { kind: "demo", label: "Live demo" };
 const PROTOTYPE_BADGE: ProjectBadge = { kind: "prototype", label: "Prototype" };
+const TEAM_BADGE: ProjectBadge = { kind: "team", label: "Team project" };
 const COMPETITION_BADGE: ProjectBadge = { kind: "competition", label: "Competition" };
 
 export const PROJECTS = [
+  {
+    id: "marketing-platform",
+    title: "Marketing Platform",
+    subtitle: "AI Content Studio for Brands",
+    category: "creator-tools",
+    badge: LIVE_DEMO_BADGE,
+    problem:
+      "Keeping several brands posting every week takes on-brand graphics, clips and videos, plus someone to sign off on each piece before it goes out.",
+    solution:
+      "One studio for a brand's whole content pipeline. It generates on-brand graphics and carousels, turns long recordings into ranked, ready-to-post clips, writes a week of posts in one run, and renders avatar videos that speak a script. Everything waits in an approval queue until someone signs it off, and every AI call's cost is tracked.",
+    features: [
+      "Brand images and carousels from each account's presets, with faces matched to reference photos",
+      "A week of Instagram and LinkedIn posts generated in one run",
+      "Recordings transcribed once, with the best segments ranked for clipping",
+      "Avatar videos that speak a script, in 9:16 for Reels, Shorts and Facebook",
+      "An approval queue: nothing publishes until it's approved, or sent back for edits",
+      "Each account's voice and visual identity steer everything made for it",
+      "A competitor watchlist checked every Monday, with a digest for admins",
+      "AI spend tracked by provider, task and run, with API alerts",
+    ],
+    stack: ["Next.js", "Anthropic API", "Gemini API", "HeyGen", "Vercel"],
+    illustration: {
+      src: "/projects/marketing-platform.webp",
+      alt: "The platform's approval queue: a week of scheduled posts, each waiting to be approved or sent back for edits.",
+      focus: "left top",
+    },
+    link: { kind: "website", href: "https://marketing-platform-ashy.vercel.app/" },
+    isFeatured: true,
+  },
+  {
+    id: "rena-malik-affiliates",
+    title: "Rena Malik Affiliate Platform",
+    subtitle: "Affiliate Program Portal",
+    category: "operations",
+    badge: PRODUCTION_BADGE,
+    problem: null,
+    solution: "The platform behind Dr. Rena Malik's affiliate program, running on its own domain at affiliates.renamalikmd.com.",
+    features: [],
+    stack: [],
+    illustration: null,
+    link: { kind: "website", href: "https://affiliates.renamalikmd.com/" },
+    isFeatured: true,
+  },
+  {
+    id: "iridel",
+    title: "Iridel",
+    subtitle: "Agency Website and Client Projects",
+    category: "automation",
+    badge: TEAM_BADGE,
+    problem: null,
+    solution:
+      "Worked with the team at Iridel, Inc. on iridel.com, and contributed to the agency's client projects: custom n8n automation workflows and AI frameworks, built into the client-facing apps their developers shipped.",
+    features: [
+      "Helped the Iridel team build iridel.com",
+      "Custom n8n automation workflows for the agency's clients",
+      "AI frameworks for client projects",
+      "Automations integrated into client-facing apps alongside the development team",
+    ],
+    stack: ["n8n"],
+    illustration: null,
+    link: { kind: "website", href: "https://iridel.com/" },
+    isFeatured: true,
+  },
   {
     id: "book-launch-pr-dashboard",
     title: "Launch Companion",
@@ -843,8 +929,43 @@ export type ProjectId = (typeof PROJECTS)[number]["id"];
 
 export const SERVICES: readonly Service[] = [
   {
+    id: "custom-software",
+    title: "Custom software and web apps",
+    isCore: true,
+    summary:
+      "When the software you can buy doesn't fit how your business runs, I build the one that does: dashboards, portals and full platforms shaped around your process, so your team stops working around its tools.",
+    deliverables: [
+      "Internal tools and dashboards your non-technical staff can run on their own",
+      "Client portals and customer-facing web apps in Next.js and React",
+      "Full platforms with accounts, roles, approval steps and admin views",
+      "Databases, sign-in and edge functions on Supabase",
+      "A proper app in place of the spreadsheets and copy-pasting your team has outgrown",
+      "Python and Streamlit tools for internal teams",
+      "Launch, hosting and support once it ships",
+    ],
+    tools: ["Next.js", "React", "TypeScript", "Tailwind CSS", "Supabase", "PostgreSQL", "Python", "Vercel"],
+    proofProjectIds: ["marketing-platform", "book-launch-pr-dashboard", "speakradar", "workflow-watcher"],
+  },
+  {
+    id: "ai-integration",
+    title: "AI integration",
+    isCore: true,
+    summary:
+      "AI built into the tools and processes you already run, not bolted on beside them. I connect models from Anthropic, OpenAI and Google to your data and your apps, for the jobs where they save real time: writing, scoring, sorting, searching and generating.",
+    deliverables: [
+      "AI features inside your own apps and dashboards",
+      "Content generated in your brand's voice: copy, images and avatar video",
+      "Leads, documents and content scored, sorted and summarized",
+      "Assistants and search grounded in your own documents and data",
+      "Human approval steps, and cost tracking on every AI call",
+    ],
+    tools: ["Anthropic API", "OpenAI API", "Gemini API", "LangChain", "Pinecone", "HeyGen", "Vapi"],
+    proofProjectIds: ["marketing-platform", "guest-radar", "content-review-automation", "aiva"],
+  },
+  {
     id: "ai-automation",
     title: "AI automation",
+    isCore: false,
     summary:
       "I find the manual work your team repeats every week and build the workflows that do it for them: follow-ups, data entry, research, reporting, and the hand-offs between tools that don't talk to each other.",
     deliverables: [
@@ -854,15 +975,12 @@ export const SERVICES: readonly Service[] = [
       "Post-launch support while your team settles in",
     ],
     tools: ["n8n", "Make", "Zapier", "Supabase", "OpenAI API", "Anthropic API", "Gemini API"],
-    proofProjectIds: [
-      "book-launch-pr-dashboard",
-      "sponsorship-lead-gen",
-      "content-review-automation",
-    ],
+    proofProjectIds: ["sponsorship-lead-gen", "supercast-subscriber-system", "iridel"],
   },
   {
     id: "voice-agents",
     title: "Voice and messaging agents",
+    isCore: false,
     summary:
       "Agents that pick up calls, handle routine questions, book time on your calendar, and follow up by text when your CRM flags a lead.",
     deliverables: [
@@ -877,6 +995,7 @@ export const SERVICES: readonly Service[] = [
   {
     id: "crm-systems",
     title: "CRM and GoHighLevel systems",
+    isCore: false,
     summary:
       "Pipelines and automations inside GoHighLevel or the CRM you already run, so leads get followed up on time and your ad audiences stay in sync with your real customer list.",
     deliverables: [
@@ -890,24 +1009,6 @@ export const SERVICES: readonly Service[] = [
       "ai-cold-sms-agent",
       "meta-ads-lookalike-sync",
       "meta-lead-ads-to-beehiiv",
-    ],
-  },
-  {
-    id: "web-apps",
-    title: "Fullstack web apps",
-    summary:
-      "Dashboards, internal tools, and client-facing apps built with Next.js, React, and Supabase. Designed for the people who use them every day, including the non-technical ones.",
-    deliverables: [
-      "Internal dashboards your non-technical staff can run on their own",
-      "Client-facing apps in Next.js and React",
-      "Supabase databases and edge functions",
-      "Python and Streamlit tools for internal teams",
-    ],
-    tools: ["Next.js", "React", "TypeScript", "Tailwind CSS", "Supabase", "Python", "Vercel"],
-    proofProjectIds: [
-      "book-launch-pr-dashboard",
-      "speakradar",
-      "multi-platform-posting",
     ],
   },
 ];

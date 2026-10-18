@@ -899,10 +899,67 @@
 
   /* ─── Book furniture ────────────────────────────────────────────────────── */
 
+  /* The way back to the shelf, above the book and lined up with its edge. */
+  .book-back-row {
+    width: min(100% - 1.5rem, 86rem);
+    margin: 0 auto 1rem;
+  }
+
+  @media (min-width: 64rem) {
+    .book-back-row {
+      width: min(100% - 7rem, 84rem);
+      margin-bottom: 1.25rem;
+    }
+  }
+
+  .book-back {
+    --focus-ring: var(--color-brass-light);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    min-height: 2.75rem;
+    padding: 0.5rem 1.15rem 0.5rem 0.95rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--color-parchment);
+    background-color: rgb(18 11 7 / 0.75);
+    border: 1px solid rgb(212 178 106 / 0.45);
+    border-radius: 999px;
+    box-shadow: 0 10px 24px -14px rgb(0 0 0 / 0.8);
+    transition:
+      border-color 250ms var(--ease-settle),
+      color 250ms var(--ease-settle),
+      opacity 400ms ease;
+  }
+
+  .book-back:hover {
+    color: #fff;
+    border-color: rgb(212 178 106 / 0.85);
+  }
+
+  /* It waits for the book to finish opening, then fades in beside it. */
+  html[data-page-turn] .book-back {
+    opacity: 0;
+    transition: none;
+  }
+
   /* An illustration printed under a book's opening lines, as wide as them. */
   .opener-plate {
     max-width: 34rem;
     margin-top: 3rem;
+  }
+
+  /* A core service in the field guide: an entry on a card of its own, edged
+     along the top in the book's accent. */
+  .service-core {
+    padding: 2rem 1.4rem 1.6rem;
+    border-top: 3px solid var(--book-accent);
+  }
+
+  @media (min-width: 40rem) {
+    .service-core {
+      padding: 2.4rem 2.2rem 2rem;
+    }
   }
 
   /* The field guide's boxed notes under each entry. */
@@ -1880,12 +1937,106 @@ html[data-at-library] [data-colophon] > svg {
   inset: -6px -10px;
 }
 
-/* Named on the poster (by pointer, keyboard or the navbar), the spine lights up as if lamplit. */
+/* Named on the poster (by pointer, keyboard or the navbar), the spine lights
+   up as if lamplit. In the live scene the book itself slides out instead. */
 .shelf-hotspot[data-previewed] {
-  background-color: rgb(255 226 170 / 0.16);
+  background-color: rgb(255 226 170 / 0.24);
   box-shadow:
-    0 0 0 1px rgb(236 215 162 / 0.85),
-    0 0 18px 4px rgb(212 178 106 / 0.45);
+    0 0 0 2px rgb(236 215 162 / 0.95),
+    0 0 28px 8px rgb(212 178 106 / 0.6);
+}
+
+html[data-shelf="scene"] .shelf-hotspot[data-previewed] {
+  background-color: transparent;
+  box-shadow: none;
+}
+
+/* The rest of the shelf dims around the named book, like a lamp turned on it:
+   a soft-edged shadow spread across the whole screen from the spine, which
+   only fades (its opacity), so nothing repaints as it comes and goes. */
+.shelf-hotspot::after {
+  content: "";
+  position: absolute;
+  inset: -0.5rem -0.75rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 0 56px 200vmax rgb(12 7 4 / 0.5);
+  opacity: 0;
+  transition: opacity 350ms var(--ease-settle);
+  pointer-events: none;
+}
+
+.shelf-hotspot[data-previewed]::after {
+  opacity: 1;
+}
+
+/* A label above the named book: which volume it is, and that it opens. */
+.shelf-hotspot-tag {
+  position: absolute;
+  bottom: calc(100% + 1.1rem);
+  left: 50%;
+  z-index: 1;
+  display: grid;
+  justify-items: center;
+  gap: 0.2rem;
+  width: max-content;
+  max-width: 13rem;
+  padding: 0.7rem 1rem 0.75rem;
+  text-align: center;
+  color: var(--color-ink);
+  background-color: var(--color-parchment-light);
+  border: 1px solid rgb(184 145 58 / 0.55);
+  border-radius: 0.6rem;
+  box-shadow: 0 18px 36px -16px rgb(0 0 0 / 0.85);
+  opacity: 0;
+  transform: translate(-50%, 0.4rem);
+  transition:
+    opacity 250ms var(--ease-settle),
+    transform 350ms var(--ease-settle);
+  pointer-events: none;
+}
+
+/* A small point under the label, toward the spine. */
+.shelf-hotspot-tag::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  width: 0.7rem;
+  height: 0.7rem;
+  background-color: var(--color-parchment-light);
+  border-right: 1px solid rgb(184 145 58 / 0.55);
+  border-bottom: 1px solid rgb(184 145 58 / 0.55);
+  transform: translate(-50%, -50%) rotate(45deg);
+}
+
+.shelf-hotspot[data-previewed] .shelf-hotspot-tag {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+.shelf-hotspot-title {
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  font-weight: 500;
+  line-height: 1.1;
+}
+
+.shelf-hotspot-action {
+  margin-top: 0.15rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--color-burgundy);
+}
+
+.shelf-hotspot[data-previewed] .nudge-arrow {
+  transform: translateX(3px);
+}
+
+/* Taking a book, the label and the dimming go with the rest of the page's chrome. */
+html:is([data-library-taking], [data-library-transit]) .shelf-hotspot[data-previewed] .shelf-hotspot-tag,
+html:is([data-library-taking], [data-library-transit]) .shelf-hotspot[data-previewed]::after {
+  opacity: 0;
 }
 
 /* ─── Moves between the shelf and the books ─────────────────────────────── */
