@@ -195,6 +195,11 @@ export const BOOK_TRANSIT_SHELF_DIM = 0.6;
 /** Gives up waiting for the next page after this long and carries on anyway. */
 export const BOOK_TRANSIT_ROUTE_TIMEOUT_MS = 2500;
 /**
+ * A move hurried (a click or Escape mid-move, or another book chosen) plays
+ * on this many times faster, rather than jumping to its end, so nothing snaps.
+ */
+export const MOVE_HURRY_TIME_SCALE = 4;
+/**
  * Set on <html> while a book arrives from the shelf already open, so its page
  * skips its own cover animation. Cleared on the next navigation.
  */

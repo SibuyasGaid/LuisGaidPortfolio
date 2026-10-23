@@ -1,6 +1,7 @@
 import type { BookId } from "@/content/portfolio";
 import {
   BOOK_TRANSIT_ROUTE_TIMEOUT_MS,
+  MOVE_HURRY_TIME_SCALE,
   PAGE_TURN_ATTRIBUTE,
   PAGE_TURN_EASES,
   PAGE_TURN_SHADE,
@@ -82,7 +83,6 @@ interface Player {
   hurry(): void;
 }
 
-const HURRIED_TIME_SCALE = 4;
 /** How long to look for a book's page once its address shows, in frames. */
 const PAGE_SEARCH_FRAMES = 90;
 /** The turned page fades over this many degrees as it goes off the screen's edge, on one page. */
@@ -338,7 +338,7 @@ function createPlayer(): Player {
       });
     },
     hurry() {
-      timeScale = HURRIED_TIME_SCALE;
+      timeScale = MOVE_HURRY_TIME_SCALE;
       current?.timeScale(timeScale);
     },
   };

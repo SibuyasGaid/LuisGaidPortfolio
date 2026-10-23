@@ -43,9 +43,15 @@ export const metadata: Metadata = {
   metadataBase: new URL(getSiteUrl()),
   title: { default: SITE.title, template: `%s | ${SITE.name}` },
   description: SITE.description,
+  // The shared picture itself is app/opengraph-image.jpg (and twitter-image.jpg), made by scripts/render-share-image.mjs.
   openGraph: {
     type: "website",
     siteName: SITE.name,
+    title: SITE.title,
+    description: SITE.description,
+  },
+  twitter: {
+    card: "summary_large_image",
     title: SITE.title,
     description: SITE.description,
   },
