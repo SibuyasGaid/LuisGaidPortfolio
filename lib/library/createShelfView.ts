@@ -4,6 +4,7 @@ import { TITLED_SPINE_GLOW, type TitledBook } from "@/lib/library/webgl/buildTit
 import type { LibraryScene } from "@/lib/library/webgl/createLibraryScene";
 import { TITLED_BOOK } from "@/lib/library/webgl/libraryLayout";
 import {
+  MOVE_HURRY_TIME_SCALE,
   SHELF_IDLE_AFTER_MS,
   SHELF_PARALLAX,
   SHELF_REST_AFTER_MS,
@@ -417,16 +418,7 @@ export function createShelfView(scene: LibraryScene, options: { readonly isMotio
       );
     },
     hurry() {
-      const timeline = take?.timeline;
-      if (!take || !timeline) return;
-      if (take.direction === "back") {
-        timeline.progress(1);
-        return;
-      }
-      const openTime = SHELF_TAKE_TIMINGS.openAt + SHELF_TAKE_TIMINGS.open * SHELF_TAKE_TIMINGS.navigateShare;
-      // Just past the moment the page loads, so that call still fires.
-      if (timeline.time() < openTime) timeline.time(openTime + 0.001, false);
-      timeline.timeScale(3);
+      take?.timeline?.timeScale(MOVE_HURRY_TIME_SCALE);
     },
     reset() {
       take?.timeline?.kill();

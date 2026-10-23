@@ -10,6 +10,7 @@ import {
   BOOK_TRANSIT_SPREAD_WIDTH_SHARE,
   BOOK_TRANSIT_TIMINGS,
   BOOK_TRANSIT_TIP_DEGREES,
+  MOVE_HURRY_TIME_SCALE,
 } from "@/lib/motion/config";
 import { gsap } from "@/lib/motion/gsap";
 import type { OpenSpread, ScreenBox, ShelfLayer } from "@/lib/shelf/openSpread";
@@ -28,7 +29,7 @@ import { playCue } from "@/lib/sound/sound";
 export interface TransitPlayback {
   /** Settles once the book lies open, or is back in its slot. */
   readonly finished: Promise<void>;
-  /** Hurries to the end: the book opens at once, or drops into its slot. */
+  /** Hurries on to the end: the book opens, or slides into its slot, at a few times the pace. */
   hurry(): void;
 }
 
@@ -317,7 +318,7 @@ export function takeBookOff(options: { readonly bookId: BookId; readonly slot: D
     finished,
     book: describeBook(parts),
     hurry() {
-      timeline.progress(1);
+      timeline.timeScale(MOVE_HURRY_TIME_SCALE);
     },
   };
 }
@@ -391,7 +392,7 @@ export function openBookToReturn(options: { readonly bookId: BookId; readonly sl
       return {
         finished,
         hurry() {
-          timeline.progress(1);
+          timeline.timeScale(MOVE_HURRY_TIME_SCALE);
         },
       };
     },

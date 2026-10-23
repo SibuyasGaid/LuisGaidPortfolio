@@ -128,12 +128,27 @@ export function createLibrarian(options: { readonly navigate: (href: string) => 
     hurryMove?.();
   }
 
+  /** While this book was still coming off the shelf, another one (or the shelf itself) was chosen. */
+  function hasChangedCourse(bookId: BookId): boolean {
+    return queuedMove !== null && queuedMove.bookId !== bookId;
+  }
+
   // The book's page loads under the library, which rises over the page it leaves, hidden until the page turn reaches it.
   function open(href: string): void {
     root.setAttribute(BOOK_ARRIVAL_ATTRIBUTE, href);
     root.setAttribute(PAGE_TURN_ATTRIBUTE, "hold");
     root.setAttribute(TRANSIT_ATTRIBUTE, "");
     options.navigate(href);
+  }
+
+  // To the shelf's own page, with the library already raised over the page being left.
+  async function goToShelf(href: string): Promise<void> {
+    root.setAttribute(TAKING_ATTRIBUTE, "");
+    root.removeAttribute(PAGE_TURN_ATTRIBUTE);
+    options.navigate(href);
+    await waitForPathname(href, BOOK_TRANSIT_ROUTE_TIMEOUT_MS);
+    root.removeAttribute(TRANSIT_ATTRIBUTE);
+    await settleShelf();
   }
 
   // Back on the shelf: the heading and shading rise into place again.
@@ -145,11 +160,18 @@ export function createLibrarian(options: { readonly navigate: (href: string) => 
     root.removeAttribute(SETTLING_ATTRIBUTE);
   }
 
-  async function takeInScene(library: Library, bookId: BookId, href: string): Promise<void> {
+  /** Takes a book off the shelf and turns into its page; or, if the course changed on the way, puts it straight back. Says which. */
+  async function takeInScene(library: Library, bookId: BookId, href: string): Promise<boolean> {
     const loading = loadMoves();
-    follow(() => library.view.hurry());
     library.view.start();
-    await library.view.take(bookId, () => open(href));
+    // Hurried only once the move exists to hurry.
+    const taking = library.view.take(bookId, () => open(href));
+    follow(() => library.view.hurry());
+    await taking;
+    if (hasChangedCourse(bookId)) {
+      await putBackInScene(library, bookId, false);
+      return false;
+    }
     const { pageTurn } = await loading;
     const turn = pageTurn.turnIntoPage({
       bookId,
@@ -167,18 +189,26 @@ export function createLibrarian(options: { readonly navigate: (href: string) => 
     });
     follow(turn.hurry);
     await turn.finished;
+    return true;
   }
 
-  async function takeOverPoster(bookId: BookId, href: string): Promise<void> {
+  /** As takeInScene, with the CSS book over the poster. */
+  async function takeOverPoster(bookId: BookId, href: string): Promise<boolean> {
     const { bookTransit, pageTurn } = await loadMoves();
     void readyShelfPoster();
     const take = bookTransit.takeBookOff({ bookId, slot: locateSlot(bookId), onOpen: () => open(href) });
     if (!take) {
       open(href);
-      return;
+      return true;
     }
     follow(take.hurry);
     await take.finished;
+    if (hasChangedCourse(bookId)) {
+      // The book that came off gives way to one that goes back from the same spot, open as it lies.
+      bookTransit.clearTransit();
+      await putBackOverPoster(bookId, false);
+      return false;
+    }
     const turn = pageTurn.turnIntoPage({
       bookId,
       pathname: href,
@@ -190,6 +220,7 @@ export function createLibrarian(options: { readonly navigate: (href: string) => 
     follow(turn.hurry);
     await turn.finished;
     bookTransit.clearTransit();
+    return true;
   }
 
   async function putBackInScene(library: Library, bookId: BookId, isOverPage: boolean): Promise<void> {
@@ -211,8 +242,9 @@ export function createLibrarian(options: { readonly navigate: (href: string) => 
       library.view.showOpen(bookId);
     }
     library.view.start();
+    const puttingBack = library.view.putBack();
     follow(() => library.view.hurry());
-    await library.view.putBack();
+    await puttingBack;
   }
 
   async function putBackOverPoster(bookId: BookId, isOverPage: boolean): Promise<void> {
@@ -255,9 +287,10 @@ export function createLibrarian(options: { readonly navigate: (href: string) => 
     if (root.hasAttribute(AT_LIBRARY_ATTRIBUTE)) getLoadedLibrary()?.view.reset();
   }
 
-  async function play(move: () => Promise<void>): Promise<void> {
+  /** Plays a move; one that follows a change of course starts out hurried. */
+  async function play(move: () => Promise<void>, isHurriedFromStart = false): Promise<void> {
     isMoving = true;
-    isHurried = false;
+    isHurried = isHurriedFromStart;
     const hurryOnEscape = (event: KeyboardEvent) => {
       if (event.key === "Escape") hurryAll();
     };
@@ -281,37 +314,48 @@ export function createLibrarian(options: { readonly navigate: (href: string) => 
       }
       const next = queuedMove;
       queuedMove = null;
-      if (next && !startMove(next) && next.href !== options.getPathname()) options.navigate(next.href);
+      if (next && !startMove(next, true) && next.href !== options.getPathname()) options.navigate(next.href);
     }
+  }
+
+  // A book comes off the shelf, opens and turns into its page. If another is
+  // chosen while it is still coming off, it goes straight back, unopened, and
+  // that one is taken instead (or, if it was the shelf, the shelf is shown).
+  async function takeFollowingChanges(bookId: BookId, href: string): Promise<void> {
+    let target: ShelfMove = { bookId, href };
+    while (target.bookId) {
+      showCaption(target.bookId);
+      const library = findScene();
+      const isInPage = library ? await takeInScene(library, target.bookId, target.href) : await takeOverPoster(target.bookId, target.href);
+      if (isInPage) return;
+      target = queuedMove ?? { bookId: null, href: "/" };
+      queuedMove = null;
+      // The book went back briskly; the next one comes out at its own pace.
+      isHurried = false;
+    }
+    await goToShelf(target.href);
   }
 
   // From the shelf: the book comes off it, opens, and turns into its page.
   async function takeFromShelf(bookId: BookId, href: string): Promise<void> {
-    showCaption(bookId);
     markPreviewedHotspot(null);
     root.setAttribute(TAKING_ATTRIBUTE, "");
-    const library = findScene();
-    if (library) await takeInScene(library, bookId, href);
-    else await takeOverPoster(bookId, href);
+    await takeFollowingChanges(bookId, href);
     root.removeAttribute(TAKING_ATTRIBUTE);
     showCaption(null);
   }
 
-  // From a book: it turns back into the open book and is put back, then the next one is taken or the shelf shown.
-  async function leaveBook(bookId: BookId, next: ShelfMove): Promise<void> {
+  // From a book: it turns back into the open book and is put back, then the
+  // next one is taken or the shelf shown. After a change of course (another
+  // book chosen while this one was still opening) the way back is hurried, and
+  // the next book comes out at its own pace.
+  async function leaveBook(bookId: BookId, next: ShelfMove, isChangeOfCourse: boolean): Promise<void> {
     const library = findScene();
     if (library) await putBackInScene(library, bookId, true);
     else await putBackOverPoster(bookId, true);
-    if (next.bookId) {
-      if (library) await takeInScene(library, next.bookId, next.href);
-      else await takeOverPoster(next.bookId, next.href);
-      return;
-    }
-    root.setAttribute(TAKING_ATTRIBUTE, "");
-    options.navigate(next.href);
-    await waitForPathname(next.href, BOOK_TRANSIT_ROUTE_TIMEOUT_MS);
-    root.removeAttribute(TRANSIT_ATTRIBUTE);
-    await settleShelf();
+    if (isChangeOfCourse) isHurried = false;
+    if (next.bookId) await takeFollowingChanges(next.bookId, next.href);
+    else await goToShelf(next.href);
   }
 
   // Back at the shelf by the browser's Back: the book is already off the page, open before the reader, and goes home.
@@ -324,7 +368,8 @@ export function createLibrarian(options: { readonly navigate: (href: string) => 
     await settleShelf();
   }
 
-  function startMove(move: ShelfMove): boolean {
+  /** Starts a move, if the library plays this one; a change of course hurries the way back from the book it left. */
+  function startMove(move: ShelfMove, isChangeOfCourse = false): boolean {
     const pathname = options.getPathname();
     const currentBook = findBookAt(pathname);
     previewedBook = null;
@@ -333,7 +378,7 @@ export function createLibrarian(options: { readonly navigate: (href: string) => 
       return true;
     }
     if (currentBook && currentBook !== move.bookId && (move.bookId || move.href === "/")) {
-      void play(() => leaveBook(currentBook, move));
+      void play(() => leaveBook(currentBook, move, isChangeOfCourse), isChangeOfCourse);
       return true;
     }
     return false;
