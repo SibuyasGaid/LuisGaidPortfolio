@@ -1,3 +1,5 @@
+// Holds the email API key, so a build fails if this is ever imported into browser code.
+import "server-only";
 import { CONTACT } from "@/content/portfolio";
 import type { ContactMessage } from "@/lib/contact/contactMessage";
 

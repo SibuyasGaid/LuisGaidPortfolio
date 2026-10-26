@@ -238,7 +238,10 @@ async function buildScene(renderer: WebGLRenderer, quality: RenderQuality, onPro
   let shelfPose = reference().pose;
   poseCamera(camera, { progress: 0, stride: 0, elapsed: 0 }, shelfPose);
   lightLamps(camera.position.x, camera.position.z);
-  await renderer.compileAsync(scene, camera);
+  // Compiling in the background needs KHR_parallel_shader_compile. Where the browser lacks it, three.js would
+  // compile in one go anyway, after a console warning that it's missing, so ask for it only where it's there.
+  if (renderer.extensions.has("KHR_parallel_shader_compile")) await renderer.compileAsync(scene, camera);
+  else renderer.compile(scene, camera);
   onProgress(0.9);
   await yieldToBrowser();
 

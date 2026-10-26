@@ -109,6 +109,8 @@ function handleGesture(event: Event): void {
     stopWaitingForGesture();
     return;
   }
+  // Not every press counts as a gesture (Escape doesn't, for one). Starting audio on one fails with a console warning, so wait for one that does.
+  if ("userActivation" in navigator && !navigator.userActivation.isActive) return;
   wakeAudio();
 }
 
