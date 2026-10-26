@@ -1,0 +1,5 @@
+# Found a security problem on this site? Please tell me privately first,
+# and I'll fix it and credit you if you'd like.
+Contact: mailto:charlesluisgaid@gmail.com
+Expires: 2027-10-01T00:00:00.000Z
+Preferred-Languages: en

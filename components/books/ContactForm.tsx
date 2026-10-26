@@ -11,10 +11,10 @@ import {
 } from "@/lib/contact/contactMessage";
 import { playCue } from "@/lib/sound/sound";
 
-type FormStatus = "idle" | "sending" | "sent" | "network-error" | "failed" | "unavailable";
+type FormStatus = "idle" | "sending" | "sent" | "network-error" | "failed" | "unavailable" | "limited";
 
 const FIELD_ORDER: readonly ContactField[] = ["name", "email", "message"];
-const RESPONSE_STATUSES = new Set(["sent", "invalid", "unavailable", "failed"]);
+const RESPONSE_STATUSES = new Set(["sent", "invalid", "unavailable", "limited", "failed"]);
 
 function subscribeToNothing(): () => void {
   return () => {};
@@ -144,7 +144,7 @@ export function ContactForm() {
               <input id="contact-website" name={HONEYPOT_FIELD_NAME} type="text" tabIndex={-1} autoComplete="off" />
             </div>
 
-            {status === "network-error" || status === "failed" || status === "unavailable" ? (
+            {status === "network-error" || status === "failed" || status === "unavailable" || status === "limited" ? (
               <SubmissionProblem status={status} onRetry={() => formRef.current?.requestSubmit()} />
             ) : null}
 
@@ -202,7 +202,7 @@ function TextField({ name, label, type = "text", autoComplete, isMultiline = fal
 }
 
 interface SubmissionProblemProps {
-  readonly status: "network-error" | "failed" | "unavailable";
+  readonly status: "network-error" | "failed" | "unavailable" | "limited";
   readonly onRetry: () => void;
 }
 
@@ -212,13 +212,17 @@ function SubmissionProblem({ status, onRetry }: SubmissionProblemProps) {
       {CONTACT.email}
     </a>
   );
-  const isRetryable = status !== "unavailable";
+  // Trying again straight away can't help when the form isn't connected or has had enough notes for now.
+  const isRetryable = status !== "unavailable" && status !== "limited";
 
   return (
     <div role="alert" className="rounded-xl border border-burgundy/30 bg-burgundy/[0.05] px-4 py-3 text-[0.95rem] text-ink">
       {status === "network-error" ? <p>I couldn&apos;t reach the server. Check your connection and try again.</p> : null}
       {status === "failed" ? <p>Your note didn&apos;t send. Try again, or email me at {emailLink}.</p> : null}
       {status === "unavailable" ? <p>The form isn&apos;t connected yet. Please email me at {emailLink}.</p> : null}
+      {status === "limited" ? (
+        <p>That&apos;s a few notes in a row, so the form is taking a short break. Try again in a few minutes, or email me at {emailLink}.</p>
+      ) : null}
       {isRetryable ? (
         <button type="button" onClick={onRetry} className="ink-link mt-2 text-sm font-semibold">
           Try again

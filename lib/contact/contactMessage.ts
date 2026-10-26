@@ -12,6 +12,7 @@ export type ContactResponse =
   | { readonly status: "sent" }
   | { readonly status: "invalid"; readonly errors: ContactFieldErrors }
   | { readonly status: "unavailable" }
+  | { readonly status: "limited" }
   | { readonly status: "failed" };
 
 type ContactValidation =
